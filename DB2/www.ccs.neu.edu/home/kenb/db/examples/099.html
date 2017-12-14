@@ -1,0 +1,26 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/099.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+Simple example of a query using an enumeration.
+<p>
+<pre>
+create table Evaluation(
+  id int primary key,
+  evaluator varchar(200) not null,
+  evaluation enum('poor', 'average', 'good', 'excellent') not null
+);
+insert into Evaluation values
+  (1, 'Fred', 'good'),
+  (2, 'George', 'average'),
+  (3, 'Mary', 'excellent');
+select e.evaluation+0
+  from Evaluation e;
+</pre>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/099.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+</html>

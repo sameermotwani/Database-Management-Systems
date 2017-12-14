@@ -1,0 +1,95 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/041.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+This is a solution to a <a href="115.html">sample exercise</a>.
+<p>
+<ol>
+<li>Relation has attributes ICNT.  The FD is N&rarr;CT.<br>
+First find the keys.  Using the technique in <a href="039.html">Candidate Keys</a>,
+the attribute sets are:
+ <ol>
+ <li>I
+ <li>CT
+ <li>N
+ </ol>
+The core is IN.  The core determines CT, so it is a key and the only key.
+<p>
+The FD is not a key constraint so the relation is not BCNF.
+The attributes CT are not in a key so the relation is not 3NF.
+<p>
+Applying the BCNF algorithm, decompose into IN and CNT.  The FD is satisfied by
+the CNT relation.  So the decomposition is in BCNF.  The primary keys are IN and N, respectively.
+<p>
+<li>Relation has attributes WHOSE.  The FDs are WH&rarr;S, HOS&rarr;E.<br>
+First find the keys.
+ <ol>
+ <li>empty
+ <li>E
+ <li>WHO
+ </ol>
+The core is WHO.  It determines S, and WHOS determines E, so WHO is a key and the only key.
+<p>
+The FDs are not key constraints so the relation is not BCNF.
+The attributes S and E are not in a key, so the relation is not 3NF.
+<p>
+Applying the BCNF algorithm to WH&rarr;S produces WHOE and WHS which do not include HOS&rarr;E.
+Applying the BCNF algorithm to HOS&rarr;E produces WHOS and HOSE. The first relation includes WH&rarr;S.
+Applying the BCNF algorithm recursively to WHOS WH&rarr;S produces WHO and WHS.  The result
+is a decomposition into WHO, WHS and HOSE with primary keys WHO, WH and HOS, respectively.
+<p>
+<li>Relation has attributes ABCDEFG.  The FDs are AB&rarr;F, AD&rarr;E, F&rarr;G.<br>
+First find the keys.
+ <ol>
+ <li>C
+ <li>EG
+ <li>ABD
+ </ol>
+The core is ABCD.  The core determines all attributes so it is a key and the only key.
+<p>
+The FDs are not key constraints so the relation is not BCNF.
+The attributes EFG are not in the key, so the relation is not 3NF.
+<p>
+Applying the BCNF algorithm to AB&rarr;F produces ABCDEG and ABF which do not include F&rarr;G.
+Applying the BCNF algorithm to AD&rarr;E produces ABCDFG and ADE which do not include F&rarr;G.
+Applying the BCNF algorithm to F&rarr;G produces ABCDEF and FG which includes all FDs.
+Applying the BCNF algorithm recursively to ABCDEF AB&rarr;F produces ABCDE and ABF.
+Applying the BCNF algorithm recursively to ABCDE AD&rarr;E produces ABCD and ADE.
+The decomposition consists of ABCD, ADE, ABF and FG.  The primary keys are ABCD, AD, AB and F,
+respectively.
+<p>
+<li>ABC&rarr;D, D&rarr;A<br>
+ <ol>
+ <li>empty
+ <li>empty
+ <li>BC
+ <li>AD
+ </ol>
+The core is BC.  BC does not determine any other attribute.
+The exterior attributes are AD.  ABC determines D so it is a key.
+BCD determines A so it is also a key.  The only other case
+is ABCD but this contains ABC (and also BCD) so it is a superkey and not a key.
+So the keys are ABC and BCD.
+<p>
+The first FD is a key constraint, but the other is not, so the relation is not BCNF.
+The first FD is a key constraint and the attribute A is in a key, so the relation is 3NF.
+<p>
+The first FD is a key constraint, so only the second must be considered.
+Applying the BCNF algorithm to D&rarr;A produces BCD and AD which do not include ABC&rarr;D.
+Therefore the BCNF algorithm does not succeed.
+<p>
+The relation is 3NF so it is not necessary to apply the 3NF algorithm.
+However, here is what happens if one applies this algorithm.
+To apply the 3NF algorithm we must find a minimal cover.  Both FDs have single attributes
+for their right-hand sides.  The left-hand sides are minimal, and neither one can be dropped.
+So the two FDs are a minimal cover.  The decomposition is ABCD and AD.  The first relation
+includes a key, so no additional relations must be added.  The primary keys are ABC and D,
+respectively.
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/041.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+</html>

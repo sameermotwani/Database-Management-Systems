@@ -1,0 +1,138 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/043.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:48 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+<ol>
+<li>(14 points) 
+In an appointment calendar there are periodic events but there can
+be exceptions (e.g., an event that occurs every month except for December 2010).
+Design a data model in UML for events. Some events are periodic. Events
+have descriptions and periodic events have a period. Assume you have a
+type Duration for a period of time. A periodic event can have exceptions.
+An exception has a date and may have a reason.
+<p>
+<img height="250" src="images/225.gif" alt="Event Model"/>
+<p>
+Elements in the UML diagram:
+<ol>
+<li>Event class
+<li>description attribute of Event
+<li>Periodic Event class
+<li>period attribute of Periodic Event
+<li>period has type Duration
+<li>Exception class
+<li>date attribute of Exception class
+<li>date has type Date
+<li>reason attribute of Exception class
+<li>reason attribute has multiplicity [0..1]
+<li>Periodic Event is subclass of Event
+<li>Association between Periodic Event and Exception
+<li>Cardinality constraint of Periodic Event end is 1..1
+<li>Cardinality constraint of Exception end is 0..*
+</ol>
+<p>
+<li>(18 points)
+Here is a data model written in UML:
+<p>
+<img src="images/226.jpg" alt="Security Domain Model"/>
+<p>
+Translate this data model to SQL.
+<pre>
+create table SecurityDomain (
+  id int primary key,
+  name varchar(255) not null unique
+);
+create table DomainOwner (
+  domain int,
+  foreign key(domain) references SecurityDomain(id) on update cascade on delete cascade,
+  owner varchar(255),
+  primary key(domain, owner)
+);
+create table Resource (
+  id int primary key,
+  name varchar(255) not null,
+  belongsTo int,
+  foreign key(belongsTo) references SecurityDomain(id) on update cascade on delete set null
+);
+</pre>
+<p>
+<li>Here is an SQL schema:
+<pre>
+create table Person (
+  id int primary key,
+  name varchar(100)
+);
+create table Instrument (
+  id int primary key,
+  name varchar(100) not null unique
+);
+create table plays (
+  person int,
+  foreign key(person) references Person(id) on update cascade on delete cascade,
+  instrument int,
+  foreign key(instrument) references Instrument(id) on update cascade on delete cascade,
+  primary key(person, instrument)
+);
+create table playsSong (
+  person int,
+  instrument int,
+  foreign key(person, instrument) references plays(person, instrument) on update cascade on delete cascade,
+  song varchar(200),
+  primary key (person, instrument, song)
+);
+</pre>
+Write the following queries in SQL:
+<ol>
+<li>(10 points) Find the persons by name who play 'Quiet City' on a trumpet.
+<p>
+There are several variations on this query depending on the simplifications
+one applies. The one with all of the tables is the following:
+<pre>
+select p.name
+  from Person p, Instrument i, plays y, playsSong s
+ where p.id = y.person
+   and i.id = y.instrument
+   and y.person = s.person
+   and y.instrument = s.instrument
+   and s.song = 'Quiet City'
+   and i.name = 'trumpet'
+</pre>
+<p>
+Note that there are 4 join conditions even though there are 4 tables.
+The reason why there are 4 is that one of the foreign key constraints
+involves two columns.
+<p>
+If one uses the foreign key constraint of playsSong to eliminate
+the plays table one has this query:
+<pre>
+select p.name
+  from Person p, Instrument i, playsSong s
+ where p.id = s.person
+   and i.id = s.instrument
+   and s.song = 'Quiet City'
+   and i.name = 'trumpet'
+</pre>
+<p>
+<li>(18 points) Find the instruments that are never used for the song named 'Moldau'.
+<pre>
+select i.id
+  from Instrument i
+ where not exists (
+         select *
+           from playsSong s
+          where s.song = 'Moldau'
+            and i.id = s.instrument
+       )
+</pre>
+</ol>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/043.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:49 GMT -->
+</html>

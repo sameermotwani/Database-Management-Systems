@@ -1,0 +1,116 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/101.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head>
+<body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+<ol>
+<li><b>Transaction Isolation Level</b>. (8 points)
+You wish to determine the current total sales for the stores in a large chain of stores.
+What isolation level should be used? 
+<p>
+Explain the reasons for your choice compared with
+the other isolation levels.
+<p>
+<li><b>Serializability</b>. (8 points)
+Three transactions are running concurrently on a database system.
+They perform the following actions:
+<p><tt>
+ T<sub>3</sub>:W(Z), T<sub>2</sub>:R(X), T<sub>2</sub>:W(Y), T<sub>2</sub>:Commit, 
+ T<sub>1</sub>:R(Z), T<sub>3</sub>:W(Y), T<sub>3</sub>:Commit, 
+ T<sub>1</sub>:W(Y), T<sub>1</sub>:Commit
+</tt>
+<p>
+Determine whether this schedule belongs to each of these classes:
+ serializable, conflict-serializable, view-serializable and strict.
+Explain why or why not in each case.
+<p>
+<li><b>Cost of Index Operations</b>. (12 points)
+The following table contains author names from 2,000,000 research papers:
+<pre>
+ create table Researcher(title varchar(250), author varchar(250), 
+                         primary key(title, author), index(author));
+</pre>
+The average length of a title is 90 bytes, the average length of an author is 30 bytes.
+The average overhead for each record is 10 bytes. A disk block is 8,192 bytes. A random I/O takes 12ms, and
+the time to read one block sequentially is 0.1ms.
+On average, each research paper has 10 authors. How many disk blocks are required for
+this table? Show your work. 
+<p>
+Consider both the B-tree file structure and the heap structure. The author
+"Albert Finney" occurs in 700 research papers. Is it faster to use the index to find the titles of
+these papers or to scan the whole table sequentially? Compute the time required
+for each of these and compare them. 
+<p>
+<li><b>Query Optimization</b>. (12 points)
+A database has stores and merchandise. Here is the schema:
+<pre>
+ create table Store(
+   name varchar(100) primary key, 
+   location varchar(20) not null, 
+   index(location));
+ create table Merchandise(
+   id int primary key, 
+   description varchar(600) not null, 
+   index(description),
+   availableAt varchar(100),
+   foreign key(availableAt) references Store(name) on update cascade on delete set null
+);
+</pre>
+There are 500,000 items of merchandise and 10,000 stores in the database. The average size of a
+store record is 50 bytes and the average size of a merchandise record is 100 bytes. Both of these
+include the overhead. All indexes are B-trees.
+There are 500 locations. You want to find all merchandise items sold in the location "Boston".
+Consider the following query evaluation plans:
+ <ol>
+ <li>Select Boston stores, and then join with Merchandise using an index nested loop join.
+<p>
+ <li>Select Boston stores, and then join with Merchandise using a sort-merge join.
+<p>
+ <li>Join Merchandise with Store using an index nested loop and then select the merchandise in Boston stores.
+ </ol>
+Use the random and sequential I/O times specified in the previous problem.
+Discuss the performance of the 3 plans using approximate estimates. Which one is the best?
+<p>
+<li><b>Physical Database Design</b>. (8 points)
+The following is the database design for a film production company. 
+An actor is a person, but a person need not be an actor:
+<pre>
+ create table Person(id int primary key, 
+   name varchar(200) not null, position varchar(200));
+ create table Actor(id int primary key references Person(id)
+     on update cascade on delete cascade,
+   biography varchar(65000));
+</pre>
+In the physical database design we consider whether to denormalize the schema
+with a single table as follows:
+ <pre>
+ create table Person(id int primary key, 
+   name varchar(200) not null, position varchar(200),
+   isActor boolean not null, biography varchar(65000));
+</pre>
+Give at least two advantages of each design relative to the other, i.e., four advantages
+in all: two in each direction. Be sure to clearly label which one is which. 
+<p>
+<li><b>Normalization</b>. (12 points)
+Normalize the relation ABCDEFG when it satisfies the following functional dependencies:
+ <ul>
+ <li>E&rarr;G
+ <li>AC&rarr;D
+ <li>FG&rarr;E
+ <li>AFG&rarr;B
+ </ul>
+Show the list of all candidate keys of the relation.
+<p>
+Decompose into BCNF if possible.
+<p>
+If not, then decompose into 3NF.  Show your work.
+In your normalization show the attributes in each relation and the primary
+key of each relation in the decomposition.
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/101.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>

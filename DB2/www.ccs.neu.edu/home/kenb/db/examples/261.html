@@ -1,0 +1,106 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/261.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+For the following SQL schema:
+<p> 
+<pre>
+create table Building (
+  id int primary key,
+  address varchar(750) not null unique,
+  photo mediumblob
+) engine=InnoDB;
+
+create table Apartment (
+  id int primary key,
+  number varchar(31) not null,
+  building int not null references Building(id)
+    on update cascade on delete cascade,
+  photo mediumblob,
+  rent double,
+  unique(number, building)
+) engine=InnoDB;
+
+create table Room (
+  id int primary key,
+  area double not null,
+  type varchar(50),
+  apartment int not null references Apartment(id)
+    on update cascade on delete cascade,
+  photo mediumblob
+) engine=InnoDB;
+  
+create table Person (
+  id int primary key,
+  name varchar(5000) not null,
+  email varchar(100) not null unique
+) engine=InnoDB;
+
+create table Owner (
+  person int references Person(id)
+    on update cascade on delete cascade,
+  apartment int references Apartment(id)
+    on update cascade on delete cascade,
+  primary key(person, apartment)
+) engine=InnoDB;
+</pre>
+<p>
+<ol>
+<li>Grant the person at email address 'Fred@mail.com' access to the apartment (and room) information
+for the apartments that he owns. His username is 'Fred'.
+<p>
+<font color="blue">
+<pre>
+create view FredView(aptid, number, building, aptphoto, rent,
+                     roomid, area, type, roomphoto) as
+select a.id, a.number, a.building, a.photo, a.rent, 
+       r.id, r.area, r.type, r.photo
+  from Apartment a, Room r, Owner o, Person p
+ where r.apartment = a.id
+   and a.id = o.apartment
+   and o.person = p.id
+   and p.email = 'Fred@mail.com';
+grant select on FredView to 'Fred@mail.com';
+</pre>
+</font>
+<li>Grant the "super" the right to modify all the data associated with the building at "100 Main Street".
+<p>
+<font color="blue">
+<pre>
+create view SuperApt as
+select a.id, a.number, a.building, a.photo, a.rent
+  from Apartment a, Building b
+ where a.building = b.id
+   and b.id = '100 Main Street';
+
+create view SuperRoom as
+select r.id, r.area, r.type, r.photo
+  from Room r, Apartment a, Building b
+ where r.apartment = a.id
+   and a.building = b.id
+   and b.address = '100 Main Street';
+
+create view SuperOwner as
+select o.person, o.apartment
+  from Owner o, Apartment a, Building b
+ where o.apartment = a.id
+   and a.building = b.id
+   and b.id = '100 Main Street';
+
+grant update on SuperApt to 'super';
+grant update on SuperRoom to 'super';
+grant insert, delete on SuperOwner to 'super';
+
+</pre>
+</font>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/261.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>

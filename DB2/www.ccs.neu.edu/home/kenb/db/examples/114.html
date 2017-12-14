@@ -1,0 +1,72 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/114.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+Using the <a href="090.html">Composer Database</a>,
+express the following queries in relational algebra,
+<ol>
+<li>Find all distinct names of instruments in the key of C in descending alphabetical order.
+<p>
+<pre>
+select i.name
+  from Instrument i
+ where i.musicalKey = "C"
+ order by i.name desc;
+</pre>
+<p>
+<font size="+3">&pi;</font><sub>i.name</sub><font size="+3">&psi;</font><sub>i.name desc</sub><font size="+3">&sigma;</font><sub>musicalKey='C'</sub> Instrument
+</p>
+<li>Find all compositions and their composers (both by name) that use an instrument whose name begins with "o"
+<p>
+<pre>
+select c.name, p.name
+  from Composition c, Person p, usesInstrument u, Instrument i
+ where c.composedBy = p.id
+   and u.instrument = i.id
+   and u.composition = c.name
+   and i.name like 'o%';
+</pre>
+<p>
+<font size="+3">&pi;</font><sub>c.name,p.name</sub><font size="+3">&sigma;</font><sub>i.name like 'o%'</sub>(Person p <font size="+3">&bowtie;</font><sub>p.id=c.composedBy</sub> Composition c <font size="+3">&bowtie;</font><sub>c.name=u.composition</sub> usesInstrument u <font size="+3">&bowtie;</font><sub>u.instrument=i.id</sub> Instrument i)
+<p>
+<li>Find all compositions by name that were not composed by a person who was born in the 20th century.
+<pre>
+select c.name
+  from Composition c
+ where not exists (
+         select *
+           from Person p
+          where c.composedBy = p.id
+            and p.dob >= '1900-01-01'
+            and p.dob < '2000-01-01'
+       );
+</pre>
+<p>
+<font size="+3">&pi;</font><sub>c.name</sub> Composition c <font size="+3">&triangleright;</font><sub>c.composedBy=p.id</sub><font size="+3">&sigma;</font><sub>P</sub> Person p
+<p>
+or
+<pre>
+select c.name
+  from Composition c
+ where c.composedBy is null
+union
+select c.name
+  from Composition c, Person p
+ where c.composedBy = p.id
+   and (p.dob < '1900-01-01' or p.dob >= '2000-01-01');
+</pre>
+<p>
+<font size="+3">&sigma;</font><sub>c.composedBy is null</sub> Composition c <font size="+3">&cup;</font> <font size="+3">&pi;</font><sub>c.name</sub><font size="+3">&sigma;</font><sub>P</sub>(Composition c <font size="+3">&bowtie;</font><sub>c.composedBy=p.id</sub> Person p)
+<p>
+where P is the condition p.dob < '1900-01-01' or p.dob >= '2000-01-01'
+<p>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/114.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+</html>

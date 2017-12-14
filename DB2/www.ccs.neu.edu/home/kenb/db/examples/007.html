@@ -1,0 +1,53 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/007.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2009 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+We have a database of customer purchases:
+<pre>
+create table Customer (
+  id int primary key,
+  name varchar(255) not null,
+  street varchar(255) not null,
+  city varchar(255) not null,
+  state char(2),
+  dob Date
+);
+create table Purchase (
+  id int primary key,
+  customer int not null,
+  foreign key(customer) references Customer(id) on update cascade on delete no action,
+  item varchar(255) not null,
+  price double not null,
+  count int not null default 1,
+  cost double not null,
+  time DateTime
+);
+</pre>
+<p>
+The following are the most frequent queries and updates (with relative frequencies in parentheses):
+<ol>
+<li>Insert a new purchase by a customer given the customer id and purchase data. (1000)
+<li>Find customer information (id, name, dob, number of purchases) given the customer address (street, city, state). (500)
+<li>List all customers (name and dob) ordered by dob and name. (10)
+<li>Compute the average amount spent by all customers in one state. (10)
+<li>List purchase information (id, item, price, count, cost, time) for a specified customer (given the id). (200)
+</ol>
+<p>
+The problem is physical database design. In other words, you must determine the
+collection of indexes that your database system will be maintaining.
+Give suggestions about which indexes to include in your design. For each suggested index
+explain why this would be a good choice using the rules of thumb discussed
+in class. Be sure to address any trade-offs that might arise.
+<p>
+Just to make this assignment clear, this is not a query-by-query problem. 
+Your objective is to propose a single design that
+supports all of the queries. In doing so, you must discuss alternatives,  
+but the ultimate objective is to select a single design.
+<p>&#169; 2009 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/007.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>
+

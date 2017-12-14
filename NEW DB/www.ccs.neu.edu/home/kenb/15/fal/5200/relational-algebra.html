@@ -1,0 +1,33 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/relational-algebra.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:10 GMT -->
+<body>
+<center><h3>Relational Algebra Symbols</h3></center>
+<p>
+The following are the symbols for the relational algebra operators:
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Operator<th>Symbol<th>HTML<th>Unicode<th>Description<th>Additional information required<th>Magnification
+<tr><td>Projection<td align="center">&pi;<td>&amp;pi;<td>&amp;#x03c0;<td>Select some of the columns of a bag<td>The columns to be selected
+<tr><td>Extension<td align="center">&xi;<td>&amp;xi;<td>&amp;#x03c0;<td>Add an additional column to a bag<td>The formula for computing the additional column and the new column name
+<tr><td>Selection<td align="center">&sigma;<td>&amp;sigma;<td>&amp;#x03c3;<td>Select some of the rows of a bag<td>The condition (predicate) for selecting rows
+<tr><td>Rename<td align="center">&rho;<td>&amp;rho;<td>&amp;#x03c1;<td>Change the name of a column<td>The old and new names
+<tr><td>Product<td align="center"><font size="+3">&times;</font><td>&amp;times;<td>&amp;#x0215;<td>Cartesian product of two bags<td><td>+3
+<tr><td>Join<td align="center"><font size="+2">&#x2a1d;</font><td><td>&amp;#x2a1d;<td>Join of two bags<td rowspan="6">The join condition<td>+2
+<tr><td>Left Join<td align="center"><font size="+4">&#x27d5;</font><td><td>&amp;#x27d5;<td>Left outer join of two bags<td>+4
+<tr><td>Right Join<td align="center"><font size="+4">&#x27d6;</font><td><td>&amp;#x27d6;<td>Right outer join of two bags<td>+4
+<tr><td>Full Outer Join<td align="center"><font size="+4">&#x27d7;</font><td><td>&amp;#x27d7;<td>Full outer join of two bags<td>+4
+<tr><td>Semijoin<td align="center"><font size="+3">&#x22c9;</font><td><td>&amp;#x22c9;<td>Subquery with exists or "in"<td>+3
+<tr><td>Antijoin<td align="center"><font size="+1">&#x25b7;</font><td><td>&amp;#x25b7;<td>Subquery with not exists or "not in"<td>+1
+<tr><td>Union<td align="center"><font size="+1">&cup;</font><td>&amp;cup;<td>&amp;#x222a;<td>The rows in each of the bags<td><td>+1
+<tr><td>Intersection<td align="center"><font size="+1">&cap;</font><td>&amp;cap;<td>&amp;#x2229;<td>The rows that are in both of the bags<td><td>+1
+<tr><td>Difference<td align="center"><font size="+1">&ndash;</font><td>&amp;ndash;<td>&amp;#x2013;<td>The rows that are in the first bag but not in the second<td><td>+1
+<tr><td>Partition<td align="center">&psi;<td>&amp;psi;<td>&amp;#x03c8;<td>Group by, distinct, order by<td>The columns to be used for partitioning
+</table>
+<p>
+In Firefox, I found that I had to magnify some of the symbols to make them readable.  The magnification I used is shown in the last column above.
+For example, the unmagnified full outer join is &#x27d7; but if you write &lt;font size='+4'&gt;&amp;#x27d7;&lt;/font&gt; then it looks like this: <font size="+4">&#x27d7;</font>.  The required magnifications are different for IE and google-chrome.
+<p>
+</body>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/relational-algebra.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:10 GMT -->
+</html>
+

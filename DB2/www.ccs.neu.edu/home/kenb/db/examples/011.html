@@ -1,0 +1,55 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/011.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2009 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+Exercise 16.7
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Isolation Level<th>Reason
+<tr><td>Read Committed Read Write<td>A record is inserted into the Enrolled table.  No reading is performed
+(except in the index) so dirty reads are not an issue.  The index will
+automatically prevent inserting two records with the same primary key, and that is the only phantom that
+could be a problem.
+The exclusive lock on the inserted record is held until commit.
+<tr><td>Read Committed Read Write<td>A record is deleted from the Enrolled table and another is inserted.
+The deleted record requires an exclusive lock which is held until commit.  The inserted record will also
+have an exclusive lock that is held until commit.  
+<tr><td>Serializable Read Write<td>Computing the class with the least number of students would be affected by
+phantoms, so one must have phantom protection.  Only the Serializable level will give this.
+<tr><td>Read Uncommitted Read Only<td>There are two answers for this question.  If it is required that the
+exact number of students in each class be known at a specific time, then one must use the Serializable level
+to prevent phantoms.
+However, it is unlikely that this would be useful since the number of students in each class is constantly
+changing.  Accordingly, it is enough to give an approximate answer, and Read Uncommitted will give it.
+</table>
+<p>
+Exercise 16.8
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Isolation Level<th>Reason
+<tr><td>Read Committed Read Write<td>A record is inserted into the Parts table.  No reading is performed
+(except in the index) so dirty reads are not an issue.  The index will
+automatically prevent inserting two records with the same primary key, and that is the only phantom that
+could be a problem.
+The exclusive lock on the inserted record is held until commit.
+<tr><td>Read Committed Read Write<td>One record in the Catalog table is updated.  The old value is read
+and its value cannot be dirty (uncommitted).  Phantoms are not an issue.
+However, if the update is performed by first acquiring a shared lock and then upgrading it to an exclusive lock, then Repeatable Read is necessary.  Since one cannot know exactly
+what a database system is going to do, it is safest to use Repeatable Read, but
+Read Committed should, in principle, be enough.
+<tr><td>Read Uncommitted Read Only<td>There are two answers for this question.  If it is required that the
+exact number of items at a specific time be computed, then one must use the Serializable level
+to prevent phantoms.
+However, it is unlikely that this would be useful since the number of items is constantly
+changing.  Accordingly, it is enough to give an approximate answer, and Read Uncommitted will give it.
+<tr><td>Serializable Read Only<td>Although this is a read only query, it is very sensitive to phantoms
+and dirty reads.  Unlike the total number query, there is no concept of "approximate answer" for this
+query.
+</table>
+<p>&#169; 2009 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/011.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

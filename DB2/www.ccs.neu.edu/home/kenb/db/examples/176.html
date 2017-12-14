@@ -1,0 +1,45 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/176.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+This is a solution to a <a href="177.html">sample exercise</a>.
+<p>
+ <ol>
+ <li>Find all bands by name that have style "indie pop".
+<pre>
+select b.name
+  from Band b
+ where b.style = 'indie pop';
+</pre>
+<img src="images/253.gif"/>
+ <li>Find all musicians who play a 10-string instrument 
+along with their names.  Do not eliminate duplicates.
+<pre>
+select m.id, m.name
+  from Person m, plays p, Instrument i, StringInstrument si
+ where p.person = m.id
+   and p.instrument = i.id
+   and i.id = si.id
+   and si.numberOfStrings = 10;
+</pre>
+<img src="images/254.gif"/>
+ <li>Find all band names of bands that have a musician that plays 
+both a string instrument and a percussion instrument. Do not eliminate duplicates.
+<pre>
+select b.name
+  from Band b, plays p, StringInstrument si, PercussionInstrument pi, memberOf m
+ where b.id = m.band
+   and p.person = m.person
+   and p.instrument = si.id
+   and p.instrument = pi.id
+</pre>
+<img src="images/255.gif"/>
+ </ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/176.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:31 GMT -->
+</html>
+

@@ -1,0 +1,152 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/017.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:03 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+<pre>
+create table Expedition (
+  id int primary key,
+  name varchar(500) unique
+);
+
+create table Material (
+  id int primary key,
+  name varchar(500) not null unique,
+  weight double not null
+);
+
+create table Requirement (
+  requires int references Material(id) on update cascade on delete cascade,
+  requiredBy int references Expedition(id) on update cascade on delete cascade,
+  quantity int not null default 1,
+  recommendation enum ('Mandatory', 'Recommended', 'Optional') not null,
+  primary key(requiredBy, requires)
+);
+
+create table Country (
+  id int primary key
+);
+
+create table CountryName (
+  country int references Country(id) on update cascade on delete cascade,
+  name varchar(500),
+  primary key(country, name)
+);
+
+create table City (
+  id int primary key,
+  name varchar(500) not null,
+  description varchar(5000),
+  country int not null references Country(id) on update cascade on delete cascade
+);
+
+create table LocalExpedition (
+  id int primary key references Expedition(id) on update cascade on delete cascade,
+  startTime date not null,
+  endTime date not null
+);
+
+create table RemoteExpedition (
+  id int primary key references Expedition(id) on update cascade on delete cascade
+);
+
+create table Visit (
+  visits int references City(id) on update cascade on delete cascade,
+  visitedBy int references RemoteExpedition(id) on update cascade on delete cascade,
+  start date not null,
+  end date not null,
+  primary key(visitedBy, visits)
+);
+
+-- The following are not required:
+
+alter table RemoteExpedition
+  add foreign key(id) references Visit(visitedBy) on update no action on delete no action;
+
+alter table Country
+  add foreign key(id) references CountryName(country) on update no action on delete no action;
+
+</pre>
+<p>
+<h2>Grading criteria</h2>
+<p>
+<ol>
+<li>Expedition table
+<li>Expedition primary key (cannot be name column)
+<li>Expedition.name column of type varchar
+<li>Expedition.name column is unique
+<li>Expedition.name column may be null
+<li>Material table
+<li>Material primary key (can be name column)
+<li>Material.name column of type varchar
+<li>Material.name column is unique
+<li>Material.name column may not be null
+<li>Material.weight column of type double
+<li>Material.weight column may not be null
+<li>Requirement table
+<li>Requirement.requires column of same type as Material primary key
+<li>Requirement.requires column references Material primary key
+<li>Requirement.requires column has on update cascade on delete cascade
+<li>Requirement.requiredBy column of same type as Expedition primary key
+<li>Requirement.requiredBy column references Expedition primary key
+<li>Requirement.requiredBy column has on update cascade on delete cascade
+<li>Requirement primary key is (requires, requiredBy)
+<li>Requirement.quantity column of type int
+<li>Requirement.quantity column may not be null
+<li>Requirement.quantity column has default value 1
+<li>Requirement.recommendation column of enum type (which could be a separate table or a constrained string)
+<li>The enum type has the literal values 'Mandatory', 'Recommended', 'Optional'
+<li>Requirement.recommendation column may not be null
+<li>LocalExpedition table
+<li>LocalExpedition primary key of same type as Expedition primary key
+<li>LocalExpedition primary key references Expedition primary key
+<li>LocalExpedition primary key has on update cascade on delete cascade
+<li>LocalExpedition.startTime column of type Date
+<li>LocalExpedition.startTime column may not be null
+<li>LocalExpedition.endTime column of type Date
+<li>LocalExpedition.endTime column may not be null
+<li>Remote Expedition table
+<li>RemoteExpedition primary key of same type as Expedition primary key
+<li>RemoteExpedition primary key references Expedition primary key
+<li>RemoteExpedition primary key reference to Expedition primary key has on update cascade on delete cascade
+<li>Country table
+<li>Country primary key
+<li>CountryName table
+<li>CountryName.country column of same type as Country primary key
+<li>CountryName.country column references Country primary key
+<li>CountryName.country column has on update cascade on delete cascade
+<li>CountryName.name column of type varchar
+<li>CountryName primary key is (country, name)
+<li>City table
+<li>City primary key may not be name
+<li>City.name column of type varchar
+<li>City.name column may not be null
+<li>City.description column of type varchar
+<li>City.description column may be null
+<li>City.country column of same type as Country primary key
+<li>City.country column references Country primary key
+<li>City.country column has on update cascade on delete cascade
+<li>City.country column may not be null
+<li>Visit table
+<li>Visit.visits column of same type as City primary key
+<li>Visit.visits column references City primary key
+<li>Visit.visits column has on update cascade on delete cascade
+<li>Visit.visitedBy column of same type as RemoteExpedition primary key
+<li>Visit.visitedBy column references RemoteExpedition primary key
+<li>Visit.visitedBy column has on update cascade on delete cascade
+<li>Visit primary key (visits, visitedBy)
+<li>Visit.start column of type Date
+<li>Visit.start column may not be null
+<li>Visit.end column of type Date
+<li>Visit.end column may not be null
+</ol>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/017.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:03 GMT -->
+</html>

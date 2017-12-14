@@ -1,0 +1,110 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/167.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:06 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+This is a solution to a <a href="168.html">sample exercise</a>.
+<p>
+<ol>
+<pre>
+create table Person(
+  id int primary key,
+  dob date not null,
+  name varchar(255) not null
+);
+create table Band(
+  id int primary key,
+  name varchar(255) not null unique,
+  style varchar(255)
+);
+create table Instrument(
+  id int primary key,
+  name varchar(255) not null,
+  musicalKey varchar(255)
+);
+create table plays(
+  musician int references Person(id) on delete cascade on update cascade,
+  instrument int references Instrument(id) on delete cascade on update cascade,
+  primary key(musician, instrument)
+);
+create table memberOf(
+  person int references Person(id) on delete cascade on update cascade,
+  band int references Band(id) on delete cascade on update cascade,
+  primary key(person, band)
+);
+create table StringInstrument(
+  id int primary key references Instrument(id) on delete cascade on update cascade,
+  numberOfStrings int not null
+);
+create table BrassInstrument(
+  id int primary key references Instrument(id) on delete cascade on update cascade,
+  numberOfValves int not null
+);
+create table PercussionInstrument(
+  id int primary key references Instrument(id) on delete cascade on update cascade
+);
+</pre>
+<li>Design SQL queries for the following tasks:
+ <ol>
+ <li>Find all bands that have style "indie pop" or that have no style at all.
+<pre>
+select b.id
+  from Band b
+ where b.style is null
+    or b.style = 'indie pop';
+</pre>
+ <li>Find all distinct percussionists and their names in ascending order by age.
+<pre>
+select distinct m.id, m.name
+  from Person m, plays p, Instrument i, PercussionInstrument pi
+ where p.musician = m.id
+   and p.instrument = i.id
+   and i.id = pi.id
+ order by m.dob desc;
+</pre>
+which can be simplified to:
+<pre>
+select distinct m.id, m.name
+  from Person m, plays p, PercussionInstrument pi
+ where p.musician = m.id
+   and p.instrument = pi.id
+ order by m.dob desc;
+</pre>
+ <li>For each indie pop band, show its name and the number of musicians in the band.
+     Include only the bands that have at least 4 members.
+<pre>
+select b.name, count(p.id) c
+  from Band b, memberOf m, Person p
+ where m.person = p.id
+   and m.band = b.id
+   and b.style = 'indie pop'
+ group by b.id
+having c >= 4;
+</pre>
+which can be simplified to:
+<pre>
+select b.name, count(m.person) c
+  from Band b, memberOf m
+ where m.band = b.id
+   and b.style = 'indie pop'
+ group by b.id
+having c >= 4;
+</pre>
+or simplifying even more:
+<pre>
+select b.name, count(*) c
+  from Band b, memberOf m
+ where m.band = b.id
+   and b.style = 'indie pop'
+ group by b.id
+having c >= 4;
+</pre>
+ </ol>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/167.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:06 GMT -->
+</html>
+

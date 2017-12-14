@@ -1,0 +1,84 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/055.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+<p>
+For the following relations and functional dependencies:
+<ol>
+<li>Show the list of all candidate keys of the original relation.
+<li>Decompose into BCNF if possible. Show your work.
+<li>If the relation cannot be decomposed into BCNF, then decompose into 3NF.
+<li>In your decomposition show the attributes in each relation and the primary
+key of each relation.  
+</ol>
+To compute the candidate keys, use the discussion in <a href="039.html">Candidate Keys</a>.
+<p>
+<ol>
+<li>The relation is ABCDE
+<ul>
+<li>DE&rarr;B
+<li>A&rarr;BE
+<li>E&rarr;A
+</ul>
+<li>The relation is ABCDE
+<ul>
+<li>BD&rarr;A
+<li>C&rarr;A
+<li>A&rarr;C
+<li>B&rarr;D
+</ul>
+<li>The relation is ABCDEF
+<ul>
+<li>AC&rarr;E
+<li>AE&rarr;B
+<li>BCE&rarr;A
+<li>ABE&rarr;F
+</ul>
+<li>The relation is ABCDEF
+<ul>
+<li>F&rarr;B
+<li>BDE&rarr;A
+<li>E&rarr;D
+<li>BCD&rarr;E
+</ul>
+<li>The relation is ABCDEFG
+<ul>
+<li>AEF&rarr;D
+<li>A&rarr;C
+<li>CG&rarr;F
+<li>DE&rarr;F
+</ul>
+<li>The relation is ABCDEFG
+<ul>
+<li>B&rarr;F
+<li>D&rarr;A
+<li>G&rarr;C
+<li>CG&rarr;A
+</ul>
+<li>The relation is ABCDEFGH
+<ul>
+<li>B&rarr;D
+<li>D&rarr;A
+<li>E&rarr;D
+<li>EGH&rarr;B
+</ul>
+<li>The relation is ABCDEFGH
+<ul>
+<li>AGH&rarr;B
+<li>CE&rarr;B
+<li>B&rarr;G
+<li>ABCG&rarr;F
+</ul>
+</ol>
+<p>
+See <a href="src/118.pdf">Sample Solution</a>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/055.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+</html>

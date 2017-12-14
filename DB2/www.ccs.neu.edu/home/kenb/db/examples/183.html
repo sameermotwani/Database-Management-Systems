@@ -1,0 +1,75 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/183.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:01 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+<ol>
+<li>(12 points) A geographer has a database of cities that are located on rivers (and only cities like this).
+A city can be located on several rivers, and a river may meet some cities.
+Each city has a name, possibly several. A river has a unique name and a length.
+A river can be the tributary of another river.
+Design a UML class diagram for the database described above.
+<p>
+<li>(17 points)
+Here is a data model written in UML:
+<p>
+<img src="images/232.gif"/>
+<p>
+Translate this data model to SQL.
+<p>
+<li>Here is an SQL schema for tracking the time spent by miners in various mines:
+<pre>
+create table Person (
+  id int primary key,
+  name varchar(100)
+);
+create table Mine (
+  designation varchar(100) primary key,
+  location varchar(5000) not null
+);
+create table WorkInterval (
+  miner int references Person(id)
+    on update cascade on delete cascade,
+  mine varchar(100) not null references Mine(designation)
+    on update cascade on delete cascade,
+  start datetime not null,
+  end datetime,
+  primary key(miner, start),
+  check (end is null or end > start)
+);
+</pre>
+Write the following queries in SQL:
+<p>
+A. (8 points) For each miner, list the miner's name and the date when the miner first started working in some mine.
+<p>
+B. (8 points) List the mines by location that have a person named Luis who has worked in the mine.
+<p>
+<li>(15 points) Using the schema in the previous problem,
+the following method prints the miners who are currently in a specified mine and how long each has been in the mine (in hours):
+ <pre>
+public void printWorkingMiners(Connection connection, String mine) throws SQLException {
+    long currentTime = System.currentTimeMillis();
+    Date now = new Date(currentTime);
+    PreparedStatement statement = connection.prepareStatement
+        ("select p.name, p.id, w.start from Person p, WorkInterval w " +
+         "where w.miner=p.id and w.mine=? and w.start&lt;? and w.end is null");
+
+    /* Fill in the missing statements here. */
+
+        double durationInHours = (currentTime - start.getTime()) / (1000.0 * 3600.0);
+        System.out.println(name + " (" + id + ") has been in the mine for " + durationInHours + " hours.");
+    }
+    statement.close();
+}
+</pre>
+Fill in the missing statements.
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/183.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:01 GMT -->
+</html>

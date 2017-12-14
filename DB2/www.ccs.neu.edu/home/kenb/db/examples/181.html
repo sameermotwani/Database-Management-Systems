@@ -1,0 +1,314 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/181.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:09 GMT -->
+<body>
+<center><h3>Sample Problems and Solutions</h3></center>
+<p>
+Some of the examples use the following Shoe Store database:
+<pre>
+create table Store(
+  id int primary key,
+  location varchar(200) not null
+);
+create table ShoeType(
+  id int primary key,
+  style varchar(100) not null,
+  size varchar(10) not null,
+  color varchar(50)
+);
+create table ShoeInventory(
+  type int references ShoeType(id)
+    on update cascade on delete cascade,
+  store int references Store(id)
+    on update cascade on delete cascade,
+  quantity int not null,
+  check (quantity>=0),
+  primary key(store, type)
+);
+</pre>
+<p>
+<ol>
+<li><b>Storage and Indexing</b>. (10 points)
+Assume the following sizes, counts and times for the Shoe Store database system:
+<ol>
+<li>A record requires an average of 6 bytes administrative overhead,
+including the space required for specifying the rid.
+<li>An int uses 4 bytes.
+<li>A double uses 8 bytes.
+<li>A color name uses an average of 10 bytes.
+<li>A style uses an average of 40 bytes.
+<li>A size uses an average of 4 bytes.
+<li>A location uses an average of 40 bytes.
+<li>There are 100 stores.
+<li>There are 2K shoe types.
+<li>The disk block size is 8K = 8192 bytes.
+<li>A random disk access requires 5ms.
+<li>A page can be transferred (read or write) in 0.2 ms = 200 microseconds.
+</ol>
+<p>
+Every store has a record for every possible shoe type even if the
+quantity in the inventory is 0.
+Compute the approximate time required for the following query:
+  Find all stores that have shoe type 738. The SQL for this query is:
+<pre>
+    select i.store
+      from ShoeInventory i
+     where i.type = 738
+       and i.quantity > 0;
+</pre>
+<p>
+<font color="green">
+The size of a ShoeInventory record is 18 bytes on the average: 6 for the overhead
+and 4 each for the 3 integers. One can fit 8192/18 &asymp; 450 records per block, but this
+is a primary B-tree so there will only be around 300 records per block.
+<p>
+There are 2K shoe types and 100 stores, so there will be 200K ShoeInventory records.
+This requires 200K/300 &asymp; 667 blocks.
+<p>
+The primary B-tree index is not usable in this case because the type is the second column
+in the index. So the entire table must be scanned. It requires 2 random I/Os to read
+the first record or 10ms. It then requires 666*0.2ms &asymp; 133ms to read the rest, for a
+total of about 140ms in all.
+</font>
+<p>
+<font color="blue">
+Scoring:
+<ol>
+<li>(2 points) Record size computation.
+<li>Fully packed number of records is 450.
+<li>If 2/3 full, the number of records is 300.
+<li>There are 200K ShoeInventory records.
+<li>The number of blocks required is about 667.
+<li>(2 points) The table is scanned sequentially.
+<li>The first record requires 10ms.
+<li>(2 points) The other records require about 130ms.
+<li>The total time is about 140ms.
+</ol>
+</font>
+<p>
+
+<li><b>Query Evaluation</b>. (12 points)
+ <pre>
+create table Store(
+  id int primary key, -- [hash index]
+  location varchar(200) not null -- [tree index]
+);
+create table ShoeType(
+  id int primary key, -- [hash index]
+  style varchar(100) not null, -- [tree index, 200 values]
+  size varchar(10) not null, -- [tree index, 40 values]
+  color varchar(50) -- [no index, 50 values]
+);
+create table ShoeInventory(
+  type int references ShoeType(id)
+    on update cascade on delete cascade,
+  store int references Store(id)
+    on update cascade on delete cascade,
+  quantity int not null, -- [no index, varies from 0 to 1000]
+  check (quantity>=0),
+  primary key(store, type) -- [tree index]
+);
+</pre>
+<p>
+Show the optimized query evaluation plan for the following query:
+<pre>
+select s.location
+  from ShoeInventory i, Store s, ShoeType t
+ where i.store = s.id
+   and i.type = t.id
+   and t.style = 'Oxford'
+   and i.quantity >= 100
+   and t.size = '10';
+</pre>
+Show the evaluation plan as a tree with each internal node annotated
+with the implementation technique. Explain why this is the optimal plan.
+Do not show the approximate number of records that flow along each edge.
+<p>
+<font color="red">
+The most common error was to omit the explanation. The exam clearly states
+"Explain why this is the optimal plan." Points were deducted if there was
+no explanation.
+</font>
+<p>
+<font color="green">
+There are two reasonable join orders: (Store, ShoeInventory, ShoeType)
+and (ShoeType, ShoeInventory, Store). 
+The Store table is the smallest, but after selecting on the style and size,
+the number of ShoeType records will be even smaller. This suggests that
+the join order should begin with ShoeType. On the other hand, this order
+precludes the possibility of using an indexed nested loop join on the
+ShoeInventory table because the primary key index has type as the second
+column. However, starting with Store would result in an unselective
+indexed nested loop join, so this possibility is not optimal.
+<p>
+There are two selections
+on ShoeType: style and size. The style is more selective, so that is done first.
+There is an index, but the table is so small (fitting in a single block) that
+a scan would be faster. The selection on
+the size must be scanned because there is no index on selected records.
+<p>
+As noted above, there is no suitable index on ShoeInventory, so a merge join
+will be necessary. Accordingly, the selection on quantity should be performed
+prior to the join to improve the performance of the merge join.
+<p>
+For the remaining join, the Store table is very small. In fact, it would fit
+into a single block. So a merge join is best.
+<p>
+Finally, the projection to location is a scan because eliminating duplicates
+is not required.
+</font>
+<p>
+<font color="blue">
+Points were allocated approximately equally to the join order,
+other operator locations, implementation technique annotations,
+and explanation for optimality. More precisely, the scoring was as follows:
+<ol>
+<li>(3 points) Join order.
+<li>(3 points) Explanation that this is the optimal plan.
+<li>(0.5 points) Select style (scan or index): correct location in evaluation plan
+<li>(0.5 points) Select style (scan or index): annotated with acceptable implementation technique
+<li>(0.5 points) Select size (scan technique): correct location in evaluation plan
+<li>(0.5 points) Select size (scan technique): annotated with acceptable implementation technique
+<li>(0.5 points) Select quantity (after join using scan): correct location in evaluation plan
+<li>(0.5 points) Select quantity (after join using scan): annotated with acceptable implementation technique
+<li>(0.5 points) Join ShoeType with ShoeInventory (indexed nested loop): correct location in evaluation plan
+<li>(0.5 points) Join ShoeType with ShoeInventory (indexed nested loop): annotated with acceptable implementation technique
+<li>(0.5 points) Join with Store (merge join): correct location in evaluation plan
+<li>(0.5 points) Join with Store (merge join): annotated with acceptable implementation technique
+<li>(0.5 points) Project location (scan): correct location in evaluation plan
+<li>(0.5 points) Project location (scan): annotated with acceptable implementation technique
+</font>
+</ol>
+<p>
+<center><img src="images/241.gif"/></center>
+<p>
+<li><b>Normalization</b>. (10 points)
+Find the 3NF decomposition of the relation ABCDEFG such that the
+following FDs hold:
+<ul>                       
+<li>AG&rarr;EC
+<li>EG&rarr;B
+<li>D&rarr;F
+<li>B&rarr;C
+</ul>
+<p>
+<font color="green">
+<ol>
+<li>Split the first FD into two FDs: AG&rarr;E and AG&rarr;C.
+<li>Mininize the set of FDs. This is required by the 3NF algorithm. Two of the FDs have the
+same right-hand side, so this is the only possiblity for a redundancy. Since B does not occur
+on the left-hand side of any FD, it cannot be redundant. Since AG does occur on the left-hand
+side of an FD this could be redundant. In fact, AG determines E, then EG determines B, and B determines C.
+So AG&arr;C is a consequence of the other FDs. The minimum set of FDs is therefore:
+<ul>                       
+<li>AG&rarr;E
+<li>EG&rarr;B
+<li>D&rarr;F
+<li>B&rarr;C
+</ul>
+<li>Find the candidate keys. The core is ADG. The closure of the core is the entire relation,
+so ADG is the only candidate key. This is not in one of the FDs, so it must be added to the
+3NF decomposition.
+<li>The 3NF give the following decomposition:
+<ul>                       
+<li><u>AG</u>E
+<li><u>EG</u>B
+<li><u>D</u>F
+<li><u>B</u>C
+<li><u>ADG</u>
+</ul>
+</ol>
+</font>
+<p>
+<font color="blue">
+Scoring:
+<ol>
+<li>Split FDs.
+<li>(2 points) Minimize FDs.
+<li>(3 points) Find candidate keys.
+<li>(2 points) Decomposition.
+<li>Show primary keys of decomposition.
+<li>Include the candidate key in the decomposition.
+</ol>
+</font>
+<p>
+<font color="blue">
+There are no embedded dependencies so the 3NF decomposition is actually BCNF.
+It was not required that this be checked.
+</font>
+<p>
+<li><b>Concurrency</b>. (6 points)
+Consider this schedule:
+<p>
+ <pre>
+W<sub>1</sub>(X), W<sub>2</sub>(Y), W<sub>2</sub>(Z), W<sub>1</sub>(Y), R<sub>1</sub>(Z), R<sub>2</sub>(X), C<sub>1</sub>, C<sub>2</sub>
+</pre>
+<p>
+Is this schedule view-serializable? 
+If it is view-serializable, show the equivalent serial schedule, and explain why it is equivalent.
+If it is not view-serializable, show why.
+<p>
+<font color="green">
+There are 2 transactions, so there are 2 possibly serial schedules.
+<ol>
+<li>
+ <pre>
+W<sub>1</sub>(X), W<sub>1</sub>(Y), R<sub>1</sub>(Z), C<sub>1</sub>, W<sub>2</sub>(Y), W<sub>2</sub>(Z), R<sub>2</sub>(X), C<sub>2</sub>
+</pre>
+In the serial schedule, the final value of Y is written by transaction 2, but in the original schedule it is written by transaction 1.
+So this serial schedule is not view-equivalent.
+<li>
+ <pre>
+W<sub>2</sub>(Y), W<sub>2</sub>(Z), R<sub>2</sub>(X), C<sub>2</sub>, W<sub>1</sub>(X), W<sub>1</sub>(Y), R<sub>1</sub>(Z), C<sub>1</sub>
+</pre>
+In the serial schedule, the value of X that is read by transaction 2 is the initial value of X,
+but in the original schedule transaction 2 reads the value of X written by transaction 1.
+So this serial schedule is not view-equivalent.
+</ol>
+<p>
+The schedule is not view-serializable.
+</font>
+<p>
+<li><b>Security</b>. (10 points)
+In the Shoe Store database system, the ShoeType and Store tables are publicly readable.
+Alice has been hired as the manager of the store at 10 Main Street. Give Alice the ability
+to read and write the shoe inventory of the store she manages. Also give Alice the ability
+to give these rights to her staff.
+<p>
+<font color="green">
+Since Alice is being given privileges to only part of a table, it is necessary to define
+a view of the table. Here is the view:
+<pre>
+  create view AliceView as
+    select i.type, i.store, i.quantity
+      from ShoeInventory i, Store s
+     where i.store = s.id
+       and s.location = '10 Main Street';
+</pre>
+One can then grant the required privileges with this command:
+<pre>
+  grant select, update on AliceView to 'Alice' with grant option;
+</pre>
+</font>
+<p>
+<font color="blue">
+Scoring:
+<ol>
+<li>A view is created for Alice.
+<li>View selects the columns of ShoeInventory.
+<li>View queries from ShoeInventory and Store.
+<li>View has the join condition.
+<li>View uses the location '10 Main Street'.
+<li>The grant command gives select privilege.
+<li>The grant command gives update privilege.
+<li>The grant command is on the view created for Alice.
+<li>The grant command gives privileges to Alice.
+<li>The grant command delegates grant privileges.
+</ol>
+</font>
+<p>
+
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/181.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>

@@ -1,0 +1,165 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/025.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+For the following SQL schema:
+<p> 
+<pre>
+create table Building (
+  id int primary key,
+  address varchar(5000) not null
+);
+create table Apartment (
+  id int primary key,
+  number varchar(31) not null,
+  building int not null references Building(id)
+    on update cascade on delete cascade
+);
+create table RoomType (
+  id int primary key,
+  description varchar(5000)
+);
+create table RoomTypeName (
+  type int references RoomType(id)
+    on update cascade on delete cascade,
+  name varchar(255),
+  primary key(type, name)
+);
+create table Room (
+  id int primary key,
+  area double not null,
+  type int not null references RoomType(id)
+    on update cascade,
+  apartment int not null references Apartment(id)
+    on update cascade on delete cascade
+);
+create table ApartmentFloor (
+  apartment int references Apartment(id)
+    on update cascade on delete cascade,
+  floor int,
+  primary key(apartment, floor)
+);
+create table Person (
+  id int primary key,
+  name varchar(5000) not null
+);
+create table Owner (
+  person int references Person(id)
+    on update cascade on delete cascade,
+  apartment int references Apartment(id)
+    on update cascade on delete cascade,
+  primary key(person, apartment)
+);
+</pre>
+<p>
+Part A.
+<p>
+Assume that: the following are the sizes, counts and times:
+<ol>
+<li>A record requires an average of 6 bytes administrative overhead,
+including the space required for specifying the rid.
+<li>An int uses 4 bytes.
+<li>A double uses 8 bytes.
+<li>A Date uses 8 bytes.
+<li>A building address uses an average of 50 bytes.
+<li>An apartment number uses an average of 10 bytes.
+<li>A person name uses an average of 25 bytes.
+<li>A room description uses an average of 100 bytes.
+<li>A room type name uses an average of 10 bytes.
+<li>There are 1K buildings.
+<li>There are 20K apartments.
+<li>There are 100K rooms.
+<li>There are 20 room types and an average of 5 names per room type.
+<li>The disk block size is 8K = 8192 bytes.
+<li>A random disk access requires 6ms.
+<li>A page can be transferred (read or write) in 0.05 ms = 50 microseconds.
+</ol>
+<p>
+Compute the approximate time required for every query listed below 
+for each of the following 4 table structures:
+<ol>
+<li>Clustered Heap.  An unordered collection of records packed into sequential blocks.
+<li>Clustered Sort.  An ordered collection of records packed into sequential blocks.
+In each case, order it by the field being queried (e.g., for the first query
+assume ordered by composer id).
+<li>Clustered B-tree.  The ordering and clustering is by the field being queried.
+<li>Unclustered heap with index.  Assume the index is
+a B-tree index in which only one level
+of the tree is on disk, and the other levels are in main memory.  
+Unclustered means the following:
+<ol>
+<li>The records are randomly located with respect to the query field.
+<li>The blocks are randomly located on the disk.
+<li>The blocks are only 2/3 full.
+</ol>
+</ol>
+<p>
+Here are the queries:
+<p>
+<ol>
+<li>Find all living rooms (room type is named "Living Room" for which one may assume there is only one room type).
+<li>Find all apartments at "100 Main Street".
+</ol>
+<p>
+Part B.
+<p>
+Show a query evaluation plan for each of the following queries.
+Note that a "query evaluation plan" includes strategies.
+<p>
+<ol>
+<li>Find the addresses of all buildings that have a Living Room with area greater than 1000 s.f. owned by Fred in an apartment on the fifth floor or higher.
+<p>
+<pre>
+select distinct b.address
+  from Apartment a, Building b, ApartmentFloor f, RoomTypeName n, Owner o, Person p, Room r, RoomType t
+ where a.building = b.id
+   and f.apartment = a.id
+   and f.floor >= 5
+   and n.type = t.id
+   and n.name = 'Living Room'
+   and o.apartment = a.id
+   and o.person = p.id
+   and p.name = 'Fred'
+   and r.type = t.id
+   and r.area > 1000
+   and r.apartment = a.id
+</pre>
+<p>
+<li>Find all apartments, showing the address and apartment number that have 3 or more rooms with the same type.
+<p>
+<pre>
+select b.address, a.number
+  from Building b, Apartment a
+ where b.id = a.building
+   and exists (
+         select *
+           from RoomType t
+          where 3 <= (select count(*)
+                        from Room r
+                       where r.type = t.id
+                         and r.apartment = a.id)
+       )
+</pre>
+<p>
+<li>List the buildings in order by address together with the number of apartments in each building.
+<p>
+<pre>
+select b.address, count(*)
+  from Building b, Apartment a
+ where b.id = a.building
+ group by b.id
+ order by b.address
+</pre>
+<p>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/025.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>
+

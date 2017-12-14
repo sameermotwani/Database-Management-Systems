@@ -1,0 +1,72 @@
+<html>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/004.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:33 GMT -->
+<body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+You can obtain the text of
+<a href="http://www.gutenberg.org/files/730/730.txt">Oliver Twist</a>
+online. When performing your computations, be sure not to include the
+title and table of contents at the beginning
+and the copyright notice at the end of the document.
+<p>
+<ol>
+<li>Extract the words in the document. Words consist of sequences of
+contiguous letters separated by non-letters. Convert uppercase letters
+to lowercase. Put them in a relational table named Document with three columns:
+ <ol>
+ <li>The position of the word in the document (primary key).
+ <li>The chapter of the word.
+ <li>The word.
+ </ol>
+<p>
+With the help of John Manchester, I have posted a file suitable for loading
+into a database at <a href="009.txt">corpus.txt</a>. A second version of the
+file is available at <a href="008.txt">corpus2.txt</a> which retains the
+apostrophes and hyphenated words. Either one may be used for this assignment.
+The number of word occurrences in <a href="009.txt">corpus.txt</a> is 161399,
+and the number of word occurrences in <a href="008.txt">corpus2.txt</a> 
+is 157687.
+<p>
+<li>Develop a query (or queries) that computes
+the distribution of word frequencies as follows. This will be discussed
+in class. 
+ <ol>
+ <li>The words should be sorted by frequency of occurrence. Each word
+has a rank ranging from 1 to N, where there are N distinct words occurring
+in the document. For <a href="009.txt">corpus.txt</a> N = 10108. For <a href="008.txt">corpus2.txt</a> N = 10841.
+ <li>Normalize the rank by dividing by N. 
+ <li>Normalize the frequencies so that they add to 1.
+ <li>Compute the average of the logarithms of the normalized ranks using
+  the normalized frequencies as the probabilities.
+ </ol>
+Show your query and your results.
+<p>
+<li>Treating the chapters as separate documents, compute two new tables (or views):
+ <ol>
+ <li>A table TF with three columns (the first two are the primary key)
+   <ol>
+   <li>The chapter number.
+   <li>The word.
+   <li>The number of occurrences of the word in the chapter.
+   </ol>
+ <li>A table IDF with two columns:
+   <ol>
+   <li>A word (primary key).
+   <li>The number of chapters that have the word.
+   </ol>
+ </ol>
+Show the queries you used to produce these tables (or views).
+<p>
+<li>Develop a view that computes the length of each chapter.
+Your view has two columns: the chapter (primary key) and the length.
+<p>
+<li>Given a set of distinct words (i.e., the IR query), 
+develop an SQL query that computes the vector space similarity measure
+with every chapter and sorts them by similarity measure.
+</ol>
+<p>&#169; 2009 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/004.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:33 GMT -->
+</html>
+

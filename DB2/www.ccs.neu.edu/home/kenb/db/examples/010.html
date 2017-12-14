@@ -1,0 +1,154 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/010.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:04 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2009 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+This is a solution to a <a href="256.html">sample exercise</a>.
+<p>
+Show the optimized query evaluation plans for the following schema and queries:
+<pre>
+create table Person(
+  id int,
+  primary key(id) using hash, -- size 2000
+  dob date not null,
+  name varchar(255) not null,
+  index(name) using btree -- size 1000
+);
+create table Band(
+  id int,
+  primary key(id) using hash, -- size 1000
+  name varchar(255),
+  style varchar(255)
+);
+create table Instrument(
+  id int,
+  primary key(id) using hash, -- size 200
+  name varchar(255) not null,
+  musicalKey varchar(255)
+);
+create table plays(
+  person int,
+  foreign key(person) references Person(id) on update cascade on delete cascade,
+  instrument int,
+  foreign key(instrument) references Instrument(id) on update cascade on delete cascade,
+  primary key(person, instrument) using btree -- size 500
+);
+create table memberOf(
+  person int,
+  foreign key(person) references Person(id) on update cascade on delete cascade,
+  band int,
+  foreign key(band) references Band(id) on update cascade on delete cascade,
+  primary key(person, band) using btree -- size 4000
+);
+create table StringInstrument(
+  id int,
+  primary key(id) using hash, -- size 100
+  foreign key(id) references Instrument(id) on update cascade on delete cascade,
+  numberOfStrings int not null
+);
+create table BrassInstrument(
+  id int,
+  primary key(id) using hash, -- size 50
+  foreign key(id) references Instrument(id) on update cascade on delete cascade,
+  numberOfValves int not null
+);
+create table PercussionInstrument(
+  id int,
+  primary key(id) using hash, -- size 50
+  foreign key(id) references Instrument(id) on update cascade on delete cascade
+);
+</pre>
+ <ol>
+ <li>Find all bands that have style "indie pop".
+<pre>
+select b.name
+  from Band b
+ where b.style = 'indie pop'
+</pre>
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Table</th><th>Size</th><th>Selected Size</th></tr>
+<tr><td>Band</td><td>1000</td><td>Unknown</td></tr>
+</table>
+<table cellpadding="5" border="1">
+<tr><th>Step</th><th>Result Size</th><th>Method</th><th>Explanation</th></tr>
+<tr><td><font size="+3">&sigma;</font><sub>b.style='indie pop'</sub></td><td>Unknown</td><td>Scan</td><td>The style column is not indexed.</td></tr>
+<tr><td><font size="+3">&pi;</font><sub>b.name</sub></td><td>Scan</td><td>Unknown</td><td>Duplicates do not have to be eliminated.</td></tr>
+</table>
+<p>
+ <li>Find all musicians who play a 10-string instrument 
+along with their names.  Do not eliminate duplicates.
+<pre>
+select m.id, m.name
+  from Person m, plays p, Instrument i, StringInstrument si
+ where p.person = m.id
+   and p.instrument = i.id
+   and i.id = si.id
+   and si.numberOfStrings = 10
+</pre>
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Table</th><th>Size</th><th>Selected Size</th></tr>
+<tr><td>Person</td><td>2000</td><td>2000</td></tr>
+<tr><td>plays</td><td>4000</td><td>4000</td></tr>
+<tr><td>Instrument</td><td>200</td><td>200</td></tr>
+<tr><td>StringInstrument</td><td>100</td><td>1</td></tr>
+</table>
+<p>
+Begin with <code>StringInstrument</code> because its selected size is the smallest.
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Step</th><th>Result Size</th><th>Method</th><th>Explanation</th></tr>
+<tr><td><font size="+3">&sigma;</font><sub>si.numberOfStrings=1</sub></td><td>1</td><td>Scan</td><td>The numberOfStrings column is not indexed.</td></tr>
+<tr><td><font size="+3">&bowtie;</font><sub>si.id=i.id</sub></td><td>1</td><td>Indexed nested loop</td>
+  <td>Target has relevant index, and number of records to join is small.</td></tr>
+<tr><td><font size="+3">&bowtie;</font><sub>i.id=p.instrument</sub></td><td>4</td><td>Sort-merge</td>
+  <td>Target does not have a relevant index.</td></tr>
+<tr><td><font size="+3">&bowtie;</font><sub>p.person=m.id</sub></td><td>80</td><td>Indexed nested loop</td>
+  <td>Target has relevant index, and number of records to join is small.</td></tr>
+<tr><td><font size="+3">&pi;</font><sub>m.id,m.name</sub></td><td>80</td><td>Scan</td><td>Duplicates do not have to be eliminated.</td></tr>
+</table>
+<p>
+ <li>Find all band names of bands that have a musician that plays 
+both a string instrument and a percussion instrument. Do not eliminate duplicates.
+<pre>
+select b.name
+  from Band b, plays p, StringInstrument si, PercussionInstrument pi, memberOf m
+ where b.id = m.band
+   and p.person = m.person
+   and p.instrument = si.id
+   and p.instrument = pi.id
+</pre>
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Table</th><th>Size</th><th>Selected Size</th></tr>
+<tr><td>Band</td><td>1000</td><td>1000</td></tr>
+<tr><td>plays</td><td>4000</td><td>4000</td></tr>
+<tr><td>StringInstrument</td><td>100</td><td>100</td></tr>
+<tr><td>PercussionInstrument</td><td>50</td><td>50</td></tr>
+<tr><td>memberOf</td><td>4000</td><td>4000</td></tr>
+</table>
+<p>
+Start with <code>PercussionInstrument</code>.
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Step</th><th>Result Size</th><th>Method</th><th>Explanation</th></tr>
+<tr><td><font size="+3">&bowtie;</font><sub>pi.id=p.instrument</sub></td><td>100</td><td>Sort-merge</td>
+  <td>Target does not have a relevant index.</td></tr>
+<tr><td><font size="+3">&bowtie;</font><sub>p.instrument=si.id</sub></td><td>&lt;100</td><td>Sort-merge</td>
+  <td>Target has relevant index, but number of records to join is large relative to size of target table.</td></tr>
+<tr><td><font size="+3">&bowtie;</font><sub>p.person=m.person</sub></td><td>&lt;200</td><td>Indexed nested loop</td>
+  <td>Target has relevant index, and number of records to join is small relative to size of target table.</td></tr>
+<tr><td><font size="+3">&bowtie;</font><sub>m.band=b.id</sub></td><td>&lt;200</td><td>Indexed nested loop</td>
+  <td>Target has relevant index, and number of records to join is small relative to size of target table.</td></tr>
+<tr><td><font size="+3">&pi;</font><sub>b.name</sub></td><td>&lt;200</td><td>Scan</td><td>Duplicates do not have to be eliminated</td></tr>
+</table>
+<p>
+ </ol>
+<p>&#169; 2009 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/010.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:04 GMT -->
+</html>
+

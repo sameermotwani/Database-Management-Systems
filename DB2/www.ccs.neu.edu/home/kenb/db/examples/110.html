@@ -1,0 +1,123 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/110.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:51 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+Design a database for managing software components.
+A component has a unique name and may have authors.
+Each component has versions, exactly one of which is current.
+Each version has a version number and a release date.
+A component version may use other component versions.
+Some components are web services.  A web service has
+a definition.  Some components are utilities.
+A utility has a price and may have a specification.
+<p>
+Show your design as a UML or ER diagram.  Show all cardinality
+constraints on both associations and attributes.
+<p>
+<img src="images/244.gif" alt="Solution"/>
+<p>
+Here are some alternative solutions:
+<ul>
+<li><a href="images/245.gif">A separate class is used for the current versions.</a>
+<li><a href="images/246.gif">The Component class is itself regarded as being a version; namely, the current version.</a>
+</ul>
+Both of these solutions are equivalent to the one shown above.
+They have the disadvantage one must allow an instance of the Version
+class to change its type. This is impossible for most OO programming
+languages. It is possible for databases, but it can be awkward.
+<p>
+<h3>Grading Criteria</h3>
+<p>
+The grade is based on the design elements that were correctly included:
+<p>
+<ol>
+<li>Component class</li>
+<li>Component name attribute of type string</li>
+<li>Component name attribute is the primary key</li>
+<li>Component authors attribute of type string</li>
+<li>Component authors attribute has cardinality [0..*]</li>
+<li>Version class</li>
+<li>Version id attribute of type int or string</li>
+<li>Version id attribute is the primary key</li>
+<li>Version number attribute of type string</li>
+<li>Version release date attribute of type Date</li>
+<li>Version id attribute of type int or string</li>
+<li>Utility class</li>
+<li>Utility price attribute of type double or int</li>
+<li>Utility specification attribute of type string</li>
+<li>Utility specification attribute has cardinality [0..1]</li>
+<li>Web Service class</li>
+<li>Web Service definition attribute</li>
+<li>Utility class is subclass of Component class</li>
+<li>Web Service class is subclass of Component class</li>
+<li>current association joining Component with Version</li>
+<li>current association has cardinality 0..1 on Component side</li>
+<li>current association has cardinality 1 on Version side</li>
+<li>current association has an association class</li>
+<li>has association joining Component with Version</li>
+<li>has association has cardinality 1 on Component side</li>
+<li>has association has cardinality 1..* on Version side</li>
+<li>has association has an association class</li>
+<li>current association class is subclass of has association class</li>
+<li>uses association joining Version with itself</li>
+<li>uses association has cardinality 0..* on one Version side</li>
+<li>uses association has cardinality 0..* on the other Version side</li>
+</ol>
+<p>
+Translating this data model to SQL gives this schema:
+<p>
+<pre>
+create table Component(
+  name varchar(255) primary key
+);
+create table ComponentAuthors(
+  component varchar(255),
+  foreign key(component) references Component(name) on update cascade on delete cascade,
+  author varchar(255),
+  primary key(component, author)
+);
+create table ComponentVersion(
+  id int primary key,
+  number varchar(255) not null,
+  releaseDate date not null
+);
+create table Utility(
+  name varchar(255) primary key,
+  foreign key(name) references Component(name) on update cascade on delete cascade,
+  price double not null,
+  specification varchar(50000) null
+);
+create table WebService(
+  name varchar(255) primary key,
+  foreign key(name) references Component(name) on update cascade on delete cascade,
+  definition varchar(50000) not null  
+);
+create table uses(
+  user int,
+  foreign key(user) references ComponentVersion(id) on update cascade on delete cascade,
+  usee int,
+  foreign key(usee) references ComponentVersion(id) on update cascade on delete cascade,
+  primary key(user, usee)
+);
+create table has(
+  component varchar(255),
+  foreign key(component) references Component(name) on update cascade on delete cascade,
+  version int primary key,
+  foreign key(version) references ComponentVersion(id) on update cascade on delete cascade
+);
+create table current(
+  component varchar(255) unique,
+  foreign key(component) references Component(name) on update cascade on delete cascade,
+  version int primary key,
+  foreign key(version) references ComponentVersion(id) on update cascade on delete cascade,
+  foreign key(component, version) references has(component, version)
+);
+</pre>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/110.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:53 GMT -->
+</html>
+

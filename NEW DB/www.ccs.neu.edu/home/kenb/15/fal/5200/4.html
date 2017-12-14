@@ -1,0 +1,96 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/4.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:30 GMT -->
+<head>
+<title>CS 5200 Introduction to Database Management Fall 2015</title>
+</head>
+<body>
+<center><h1>CS 5200 Introduction to Database Management Individual Assignment #4</h1></center>
+<p>
+This assignment uses the following data model:
+<p>
+<center><img src="products3.jpg"></center>
+<p>
+This is the relational database schema that must be used:
+<p>
+<pre>
+create table ProductType (
+  id int primary key,
+  title varchar(200),
+  description varchar(2000) not null,
+  size int not null
+);
+create table Product (
+  id int primary key,
+  started date not null,
+  completed date,
+  label varchar(200),
+  type int not null,
+  foreign key(type) references ProductType(id) on update cascade on delete no action
+);
+create table Factory (
+  id int primary key,
+  address varchar(200) not null unique
+);
+create table Machine (
+  id int primary key,
+  code varchar(200) not null,
+  partOf int,
+  foreign key(partOf) references Factory(id) on update cascade on delete no action,
+  unique(code, partOf)
+);
+create table Employee (
+  id int primary key,
+  name varchar(200) not null
+);
+create table Qualification (
+  canRepair int,
+  foreign key(canRepair) references ProductType(id) on update cascade on delete cascade,
+  canBeRepairedBy int,
+  foreign key(canBeRepairedBy) references Employee(id) on update cascade on delete cascade,
+  primary key(canRepair, canBeRepairedBy),
+  level enum('Novice', 'Intermediate', 'Expert') -- Enumeration strategy: fixed enumeration
+);
+create table ProductProcessor ( -- Implementation of the Product-Machine association
+  processes int primary key,
+  foreign key(processes) references Product(id) on update cascade on delete cascade,
+  processedBy int not null unique,
+  foreign key(processedBy) references Machine(id) on update cascade on delete cascade
+);
+</pre>
+<p>
+<ol>
+<li>
+
+Develop a Java program using JDBC that assigns employees to repair broken
+machines.  The input is a list of pairs, each of which specifies a factory
+address and machine code.  The output is a map from employees to machines.  No
+employee can be assigned to more than one machine.  Assign as many expert
+employees as possible first, then assign as many intermediate employees as
+possible to the remaining machines and finally as many novice employees as
+possible to any machines that are still remaining.
+
+<p>
+
+<li>
+
+Develop Java Bean classes for the classes in the diagram above, and
+annotate the classes using JPA.
+
+<p>
+
+<li>
+
+Using JPQL, write a query that will find all employees that are qualified to
+repair a specified machine.  The query depends on three parameters: the
+qualification level, the factory address and the machine code.
+
+</ol>
+
+<p>
+
+
+Submit your assignment using a zip file containing your Java file(s).
+</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/4.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:30 GMT -->
+</html>

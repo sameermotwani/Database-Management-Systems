@@ -1,0 +1,101 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/031.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+For the following SQL schema:
+<p> 
+<pre>
+create table Building (
+  id int primary key,
+  address varchar(750) not null unique,
+  photo mediumblob
+);
+
+create table Apartment (
+  id int primary key,
+  number varchar(31) not null,
+  building int not null references Building(id)
+    on update cascade on delete cascade,
+  photo mediumblob,
+  rent double,
+  unique(number, building)
+);
+
+create table Room (
+  id int primary key,
+  area double not null,
+  type varchar(50),
+  apartment int not null references Apartment(id)
+    on update cascade on delete cascade,
+  photo mediumblob
+);
+  
+create table Person (
+  id int primary key,
+  name varchar(5000) not null,
+  email varchar(100) not null unique
+);
+
+create table Owner (
+  person int references Person(id)
+    on update cascade on delete cascade,
+  apartment int references Apartment(id)
+    on update cascade on delete cascade,
+  primary key(person, apartment)
+);
+</pre>
+<p>
+Assume that: the following are the sizes, counts and times:
+<ol>
+<li>A record requires an average of 6 bytes administrative overhead,
+including the space required for specifying the rid.
+<li>An int uses 4 bytes.
+<li>A double uses 8 bytes.
+<li>A building address uses an average of 150 bytes.
+<li>An apartment number uses an average of 10 bytes.
+<li>A person name or email address uses an average of 25 bytes.
+<li>A room type uses an average of 10 bytes.
+<li>A photo uses an average of 32K bytes stored separately from the record.
+Within the record a photo uses an average of 10 bytes.
+<li>There are 20K buildings.
+<li>There are 2M apartments and 2M persons.
+<li>There are 20M rooms.
+<li>There are 20 room types.
+<li>On average each apartment is owned by 2 persons.
+<li>The disk block size is 8K = 8192 bytes.
+<li>A random disk access requires 10ms.
+<li>A page can be transferred (read or write) in 0.05 ms = 50 microseconds.
+</ol>
+<p>
+The following are the most frequent queries and updates (with relative frequencies in parentheses):
+<ol>
+<li>Find an apartment (showing the address, apartment number and room photo) that has
+a room of a particular type whose size is at least a specified area. (500)
+<li>Find an apartment (showing the address, apartment number and apartment photo) whose
+rent is at most a specified amount. (1000)
+<li>Add a person to the database. (50)
+<li>Add or remove an owner to an apartment, given the building address, apartment number and person name. (100)
+</ol>
+<p>
+The problem is physical database design. In other words, you must determine the
+collection of indexes that your database system will be maintaining.
+Give suggestions about which indexes might help each of the queries.
+For each suggested index
+explain why this would or would not be a good choice using the rules of thumb discussed
+in class. Be sure to address any trade-offs that might arise.
+<p>
+Just to make this assignment clear, this is not a query-by-query problem. 
+Your objective is to propose a single design that
+supports all of the queries. In doing so, you must discuss alternatives,  
+but the ultimate objective is to select a single design.
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/031.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>
+

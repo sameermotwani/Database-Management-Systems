@@ -1,0 +1,122 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/262.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:39 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2012 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+<ol>
+<li>A highway network consists of highways.  A position on the
+highway is specified by the distance from the beginning of the highway to the
+position.  A highway is divided into segments.  Each segment starts where the
+previous segment ends.  For each segment, specify where it ends.  Each segment
+has a maximum speed and may have a minimum speed.  Highways can intersect
+highways.  The location of an intersection is specified by the positions of the
+intersection on the two highways that intersect.
+<p>
+<center><img src='images/266.gif' width='800' alt=Highway UML Diagram'></center>
+<p>
+<li>A state is keeping track of literacy rates in their districts,
+and running programs to improve the literacy rates.  The following is the
+UML diagram:
+<p>
+<center><img src='images/267.gif' width='600' alt='Literacy UML Diagram'></center>
+<p>
+Translate this model to the relational model.
+<p>
+<pre>
+create table District(
+  id int primary key,
+  name varchar(255) not null,
+  literacyRate double
+);
+create table Person(
+  id int primary key,
+  name varchar(255) not null
+);
+create table Program(
+  id int primary key,
+  title varchar(255) not null
+);
+create table Participation(
+  assists int references District(id) on update cascade on delete cascade,
+  participatesIn int references Program(id) on update cascade on delete cascade,
+  level enum('Low', 'Medium', 'High') not null,
+  primary key(assists, participatesIn)
+);
+create table Employment(
+  worksAtAssists int,
+  worksAtParticipatesIn int,
+  employs int references Person(id) on update cascade on delete cascade,
+  foreign key(worksAtAssists, worksAtParticipatesIn) references
+    Participation(assists, participatesIn) on update cascade on delete cascade,
+  primary key(worksAtAssists, worksAtParticipatesIn, employs)
+);
+</pre>
+<p>
+The next two problems use the following database schema.
+The "vin" is the vehicle identification number.
+<p>
+<pre>
+create table Part(
+  id int primary key,
+  name varchar(255),
+  partOf int,
+  foreign key(partOf) references Part(id)
+    on update cascade on delete cascade,
+  madeBy int not null,
+  foreign key(madeBy) references Manufacturer(id)
+    on update cascade on delete cascade  
+);
+create table Chassis(
+  id int primary key,
+  vin char(17) not null,
+  foreign key(id) references Part(id)
+    on update cascade on delete cascade
+);
+create table Manufacturer(
+  id int primary key,
+  name varchar(255) not null
+);
+</pre>
+<p>
+<li>Show the name and vin of every chassis that
+has a name and that is manufactured by Ford.
+<p>
+<pre>
+select p.name, c.vin
+  from Chassis c, Part p, Manufacturer m
+ where c.id = p.id
+   and p.madeBy = m.id
+   and p.name is not null
+   and m.name = 'Ford';
+</pre>
+<p>
+<li>List the vin of every chassis manufactured by Ford,
+but all of whose parts are manufactured by Fiat.  
+List each chassis with this property exactly once.
+(Note: Consider only the parts of the chassis, not the parts of
+the parts, etc.)
+<p>
+<pre>
+select c.vin
+  from Chassis c, Part p, Manufacturer m
+ where p.id = c.id
+   and p.madeBy = m.id
+   and m.name = 'Ford'
+   and not exists(
+         select *
+           from Part q, Manufacturer n
+          where q.partOf = p.id
+            and q.madeBy = n.id
+            and n.name <> 'Fiat'
+       );
+</pre>
+</ol>
+<p>&#169; 2012 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/262.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:41 GMT -->
+</html>

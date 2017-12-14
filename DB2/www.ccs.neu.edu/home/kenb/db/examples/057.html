@@ -1,0 +1,67 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/057.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:33 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+This is a solution to a <a href="047.html">sample exercise</a>.
+<p>
+<pre>
+create table Document (
+  position int primary key auto_increment,
+  chapter varchar(10) not null,
+  word varchar(60) not null
+);
+
+load data infile '/home/shared/corpus.txt' into table Document(chapter, word);
+
+create table Zipf (
+  rank int primary key auto_increment,
+  frequency int not null
+);
+
+insert into Zipf(frequency)
+select count(*)  
+ from Document d
+ group by d.word
+ order by count(*) desc;
+
+select sum(log(rank/10108)/log(2)*frequency/161399)
+  from Zipf;
+
+create view TF(chapter, word, frequency) as
+  select d.chapter, d.word, count(*)
+    from Document d
+   group by d.chapter, d.word;
+
+create view IDF(word, idf) as
+  select d.word, log(10108/count(distinct d.chapter))/log(2)
+    from Document d
+   group by d.word;
+
+create view Norm(chapter, distance) as
+  select t.chapter, sqrt(sum((t.frequency*i.idf)*(t.frequency*i.idf)))
+    from TF t, IDF i
+   where t.word = i.word
+   group by t.chapter;
+
+create table Query (
+  word varchar(60) primary key
+);
+
+select t.chapter, sum(t.frequency*i.idf)/l.distance sim
+  from TF t, IDF i, Norm l
+ where t.word = i.word
+   and t.chapter = l.chapter
+   and exists (select * from Query q where q.word = t.word)
+ group by t.chapter
+ order by sim desc;
+</pre>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/057.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:33 GMT -->
+</html>

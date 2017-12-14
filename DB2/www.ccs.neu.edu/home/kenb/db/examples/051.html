@@ -1,0 +1,112 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/051.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:04 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+<ol>
+<li>
+This part of the assignment uses the rationale database in <a href="3.html3.html">Assignment #3</a>.
+<p>
+Express the following queries in SQL:
+<ol>
+ <li>Find the solutions that are very supported by every related criterion.
+     For each such solution show the issue subject.
+ <li>Find all issue subjects (without duplicates) with no solutions that were unfavorably reviewed by George.
+ <li>Find the criteria that have never been neutral toward a solution that Fred has favored.
+</ol>
+<p>
+<li>
+This part of the assignment uses a database of books.
+A book is divided into chapters which are divided into sections.
+Each part of a book (i.e., the whole book, a chapter or a section) has a title.
+A book may have an author, a chapter may have a quotation, and a section has text.
+A section may cite parts of the same or other books. Here is the schema:
+<p>
+<pre>
+create table Part(
+  id int primary key,
+  title varchar(255) not null
+);
+create table Book(
+  id int primary key,
+  foreign key(id) references Part(id) on update cascade on delete cascade,
+  author varchar(255)
+);
+create table Chapter(
+  id int primary key,
+  foreign key(id) references Part(id) on update cascade on delete cascade,
+  book int not null,
+  foreign key(book) references Book(id) on update cascade on delete cascade,
+  quotation varchar(2000)
+);
+create table Section(
+  id int primary key,
+  foreign key(id) references Part(id) on update cascade on delete cascade,
+  chapter int not null,
+  foreign key(chapter) references Chapter(id) on update cascade on delete cascade,
+  text varchar(60000) not null
+);
+create table SectionCitation(
+  section int,
+  foreign key(section) references Section(id) on update cascade on delete cascade,
+  citation int,
+  foreign key(citation) references Part(id) on update cascade on delete cascade,
+  primary key(section, citation)
+);
+</pre>
+<p>
+Express the following queries using the relational algebra:
+<ol>
+<li>Citations to George's books.
+<pre>
+select p.id, p.title
+  from Book b, Chapter c, Section s, SectionCitation sc, Part p
+ where b.author = 'George'
+   and c.id = s.chapter
+   and s.id = sc.section
+   and p.id = sc.citation
+   and b.id = c.book;
+</pre>
+<li>Chapters of "War and Peace" that are not cited.
+<pre>
+select c.id
+  from Book b, Chapter c, Part p
+ where c.book = b.id
+   and p.title = 'War and Peace'
+   and p.id = c.id
+   and not exists(
+        select *
+          from SectionCitation sc
+         where sc.citation = c.id
+   );
+</pre>
+<li>Authors that have a part title beginning with "And ".
+<pre>
+select b.author
+  from Part p, Section s, Chapter c, Book b
+ where p.title like 'And %'
+   and p.id = s.id
+   and s.chapter = c.id
+   and c.book = b.id
+union
+select b.author
+  from Part p, Chapter c, Book b
+ where p.title like 'And %'
+   and p.id = c.id
+   and c.book = b.id
+union
+select b.author
+  from Part p, Book b
+ where p.title like 'And %'
+   and p.id = b.id;
+</pre>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/051.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+</html>

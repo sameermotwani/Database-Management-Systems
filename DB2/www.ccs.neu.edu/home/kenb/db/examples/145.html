@@ -1,0 +1,54 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/145.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+This is a solution to a <a href="146.html">sample exercise</a>.
+<p>
+<ol>
+<li>What is the relationship between files and indexes?
+<p>
+An index is a special kind of file that improves retrieval of records in another file.
+<li>What is a search key? Explain what it is and what it is used for.
+<p>
+A search key is usually a sequence of one or more fields of a relation.
+It can, in principle, be any search criterion for records in a relation.
+It is used for retrieving records in a relation.
+<li>What is a hash bucket?
+<p>
+A hash bucket is the storage area for all entries in a hash table that have the
+same value of the hash function.  It consists of a primary disk block and optional
+overflow disk blocks.
+<li>What is the difference between an internal node and a leaf node of a tree-structured file?
+<p>
+The lowest level of a tree-structured file consists of the leaf nodes.
+The root node is the highest level node.  All other nodes are internal nodes.
+<li>How many search keys of a file can be clustered?
+<p>
+At most one search key can be clustered.
+<li>What is the difference between a block and a sector?
+<p>
+A block is a contiguous sequence of sectors.
+A sector is the physical unit of storage for a disk drive.
+<li>What is the purpose of the dirty flag?
+<p>
+The dirty flag is a boolean variable associated with a block in the buffer
+that is true if and only if the buffer block differs from the corresponding block on disk.
+<li>RAID arrays give better reliability and performance than single disks.
+Why would one ever use a single disk?
+<p>RAID arrays cost more. If the reliability and performance advantages are not required,
+then one will not pay for a RAID array.
+<li>What is a buffer replacement policy?
+<p>
+This is the criterion that is used for determining which buffer block will be
+replaced with a different disk page when one runs out of available space in the buffer.
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/145.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>

@@ -1,0 +1,139 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/091.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2009 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Sample Exercise</h2></center>
+<h3>Part A.</h3>
+<p>
+Answer Exercise 17.2 in the textbook but only for the classes:
+serializable, conflict-serializable, view-serializable and strict.
+<p>
+<h3>Part B.</h3>
+<p>
+Show the optimized query evaluation plans for the following schema and queries.
+For each query show at least two reasonable evaluation plans, and for each
+plan show your computation of the estimated time required to evaluate the
+query using the plan. 
+The schema is the one in <a href="090.html">Assignment #4</a>
+<p>
+<pre>
+create table Person(
+  id int,
+  primary key(id) using hash, -- [count 10K]
+  dob date not null,
+  name varchar(255) not null
+);
+create table Composition(
+  name varchar(255),
+  primary key(name) using hash, -- [count 100K]
+  duration int not null,
+  composedBy int,
+  foreign key(composedBy) references Person(id) on update cascade on delete cascade
+);
+create table Instrument(
+  id int,
+  primary key(id) using hash, -- [count 1K]
+  name varchar(255) not null,
+  index(name) using btree, -- [nearly unique]
+  musicalKey varchar(255),
+  index(musicalKey) using hash -- [count 100]
+);
+create table usesInstrument(
+  composition varchar(255),
+  foreign key(composition) references Composition(name) on update cascade on delete cascade,
+  instrument int,
+  foreign key(instrument) references Instrument(id) on update cascade on delete cascade,
+  count int not null,
+  primary key(composition, instrument) using btree -- [count 1M] 
+);
+
+create table StringInstrument(
+  id int,
+  primary key(id) using hash, -- [count 500]
+  foreign key(id) references Instrument(id) on update cascade on delete cascade,
+  numberOfStrings int not null
+);
+create table BrassInstrument(
+  id int,
+  primary key(id) using hash, -- [count 200]
+  foreign key(id) references Instrument(id) on update cascade on delete cascade,
+  numberOfValves int not null
+);
+create table PercussionInstrument(
+  id int,
+  primary key(id) using hash, -- [count 200]
+  foreign key(id) references Instrument(id) on update cascade on delete cascade
+);
+</pre>
+<p>
+<ol>
+<li>Find all distinct names of instruments in the key of C in descending alphabetical order.
+<p>
+<pre>
+select i.name
+  from Instrument i
+ where i.musicalKey = 'C# minor'
+ order by i.name desc
+</pre>
+<li>Find all compositions and their composers that use an instrument whose name begins with "o"
+<p>
+<pre>
+select c.name, p.name
+  from Composition c, Person p, usesInstrument u, Instrument i
+ where c.composedBy = p.id
+   and u.instrument = i.id
+   and u.composition = c.name
+   and i.name like 'o%'
+</pre>
+<p>
+<li>Find all compositions that were not composed by a person who was born in the 20th century.
+<p>
+<pre>
+select c.name
+  from Composition c
+ where c.composedBy is null
+union
+select c.name
+  from Composition c, Person p
+ where c.composedBy = p.id
+   and (p.dob < '1900-01-01' or p.dob >= p.dob >= '2000-01-01')
+</pre>
+<p>
+<li>Find the names of composers who never use a percussion instrument.
+<pre>
+select p.name
+  from Person p
+ where not exists (
+         select *
+           from Composition c, usesInstrument u, PercussionInstrument pi
+          where c.composedBy = p.id
+            and u.composition = c.name
+            and u.instrument = pi.id
+       )
+</pre>
+<p>
+<p>
+<li>Find the names of instruments used by all the compositions that are at least an hour long.
+<p>
+<pre>
+select i.name
+  from Instrument i
+ where not exists (
+         select *
+           from Composition c
+          where c.duration >= 60
+            and not exists (
+                  select *
+                    from usesInstrument u
+                   where u.instrument = i.id
+                     and u.composition = c.name
+                )
+       )
+</pre>
+</ol>
+<p>&#169; 2009 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/091.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>
+

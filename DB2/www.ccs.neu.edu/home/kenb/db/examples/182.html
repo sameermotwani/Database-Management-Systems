@@ -1,0 +1,238 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/182.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:00 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h2>Solution to Sample Exam</h2></center>
+<p>
+This is a solution to a <a href="183.html">sample exam</a>.
+<p>
+<ol>
+<li><!-- Problem #1 -->(12 points)
+A geographer has a database of cities that are located on rivers (and only cities like this).
+A city can be located on several rivers, and a river may meet some cities.
+Each city has a name, possibly several. A river has a unique name and a length.
+A river can be the tributary of another river.
+Design a UML class diagram for the database described above.
+<p>
+<img src="images/233.gif" alt="Geography Database Design"/>
+<p>
+<font color="red">
+Grading Criteria
+<ol>
+<li>City class
+<li>name attribute of City class
+<li>name attribute of City class has multiplicity 1..*
+<li>River class
+<li>name attribute of River class
+<li>name attribute of River class is unique
+<li>length attribute of River class with appropriate names
+<li>length attribute of River class has type double
+<li>Association between City and River
+<li>Association between City and River has multiplicity 1..* on River end
+<li>Association between City and River has multiplicity 0..* on City end
+<li>Recursive association on River with appropriate names
+<li>Recursive association on River has multiplicity 0..1 on one side
+<li>Recursive association on River has multiplicity 0..* on the other side
+</ol>
+</font>
+<p>
+<li><!-- Problem #2 -->(17 points)
+Here is a data model written in UML:
+<p>
+<img src="images/232.gif"/>
+<p>
+Translate this data model to SQL.
+<p>
+<font color="green">
+<pre>
+create table Person (
+  id int primary key,
+  name varchar(255) not null unique,
+  dob date not null
+);
+create table Company (
+  id int primary key
+);
+create table CompanyTitle (
+  company int,
+  foreign key(company) references Company(id) on update cascade on delete cascade,
+  title varchar(255),
+  primary key(company, title)
+);
+create table Employment (
+  employs int,
+  foreign key(employs) references Person(id) on update cascade on delete cascade,
+  employedBy int,
+  foreign key(employedBy) references Company(id) on update cascade on delete cascade,
+  position varchar(255),
+  primary key(employs, employedBy)
+);
+-- The following is not required:
+alter table Person
+  add foreign key(id) references Employment(employs) on update no action on delete no action;
+</pre>
+</font>
+<p>
+<font color="red">
+Grading criteria:
+<p>
+<ol>
+<li>create table Person
+<li>id int primary key
+<li>name is a varchar
+<li>name is not null and not primary key
+<li>name is unique
+<li>dob is a date
+<li>dob is not null
+<li>create table Company
+<li>id int primary key
+<li>create table CompanyTitle
+<li>company int
+<li>company references Company(id) on update cascade on delete cascade
+<li>title is a varchar
+<li>primary key(company, title)
+<li>create table Employment
+<li>employs int
+<li>employs references Person(id) on update cascade on delete cascade
+<li>employedBy int
+<li>employedBy references Company(id) on update cascade on delete cascade
+<li>position is a varchar
+<li>position can be null
+<li>primary key(employs, employedBy)
+<li>Person.id references Employment(employs)
+</ol>
+</font>
+<p>
+<li><!-- Problem #3 -->Here is an SQL schema for tracking the time spent by miners in various mines:
+<pre>
+create table Person (
+  id int primary key,
+  name varchar(100)
+);
+create table Mine (
+  designation varchar(100) primary key,
+  location varchar(5000) not null
+);
+create table WorkInterval (
+  miner int references Person(id)
+    on update cascade on delete cascade,
+  mine varchar(100) not null references Mine(designation)
+    on update cascade on delete cascade,
+  start datetime not null,
+  end datetime,
+  primary key(miner, start),
+  check (end is null or end > start)
+);
+</pre>
+Write the following queries in SQL:
+<p>
+A. (8 points) For each miner, list the miner's name and the date when the miner first started working in some mine.
+<p>
+<font color="green">
+<pre>
+select p.name, min(w.start)
+  from Person p, WorkInterval w
+ where p.id = w.miner
+ group by p.id;
+</pre>
+</font>
+<p>
+<font color="red">
+Grading criteria:
+<p>
+<ol>
+<li>select p.name
+<li>(2 points) select min(w.start)
+<li>from Person p
+<li>from WorkInterval w
+<li>where p.id = w.miner
+<li>(2 points) group by p.id
+</ol>
+</font>
+<p>
+Some solutions used a nested subquery instead of grouping.
+This results in duplication in the result set.
+Unfortunately, specifying distinct will remove required duplicates.
+<p>
+B. (8 points) List the mines by location that have a person named Luis who has worked in the mine.
+<p>
+<font color="green">
+<pre>
+select m.location
+  from Mine m
+ where exists (select *
+                 from WorkInterval w, Person p
+                where m.designation = w.mine
+                  and w.miner = p.id
+                  and p.name = 'Luis');
+</pre>
+</font>
+<p>
+<font color="red">
+Grading criteria:
+<p>
+<ol>
+<li>select m.location
+<li>from Mine m
+<li>where exists (select *
+<li>from WorkInterval w
+<li>from Person p
+<li>where m.designation = w.mine
+<li>and w.miner = p.id
+<li>and p.name = 'Luis'
+</ol>
+</font>
+<p>
+<li><!-- Problem #4 -->(15 points)
+Using the schema in the previous problem,
+the following method prints the miners who are currently in a specified mine and how long each has been in the mine (in hours):
+ <pre>
+public void printWorkingMiners(Connection connection, String mine) throws SQLException {
+    long currentTime = System.currentTimeMillis();
+    Date now = new Date(currentTime);
+    PreparedStatement statement = connection.prepareStatement
+        ("select p.name, p.id, w.start from Person p, WorkInterval w " +
+         "where w.miner=p.id and w.mine=? and w.start&lt;? and w.end is null");
+</pre>
+<font color="blue">
+ <pre>
+    statement.setString(1, mine);
+    statement.setDate(2, now);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+        String name = rs.getString(1);
+        int id = rs.getInt(2);
+        Date start = rs.getDate(3);
+</pre>
+</font>
+ <pre>
+        double durationInHours = (currentTime - start.getTime()) / (1000.0 * 3600.0);
+        System.out.println(name + " (" + id + ") has been in the mine for " + durationInHours + " hours.");
+    }
+    statement.close();
+}
+</pre>
+Fill in the missing statements.
+</ol>
+<p>
+<font color="red">
+Grading criteria:
+<p>
+<ol>
+<li>(2 points) statement.setString(1, mine);
+<li>(2 points) statement.setDate(2, now);
+<li>(3 points) ResultSet rs = statement.executeQuery();
+<li>(2 points) while (rs.next()) {
+<li>(2 points) String name = rs.getString(1);
+<li>(2 points) int id = rs.getInt(2);
+<li>(2 points) Date start = rs.getDate(3);
+</ol>
+</font>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/182.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:01 GMT -->
+</html>

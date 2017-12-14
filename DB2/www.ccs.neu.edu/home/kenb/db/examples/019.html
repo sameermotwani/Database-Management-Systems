@@ -1,0 +1,105 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/019.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+<ol>
+<li>This requires two commands: delete existing owners, then insert new ones.
+There can be more than one building at 100 Main Street and more than one
+apartment numbered 2C. There could also be more than one person named Fred
+and more than one person named George.
+<p>
+<pre>
+delete from Owner where exists (
+  select *
+    from Apartment a, Building b
+   where apartment = a.id
+     and a.building = b.id
+     and a.number = '2C'
+     and b.address = '100 Main Street'
+);
+
+insert into Owner(person, apartment)
+select p.id, a.id
+  from Person p, Apartment a, Building b
+ where (p.name = 'Fred' or p.name = 'George')
+   and a.number = '2C'
+   and a.building = b.id
+   and b.address = '100 Main Street';
+</pre>
+<p>
+<li>This is the long form. The "distinct" is not required.
+<pre>
+select distinct b.address
+  from Building b, Apartment a, Room r, RoomType t, 
+       RoomTypeName n, ApartmentFloor f, Owner o, Person p
+ where b.id = a.building
+   and a.id = r.apartment
+   and r.type = t.id
+   and t.id = n.type
+   and a.id = f.apartment
+   and a.id = o.apartment
+   and o.person = p.id
+   and r.area > 1000
+   and n.name = 'Living Room'
+   and f.floor >= 5
+   and p.name = 'Fred';
+</pre>
+<p>
+Here is the short form. One can omit the RoomType:
+<p>
+<pre>
+select distinct b.address
+  from Building b, Apartment a, Room r, RoomTypeName n, 
+       ApartmentFloor f, Owner o, Person p
+ where b.id = a.building
+   and a.id = r.apartment
+   and r.type = n.type
+   and a.id = f.apartment
+   and a.id = o.apartment
+   and o.person = p.id
+   and r.area > 1000
+   and n.name = 'Living Room'
+   and f.floor >= 5
+   and p.name = 'Fred';
+</pre>
+<p>
+<li>The 3 rooms must have the same type. So rephrase the query as find
+apartments such that there exists a room type such that the apartment
+has 3 or more rooms with that type.
+<p>
+<pre>
+select b.address, a.number
+  from Building b, Apartment a
+ where b.id = a.building
+   and exists (
+         select *
+           from RoomType t
+          where 3 <= (select count(*)
+                        from Room r
+                       where r.type = t.id
+                         and r.apartment = a.id)
+       );
+</pre>
+<p>
+<li>
+Group by building primary key and order by the address.  Some databases are
+not smart enough to figure out that address is constant in the b.id groups. For
+these, one must group by both b.id and b.address.
+<pre>
+select b.address, count(*)
+  from Building b, Apartment a
+ where b.id = a.building
+ group by b.id
+ order by b.address;
+</pre>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/019.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+</html>

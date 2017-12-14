@@ -1,0 +1,79 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/126.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+For the following SQL schema:
+<p> 
+<pre>
+
+create table Address (
+  street varchar(100),
+  city varchar(100),
+  state char(2),
+  zipcode char(5),
+  primary key(street, city, state),
+  unique(street, zipcode)
+);
+
+create table Building (
+  id int primary key,
+  street varchar(100) not null,
+  city varchar(100) not null,
+  state char(2) not null,
+  foreign key (street, city, state) references Address (street, city, state)
+    on update cascade on delete no action
+);
+
+create table Apartment (
+  id int primary key,
+  number varchar(31) not null,
+  containedIn int not null references Building
+    on update cascade on delete cascade,
+  area double,
+  roomCount int,
+  check (roomCount > 0)
+);
+
+create table Person (
+  id int primary key,
+  name varchar(1000) not null,
+  street varchar(100) not null,
+  city varchar(100) not null,
+  state char(2) not null,
+  foreign key (street, city, state) references Address (street, city, state)
+    on update cascade on delete no action
+);
+
+create table Owner (
+  ownedBy int references Person
+    on update cascade on delete cascade,
+  owns int references Apartment
+    on update cascade on delete cascade,
+  start date not null,
+  end date,
+  primary key(ownedBy, owns)
+);
+</pre>
+<p>
+Show how to do the following using SQL:
+<p>
+<ol>
+<li>List the current owners (by name) of any apartment in zipcode 02115. It is okay to list an owner more than once.
+<li>Same as above, but do not list an owner more than once. Note that names may not be unique.
+<li>Show the apartments by number and building id that have at least one owner whose address is in a different state than the apartment.
+    Do not list an apartment more than once.
+<li>End the ownerships of apartments by anyone named Steve.
+<li>List all buildings by id and full address that have more than 20 apartments.
+<li>List the apartments that have more than 6 rooms, in order by their number and building id. Also show the number of current owners of the apartment.
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/126.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+</html>
+

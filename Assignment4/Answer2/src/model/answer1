@@ -1,0 +1,14 @@
+Map Mcode faAddress
+
+iterate map
+mid
+productid
+productTypeID
+employeeid -- LEVEL -->
+
+
+select m.id
+from machine m,factory f
+where f.address= key
+and f.id=m.partOf
+and m.code=ourMap.get(key);

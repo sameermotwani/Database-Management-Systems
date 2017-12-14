@@ -1,0 +1,302 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/180.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head>
+<body>
+<center><h2>Sample Exam</h2></center>
+<p>
+<ol>
+<li><b>Transaction Isolation Level</b>. (8 points)
+You wish to determine the current total sales for the stores in a large chain of stores.
+What isolation level should be used? 
+<p>
+<font color="green">
+The best choice is READ UNCOMMITTED.
+</font>
+<p>
+Explain the reasons for your choice compared with
+the other isolation levels.
+<p>
+<font color="green">
+This is a read-only transaction that requires reading a large number of records
+to compute a continually changing total sales level. Here are the comparisons
+with the other isolation levels.
+ <ul>
+ <li>SERIALIZABLE. This isolation level would effectively shut down the entire
+system while it is running which could be a very long time. No chain of stores
+could afford to stop all of its transactions for such a long period of time.
+Furthermore, while this isolation level would ensure that the computed sales 
+level is consistent and correct when it is computed, the sales level would immediately
+change, so consistency and correctness are of no benefit.
+ <li>REPEATABLE READ. This has essentially the same disadvantage as SERIALIZABLE
+with respect to the effect on the system. It will still need to hold a large
+number of locks until commit time. Removing phantom protection improves performance
+slightly, but not enough to make a significant difference.
+ <li>READ COMMITTED. This has much better performance than REPEATABLE READ.
+However, it still has more of an impact on the system than READ UNCOMMITTED. 
+READ COMMITTED allows phantoms and need not compute a consistent result even
+when there are no phantoms. So it will only give an approximate result.
+This is the same as READ UNCOMMITTED, so there is no advantage to the use of
+READ COMMITTED.
+ </ul>
+</font>
+<p>
+<font color="red">
+Note that the problem requires that exactly one choice be made for the
+isolation level. As a general rule, if one gives multiple answers on an
+exam, then the score is determined by the worst answer given. Thus there
+is no advantage to giving multiple answers on an exam. Note that this
+rule applies to any exam, not just to this one.
+</font>
+<p>
+<font color="green">
+The arguments were scored based on two criteria:
+ <ol>
+ <li>Whether the argument matches the situation being considered.
+Thus, a generic argument that would apply to any situation will have
+a much lower score than one that makes use of the situation.
+ <li>Whether the argument makes a case for the choice made.
+So one could get a full score on the argument part of the problem
+even if the choice was not correct, and vice versa.
+ </ol>
+Note that these criteria apply to any exam, not just to this one.
+</font>
+<p>
+<li><b>Serializability</b>. (8 points)
+Three transactions are running concurrently on a database system.
+They perform the following actions:
+<p><tt>
+ T<sub>3</sub>:W(Z), T<sub>2</sub>:R(X), T<sub>2</sub>:W(Y), T<sub>2</sub>:Commit, 
+ T<sub>1</sub>:R(Z), T<sub>3</sub>:W(Y), T<sub>3</sub>:Commit, 
+ T<sub>1</sub>:W(Y), T<sub>1</sub>:Commit
+</tt>
+<p>
+Determine whether this schedule belongs to each of these classes:
+ serializable, conflict-serializable, view-serializable and strict.
+Explain why or why not in each case.
+<p>
+<font color="green">
+ <ul>
+ <li>Conflict-serializable. There is a WR conflict on Z between T<sub>3</sub> &rarr; T<sub>1</sub>.
+There are WW conflicts on Y for all 3 transactions: T<sub>2</sub> &rarr; T<sub>3</sub> &rarr; T<sub>1</sub>.
+The resulting graph is acyclic so the schedule is conflict-serializable with serial order 
+{T<sub>2</sub>, T<sub>3</sub>, T<sub>1</sub>}.
+ <li>View-Serializable. It is view-serializable because it is conflict-serializable. However, if one examines
+just the issue of view-serializability, one finds that there are two serial schedules that are view-equivalent
+to the original schedule: {T<sub>2</sub>, T<sub>3</sub>, T<sub>1</sub>} and {T<sub>3</sub>, T<sub>2</sub>, T<sub>1</sub>}.
+ <li>Serializable. It is serializable because it is conflict-serializable.
+ <li>Strict. It is not strict because T<sub>1</sub> reads Z after T<sub>3</sub> writes it and before T<sub>3</sub> commits.
+ </ul>
+</font>
+<p>
+<li><b>Cost of Index Operations</b>. (12 points)
+The following table contains author names from 2,000,000 research papers:
+<pre>
+ create table Researcher(title varchar(250), author varchar(250), 
+                         primary key(title, author), index(author));
+</pre>
+The average length of a title is 90 bytes, the average length of an author is 30 bytes.
+The average overhead for each record is 10 bytes. A disk block is 8,192 bytes. A random I/O takes 12ms, and
+the time to read one block sequentially is 0.1ms.
+On average, each research paper has 10 authors. How many disk blocks are required for
+this table? Show your work. 
+<p>
+<font color="green">
+There are 2,000,000 papers and 10 authors/paper, so there are 20,000,000 records in all.
+A record requires 130 bytes so 63 will fit in one block. If the blocks are full (heap),
+then one will need about 300,000 blocks. If the blocks are 2/3 full (B-tree), then
+one will need about 500,000 blocks.
+</font>
+<p>
+Consider both the B-tree file structure and the heap structure. The author
+"Albert Finney" occurs in 700 research papers. Is it faster to use the index to find the titles of
+these papers or to scan the whole table sequentially? Compute the time required
+for each of these and compare them. 
+<p>
+<font color="green">
+ <ul>
+ <li>Using the index will require 700 random I/Os which takes 700*12ms = 8400ms = 8.4 seconds.
+Other I/Os are also required, but there are only a few of these so they do not affect the result.
+ <li>Scanning the table will require 300,000 or 500,000 sequential I/Os. In the former case,
+the time is 30,000ms = 30 seconds. In the latter case, the time is 50,000ms = 50 seconds. Either
+answer is acceptable.
+ </ul>
+</font>
+<p>
+<font color="red">
+One common mistake for the index computation was to compute the time to get the record pointers from the secondary index
+and then ignore the time to get the records. However, it is the time to get the records that
+dominates, so much that one can ignore the time required to use the secondary index.
+</font>
+<p>
+<font color="red">
+A common mistake for the scan computation was to assume that the primary index is ordered by author. In fact, the author is the second
+column in the primary index, so it is necessary to scan the entire table, not just the first part.
+</font>
+<p>
+<li><b>Query Optimization</b>. (12 points)
+A database has stores and merchandise. Here is the schema:
+<pre>
+ create table Store(
+   name varchar(100) primary key, 
+   location varchar(20) not null, 
+   index(location));
+ create table Merchandise(
+   id int primary key, 
+   description varchar(600) not null, 
+   index(description),
+   availableAt varchar(100),
+   foreign key(availableAt) references Store(name) on update cascade on delete set null
+ );
+</pre>
+There are 500,000 items of merchandise and 10,000 stores in the database. The average size of a
+store record is 50 bytes and the average size of a merchandise record is 100 bytes. Both of these
+include the overhead. All indexes are B-trees.
+There are 500 locations. You want to find all merchandise items sold in the location "Boston".
+Consider the following query evaluation plans:
+ <ol>
+ <li>Select Boston stores, and then join with Merchandise using an index nested loop join.
+<p>
+<font color="red">
+This is not possible because there is no index on the availableAt column of Merchandise.
+Here is the analysis if there were an index:
+</font>
+<p>
+<font color="green">
+With 10,000 stores and 500 locations, there are an average of 20 stores/location.
+Selecting the Boston stores requires 2 random I/Os for obtaining the leaf node of the index,
+and 20 random I/Os to retrieve the store records. This is a total of 22*12ms = 264ms or about 300ms.
+Each of the store records has an average of 50 merchandise items for a total of 1000 merchandise
+items, each of which requires 2 random I/Os (one for the index and one for the merchandise record).
+The time for retrieving the merchandise records is 1000*24ms = 24 seconds. The total time is about 24 seconds.
+</font>
+<p>
+ <li>Select Boston stores, and then join with Merchandise using a sort-merge join.
+<p>
+<font color="green">
+With 10,000 stores and 500 locations, there are an average of 20 stores/location.
+Selecting the Boston stores requires 2 random I/Os for obtaining the leaf node of the index,
+and 20 random I/Os to retrieve the store records. This is a total of 22*12ms = 264ms or about 300ms.
+The sort-merge join requires scanning the entire Merchandise table. There are 100 bytes in a Merchandise
+record or about 80 per block. There are 500,000 records or about 6000 blocks. Scanning this table
+sequentially requires 12ms + 6000*0.1ms = 612ms or about 600ms. So the total time is about 1 second.
+</font>
+<p>
+ <li>Join Merchandise with Store using an index nested loop and then select the merchandise in Boston stores.
+<p>
+<font color="green">
+There are 500,000 records in the Merchandise table and for each of them one must look up a store record. Each look up
+operation requires 2 random I/Os so the total time is 500,000 * 24ms = 12,000,000ms = 12,000 seconds or over 3 hours.
+Obviously, this is not a reasonable alternative.
+</font>
+<p>
+ </ol>
+Use the random and sequential I/O times specified in the previous problem.
+Discuss the performance of the 3 plans using approximate estimates. Which one is the best?
+<p>
+<font color="blue">
+The first plan is not possible, but even it was possible it would be slower than the second plan. 
+The second plan is much faster than the third.
+</font>
+<p>
+<li><b>Physical Database Design</b>. (8 points)
+The following is the database design for a film production company. 
+An actor is a person, but a person need not be an actor:
+<pre>
+ create table Person(id int primary key, 
+   name varchar(200) not null, position varchar(200));
+ create table Actor(id int primary key references Person(id) on update cascade on delete cascade,
+   biography varchar(65000));
+</pre>
+In the physical database design we consider whether to denormalize the schema
+with a single table as follows:
+ <pre>
+ create table Person(id int primary key, 
+   name varchar(200) not null, position varchar(200),
+   isActor boolean not null, biography varchar(65000));
+</pre>
+Give at least two advantages of each design relative to the other, i.e., four advantages
+in all: two in each direction. Be sure to clearly label which one is which. 
+<p>
+<font color="green">
+Advantages of the normalized (original) design.
+ <ul>
+ <li>The main advantage is the prevention of update anomalies. 
+ <li>There is no overhead required to prevent update anomalies.
+This could be regarded as being the same as the main advantage, but it is somewhat different so credit was given.
+ <li>Better query performance for queries that use only one of the tables.
+ <li>Better update performance for updates that use only one of the tables.
+ </ul>
+<p>
+Advantages of the denormalized design.
+ <ul>
+ <li>Better query performance for actor information because no join is necessary.
+ <li>Better update performance for actor information because only one table is updated.
+ <li>Simpler design because there is only a single table.
+ </ul>
+</font>
+<p>
+<font color="red">
+Characteristics that are not advantages of either design.
+ <ul>
+ <li>Space utilization. In fact, the two designs use almost exactly the same amount of space.
+The normalized design has additional overhead for storing 2 records for every actor instead of just 1 record.
+However, the denormalized design has the additional boolean attribute for every person.
+ <li>Query performance in general. Neither design is better with respect to general queries. It depends on what kind of query.
+ <li>Update performance in general. Neither design is better with respect to general updates. It depends on what kind of update.
+ <li>Intuitive design. This is a subjective judgement. Some people would regard the denormalized design as more intuitive, while others would find the normalized design more intuitive. Only an objective criterion can clearly distinguish the designs.
+ </ul>
+</font>
+<p>
+<li><b>Normalization</b>. (12 points)
+Normalize the relation ABCDEFG when it satisfies the following functional dependencies:
+ <ul>
+ <li>E&rarr;G
+ <li>AC&rarr;D
+ <li>FG&rarr;E
+ <li>AFG&rarr;B
+ </ul>
+Show the list of all candidate keys of the relation.
+<p>
+<font color="green">
+The core is ACF. This determines D, so the exterior attributes are EG.
+ <ul>
+ <li>ACFE determines DGB so it is a key.
+ <li>ACFG determines DEB so it is a key.
+ </ul>
+</font>
+<p>
+<font color="red">
+Note that the relation ABCDEFG is not 3NF because AC&rarr;D and AFG&rarr;B determine attributes that
+are not in either of the candidate keys.
+</font>
+<p>
+Decompose into BCNF if possible.
+<p>
+<font color="green">
+Every decomposition must include at least one relation that has the attributes EFG since FG&rarr;E is one
+of the dependencies and it cannot be inferred from the other dependencies. However, the dependency E&rarr;G is contained
+in EFG and it will not be a key since it does not determine F. Therefore, no decomposition can be BCNF.
+</font>
+<p>
+If not, then decompose into 3NF.  Show your work.
+In your normalization show the attributes in each relation and the primary
+key of each relation in the decomposition.
+<p>
+<font color="green">
+Applying the 3NF algorithm gives the following decomposition:
+ <ul>
+ <li>EG with primary key E.
+ <li>ACD, with primary key AC.
+ <li>EFG, with primary key FG.
+ <li>ABFG, with primary key AFG.
+ <li>ACEF, with primary key ACEF.
+ </ul>
+The last relation could also be ACFG with primary key ACFG.
+</font>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/180.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>

@@ -1,0 +1,100 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/284.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:43 GMT -->
+<body>
+<center><h1>Specifying Uniqueness Constraints in UML</h1></center>
+<p>
+
+Uniqueness constraints are commonly used in relational database systems but are
+not often used in software engineering data models.  Primary keys, for example,
+are never needed since every class has object identity and associations are
+implicitly constrained.  Global uniqueness constraints such as "Every car has a
+unique vehicle identification code" are difficult to impose in a software
+system.  Unlike a relational database system, there is usually no data
+structure in a software system that automatically references all of the objects
+of a class.  In Java, for example, if one has a class Car, there is no
+automatically defined mechanism for examining all of the objects that are
+instances of the class Car.  One could, for example, introduce a static
+instance variable of type Set&lt;WeakReference&lt;Car&gt;&gt; such that
+whenever an instance of the class Car is constructed, a weak reference is added
+to the set.  This would allow checking global constraints such as uniqueness
+constraints.  However, this is rarely done in practice.  Aside from the
+overhead involved in maintaining the set and the weak references, it is
+complicated to use weak references.  For example, if one wished to "delete" an
+instance of Car (i.e., remove all references to the instance) and then
+construct another one with the same vehicle identification code, one would have
+to wait until the "deleted" car object was garbage collected before
+constructing the new car object.  Unless the garbage collector is explicitly
+invoked, there is no guarantee that a specific object will ever be garbage
+collected.
+
+<p>
+
+The example of the Car class should help explain why UML does not directly
+support global uniqueness constraints.  This is not a limitation of UML because
+one can specify constraints using OCL, either directly on the class or
+indirectly using stereotypes.  Here is an example of how one would specify a
+uniqueness constraint using a stereotype:
+
+<p>
+
+<center>
+<img src="images/286.jpg" alt="Specifying an Organization object to have a unique name"/>
+</center>
+
+<p>
+
+In this example one specifies that an organization has a unique name.  Alternatively,
+one can use cardinality constraints to specify uniqueness.  The following UML diagram
+imposes the same constraint that an organization has a unique name:
+
+<p>
+
+<center>
+<img src="images/285.jpg" alt="Specifying an Organization object to have a unique name"/>
+</center>
+
+<p>
+
+One other approach for specifying a uniqueness constraint in UML is to use
+qualified associations.  A qualified association imposes a local rather than a
+global uniqueness constraint.  While this is not the same as a global
+uniqueness constraint, it is often more appropriate in practice, and it is easy
+to implement in programming languages using existing constructs.  For example,
+if we only require that organization names be unique within the state in which
+they were incorporated, then this can be specified in UML as follows:
+
+<p>
+
+<center>
+<img src="images/287.jpg" alt="Specifying an Organization object to have a unique name within its state"/>
+</center>
+
+<p>
+
+In Java, for example, this qualified association can be implemented with an
+instance variable of type Map&lt;Organization&gt; in the State class.  In
+general, if a global uniqueness constraint is required, it can be specified in
+UML by introducing a singular class and a qualified association with the
+singular class.
+
+<p>
+
+For a more complex example, consider countries and their parts.  A country may
+be divided into parts, such as states, provinces and so on.  These parts may be
+subdivided into subparts and so on.  The official name of any part is unique
+within its container.  A state name is unique within its country, but need not
+be globally unique.  A part can have other names.  A country may be part of one
+or more continents.  A person has at least one name and may have a phone
+number.  A person can play a role as an official of a part, such as president,
+vice-president, and so on.  A part may contain cities, exactly one of which
+exactly one is its capital.  The name of a city is unique within its part.
+
+<p>
+
+<center>
+<img src="images/288.jpg" alt="Data Model of Countries and their Parts"/>
+</center>
+
+<p>
+
+<p>&#169; 2015 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>

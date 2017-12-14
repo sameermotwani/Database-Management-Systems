@@ -1,0 +1,70 @@
+		      Criteria for data modeling notation
+
+Virtually every database textbook uses ER notation (or some variation of ER
+notation such as "crowsfoot" or EER diagrams) for database design.  On the web,
+one finds many misconceptions and misleading statements about ER. In some
+cases, the statements are simply wrong, representing commonly held beliefs that
+either have no basis in fact at all or have never be tested. For example, it is
+often claimed that the UML class diagram was derived from ER. In fact, UML was
+derived from the notations of Booch and Rumbaugh, both of which arose from
+notations that predate the ER notation. The ER notation seems to have been
+derived from Bachmann diagrams, which are unrelated to the Booch and Rumbaugh
+diagrams.
+
+The following discussion is an effort to clarify the advantages and
+disadvantages of UML class diagrams versus ER.
+
+1. Industry standard notation (de jure or de facto) rather than vendor- and/or
+product-specific notation. ER is completely nonstandard. It is dependent not
+only on the vendor but also on the product. UML is not dependent on either a
+vendor or a product.
+
+2. Compatibility with programming languages. This is important when databases
+are accessed via a programming language. Object-relational mapping frameworks
+such as Hibernate and JPA are increasingly important. UML can be used to
+generate code for such applications. ER is of no use for this purpose.
+
+ a. Tool support. UML has excellent and widespread tool support in the
+ industry. ER is also supported but only within the confines of the database
+ industry so it is not as widespread.
+
+ b. Code generation. UML has excellent code generation support. ER has none.
+
+ c. Client development. UML is compatible with Hibernate, JPA and other
+ frameworks for client development. ER is not.
+
+3. Compatibility with other design notations versus isolated design notation.
+UML is integrated with a large number of other diagram notations. This is
+important for modern software development.  ER diagrams are completely
+isolated.  Not only are they incompatible with other notations, they are even
+incompatible with other types of ER diagram.
+
+4. Notational simplicity. Arguably, UML is much simpler and more compact.  ER
+has a separate bubble for every attribute which makes even small designs into
+huge diagrams. Cardinality constraints and association classes are considerably
+more compact and cleaner in UML. Some ER diagram notations have adopted the UML
+notations which suggests that ER will eventually be subsumed by UML.
+
+5. Interoperability. An ER diagram of one type is rarely interoperable with
+one of another type, other than by manual translation. UML diagrams can be
+downloaded in XMI format and uploaded to another UML tool.
+
+6. Explicit formal semantics versus implicit and/or informal semantics. UML has
+not been completely specified formally, but it is in the process of being
+formally specified, and class diagrams are already finished. ER diagrams have
+no formal semantics other than their translation to the relational model which
+does have formal semantics. Unfortunately, this is only implicit, and one has
+access to it only if one can obtain the source code of the translator.
+Moreover, since the translation is always to a specific database system, the
+semantics are further complicated by the fact that database systems do not
+entirely conform to either the relational model or to the SQL standard.
+
+7. Object-oriented. UML is fully object-oriented. ER has none of the critical
+object-oriented features: object identity, encapsulation and data hiding.
+While ER has been extended to include some of the peripheral object-oriented
+features such as inheritance, the fact that the relational model has no support
+for these features makes these extensions dubious at best.
+
+Copyright (c) 2010 Ken Baclawski. All rights reserved. Redistribution is
+permitted only if no modifications are performed and this copyright notice
+is retained.

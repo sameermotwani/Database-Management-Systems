@@ -1,0 +1,529 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/constraint.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:22 GMT -->
+<head>
+<title>Introduction to Database Management Fall 2015</title>
+</head>
+<body>
+<center><h1>Database Constraints</h1></center>
+<p>
+
+Although not null constraints, check constraints and assertions are part of the
+SQL standard, no major database management system supports all of these
+constraints.  The constraints that are seldom supported are assertions and
+check constraints with subqueries.  Some databases, such as MySQL, will parse
+constraints with no warnings, but will then ignore them.  As a result,
+constraints must be enforced by some other technique.  One way to enforce
+constraints is to use a programming language.  However, it is more reliable to
+enforce constraints directly with the database because not all programs that
+use the database will enforce the constraint. Indeed, the programmer might not
+even know about the constraints.  Another way to enforce constraints is to use
+triggers.  This technique is more reliable because it is enforced by the
+database itself.  However, unlike SQL, the trigger syntax is not standard.  It
+varies considerably from one database management system to another.  It is also
+much more complicated to program the constraints.  This article explains two
+strategies for enforcing constraints using triggers.  It uses the MySQL syntax
+for triggers.  Oracle uses almost the same syntax.
+
+<p>
+
+The examples in this article use the following student course registration database:
+
+<p>
+<pre>
+create table Student(
+  id int primary key auto_increment,
+  name varchar(255),
+  major varchar(255)
+);
+create table Course(
+  id int primary key auto_increment,
+  code varchar(255) not null
+);
+create table Section(
+  id int primary key auto_increment,
+  number int not null,
+  partOf int not null references Course(id) on update cascade on delete cascade
+);
+create table Registration(
+  registers int references Student(id) on update cascade on delete cascade,
+  registeredIn int references Section(id) on update cascade on delete cascade,
+  primary key(registers, registeredIn)
+);
+</pre>
+<p>
+
+<h2>Enforcement with a Singular Table</h2>
+
+A singular table is a table with exactly one row.  Here is an example of a singular table:
+
+<p>
+<pre>
+create table Singular (
+  id int primary key
+);
+insert into Singular(id) values (1);
+</pre>
+<p>
+
+A singular table can be used for storing global attributes for the database.
+It can also be used for enforcing constraints.  In order to use a singular
+table for enforcing constraints, it is important that the singular table always
+have a row with a fixed value for the id field.  In this case, it is being
+assumed that the id field always has value 1.
+
+<p>
+
+<h3>Enforcing Not Null Constraints</h2>
+
+<p>
+
+We first consider how to enforce a not null constraint.  Most databases enforce
+not null constraints so it is usually not necessary to enforce them with
+triggers.  To enforce the constraint that the name column of the Student table
+is not null, one can use the following trigger:
+
+<p>
+<pre>
+create trigger NameNotNullInsert before insert on Student
+for each row 
+  insert into Singular(id) 
+  select *
+    from Singular si
+   where new.name is null;
+</pre>
+<p>
+
+This trigger is invoked whenever a new record is created for the Student table.
+The trigger fires before the new record is inserted into the table.  The new
+record is called "new".  The name for the new record being inserted varies from
+one database system to another.  An illegal insert into the Singular table is
+attempted for every record in the Singular table if the not null constraint for
+name is violated for the new record being inserted into the Student table.
+Since the Singular table has exactly one record, the insert into the Singular
+table will be attempted at most once.  One could use either <code>select *</code>
+or <code>select 1</code> for the select query on Singular.
+
+<p>
+
+Since the not null constraint could also be violated as a result of an update,
+it is also necessary to create a trigger for update.
+
+<p>
+<pre>
+create trigger NameNotNullUpdate before update on Student
+for each row 
+  insert into Singular(id) 
+  select *
+    from Singular si
+   where new.name is null;
+</pre>
+<p>
+
+<!-- These are test cases that are not shown on the HTML page. The ones that are commented will fail if executed.
+<pre>
+insert into Student(name, major) values('Angel Bose', 'CS');
+-- insert into Student(name, major) values(null, 'CS');
+-- update Student set name=null;
+select * from Student;
+</pre>
+-->
+
+<p>
+
+<h3>Check Constraints without Subqueries</h2>
+
+<p>
+
+A check constraint is specified as a clause within a table definition.  For
+example, suppose that we wanted to specify that the number of a section must be
+positive.  The table definition for Section would look like this:
+
+<p>
+ <pre>
+create table Section(
+  id int primary key auto_increment,
+  number int not null,
+  constraint SectionNumberPositive check (number &gt; 0),
+  partOf int not null references Course(id) on update cascade on delete cascade
+);
+</pre>
+<p>
+
+Most major database management systems support check constraints that do not
+have subqueries.  However, some do not support even these check constraints, so
+triggers are useful for such databases.  To enforce the check constraint using
+triggers, one must create the following two triggers:
+
+<p>
+<pre>
+create trigger NumberPositiveInsert before insert on Section
+for each row 
+  insert into Singular(id) 
+  select *
+    from Singular si
+   where new.number <= 0;
+
+create trigger NumberPositiveUpdate before update on Section
+for each row 
+  insert into Singular(id) 
+  select *
+    from Singular si
+   where new.number <= 0;
+</pre>
+<p>
+
+In general, all that is necessary is to negate the check constraint.  The rest
+of the trigger definition is the same for any check constraint.
+
+<!-- These are test cases that are not shown on the HTML page. The ones that are commented will fail if executed.
+<pre>
+insert into Course(code) values('CS1000');
+insert into Section(number, partOf) select 1, c.id from Course c where c.code = 'CS1000';
+insert into Section(number, partOf) select 2, c.id from Course c where c.code = 'CS1000';
+-- insert into Section(number, partOf) select 0, c.id from Course c where c.code = 'CS1000';
+select * from Section;
+</pre>
+-->
+
+<p>
+
+<h3>Assertions</h2>
+
+<p>
+
+An assertion is a condition that the database must always satisfy.  The syntax
+is the following:
+
+<p>
+ <pre>
+create assertion &lt;assertion name> check &lt;condition>
+</pre>
+<p>
+
+For example, to assert that a student may not be enrolled in two sections of
+the same course one can use this assertion:
+
+<p>
+ <pre>
+create assertion NoRedundantSectionEnrollment
+  check not exists (
+          select *
+            from Student s, Registration r, Section se, Course c
+           where s.id = r.registers
+             and se.id = r.registeredIn
+             and c.id = se.partOf
+           group by s.id, c.id
+          having count(*) > 1
+        );
+</pre>
+<p>
+
+In other words, when one joins the Student, Registration, Section and Course
+tables, and then groups by student and course, one should never have more than
+1 record in each group.
+
+<p>
+
+The first step for converting the assertion to triggers is to examine
+the from clause to determine which of the tables in the from clause are being
+constrained by this assertion. These are the tables such that a violation of
+the assertion will occur when one creates a new record in one of these tables.
+In this case, there is just one table that is being constrained: the
+Registration table. The assertion is that a student cannot have two different
+registrations that are for the same course.
+
+<p>
+
+The last step is to write the triggers. There will be three triggers in
+general, one for insert, one for update and one for delete.  Here is the
+trigger for insert:
+
+<p>
+<pre>
+create trigger NoRedundantSectionEnrollmentInsert after insert on Registration
+for each row 
+  insert into Singular(id)
+  select *
+    from Singular si
+   where exists (
+          select *
+            from Student s, Registration r, Section se, Course c
+           where s.id = r.registers
+             and se.id = r.registeredIn
+             and c.id = se.partOf
+           group by s.id, c.id
+          having count(*) > 1
+        );
+</pre>
+<p>
+
+In general, the triggers for update and delete look the same, but replace
+"insert" with "update" and "delete", respectively, In this case, the constraint
+cannot be violated by a delete, so one can omit this trigger.
+
+<p>
+
+Note that "not exists" in the assertion becomes "exists" in the trigger. In
+general, the condition of the assertion must be negated when used in a
+trigger.  That is because the trigger is fired when a violation of the assertion
+is being attempted.  This trigger will attempt to insert an illegal record into
+the Singular table whenever one has inserted a Registration record that would
+violate the assertion condition.  The record being inserted into the Singular
+table is illegal because it has the same id value as the record already in the
+table.  As a result, the attempt to insert the Registration record will fail if
+the assertion condition does not hold.
+
+<p>
+
+This trigger will attempt to insert an illegal record in the Singular
+table for every record already in the Singular table.  This is why it is
+necessary for the Singular table to have at least one record.  In addition, it is
+helpful to have just one record in the Singular table so that the test does as
+little work as possible.  However, the trigger will still function correctly
+even if the Singular table has more than one record.
+
+<p>
+
+In the assertion, nothing about the student and course records is used other
+than their id fields.  So the assertion could have been simplified to the
+following:
+
+<p>
+ <pre>
+create assertion NoRedundantSectionEnrollment
+  check not exists (
+          select *
+            from Registration r, Section se
+           where se.id = r.registeredIn
+           group by r.registers, se.partOf
+          having count(*) > 1
+        );
+</pre>
+<p>
+
+The trigger would then also be simplified.
+
+<p>
+<!-- These are test cases that are not shown on the HTML page. The ones that are commented will fail if executed.
+<pre>
+insert into Registration(registers, registeredIn) select s.id, se.id from Student s, Section se where s.name = 'Angel Bose' and se.number = 1;
+-- insert into Registration(registers, registeredIn) select s.id, se.id from Student s, Section se where s.name = 'Angel Bose' and se.number = 2;
+</pre>
+-->
+
+<p>
+
+<h3>Check Constraints with Subqueries</h2>
+
+<p>
+
+The last possibility we consider is the case of a check constraint with a
+subquery.  Such a constraint is as powerful as an assertion.  Any assertion can
+be expressed as a check constraint and vice versa.  For example the
+NoRedundantSectionEnrollment assertion could be expressed as a check constraint
+of the Student table as follows:
+
+<p>
+ <pre>
+create table Student(
+  id int primary key auto_increment,
+  name varchar(255),
+  major varchar(255),
+  constraint NoRedundantSectionEnrollment check (
+        not exists (
+          select *
+            from Registration r, Section se, Course c
+           where id = r.registers
+             and se.id = r.registeredIn
+             and c.id = se.partOf
+           group by c.id
+          having count(*) > 1
+        )
+);
+</pre>
+<p>
+
+Note that it is not necessary to include the Student id field in the group by
+because there is only one student record being checked.  To enforce a check
+constraint with a subquery, one should first rewrite it as an assertion, and
+then use the procedure already explained above.  The reason for doing it this
+way is that the table in which the check constraint occurs is not necessarily
+one of the relevant tables for defining triggers.  Indeed, for the
+NoRedundantSectionEnrollment, the check constraint is in the Student table, but
+the relevant table is the Registration table.
+
+<p>
+
+<h2>Enforcement with an Error Table</h2>
+
+<p>
+
+This strategy does not prevent violations of integrity. It simply documents
+them. The database administrator is then responsible for fixing the violations.
+Instead of creating a singular table, one creates a table where one can write
+error messages.
+
+<p>
+<pre>
+create table Error (
+  message varchar(1023),
+  primary key(message(300))
+);
+</pre>
+<p>
+
+By allowing messages with up to 1023 bytes, the maximum size of a message is
+too large for inclusion in a primary key. Writing message(300) in the primary
+key means that only the first 300 bytes of the message will be used in the
+primary index. The messages may be longer than 300 bytes but must be unique in
+the first 300 bytes.  This table is a not object-oriented. It represents a set
+of error message strings, not a set of error message objects.
+
+<p>
+
+One of the triggers for ensuring that students are not registered in two
+sections of the same course using this strategy looks like this:
+
+<p>
+<pre>
+drop trigger NoRedundantSectionEnrollmentInsert;
+create trigger WarnRedundantSectionEnrollmentInsert after insert on Registration
+for each row 
+  insert into Error(message)
+  select concat('A student ', s.name, ' has registered in two sections of ', c.code)
+    from Student s, Course c
+   where exists (
+           select *
+             from Section se, Registration r
+            where s.id = r.registers
+              and se.id = r.registeredIn
+              and c.id = se.partOf
+            having count(*) > 1
+         );
+</pre>
+<p>
+
+There should also be a trigger for update.  For many databases, one can only
+have one trigger for each of the six events for a table. So the trigger that
+was previously created must be dropped.  The <code>concat</code> function is
+the string concatenation functions.  It corresponds to the <code>+</code>
+operator in Java when it is applied to strings.
+
+<p>
+
+These triggers will write a message into the Error table for every instance of
+a student and course for which the student is registered in multiple sections
+of this course. Note that this includes students and courses other than the
+student and course being registered by the insert statement that triggered the
+action.  If such a message has already been written to the Error table, then
+the insert will fail.  So the first violation will be permitted but recorded in
+the Error table, while subsequent ones will be forbidden until the the message
+is deleted from the Error table.
+
+<p>
+
+The advantage of the error message strategy is that the administrator has
+better information about what caused the failure.  The first (singular table)
+strategy will cause the command to fail but does not explain why the failure
+occurred.  Combining them would give both of the advantages.  However, remember
+that there can only be one trigger for each kind of event.  So combining
+trigger actions requires that one use the stored procedure language of the
+database.
+
+<p>
+
+<!-- These are test cases that are not shown on the HTML page. The one that is commented will fail if executed.
+<pre>
+insert into Registration(registers, registeredIn) select s.id, se.id from Student s, Section se where s.name = 'Angel Bose' and se.number = 2;
+select * from Error;
+-- insert into Registration(registers, registeredIn) select s.id, se.id from Student s, Section se where s.name = 'Angel Bose' and se.number = 2;
+</pre>
+-->
+
+<p>
+
+<h2>Enforcement using the Stored Procedure Language</h2>
+
+<p>
+
+The two strategies discussed so far used only the trigger syntax and SQL
+commands.  If one is willing to use the stored procedure language of the
+database, then there are other possibilities, such as the following:
+
+<ul>
+<li>If the stored procedure language has a way to define exceptions and to
+throw them, then this is one of the best strategies.  For the
+NoRedundantSectionEnrollment assertion, it looks something like this:
+
+<p>
+ <pre>
+create trigger WarnRedundantSectionEnrollmentInsert after insert on Registration
+for each row
+  declare RedundantSectionEnrollment exception;
+  begin
+    if (exists (
+          select *
+            from Section se, Registration r
+           where s.id = r.registers
+             and se.id = r.registeredIn
+             and c.id = se.partOf
+           having count(*) > 1
+        )
+    then raise RedundantSectionEnrollment;
+    end if;
+  end;
+</pre>
+<p>
+
+The actual syntax will depend on the particular stored procedure language, of
+couse.  If an exception is raised and not caught, then the transaction in which
+the command is being executed will be rolled back.
+
+<li>Another strategy is to explicitly roll back the transaction.  This is less
+powerful than raising an exception because there is no way to "catch" such a
+rollback command.  However, some databases do not support user-defined
+exceptions.  For the NoRedundantSectionEnrollment assertion, it looks something
+like this:
+
+<p>
+ <pre>
+drop trigger WarnRedundantSectionEnrollmentInsert;
+create trigger WarnRedundantSectionEnrollmentInsert after insert on Registration
+for each row
+  begin
+    if (exists (
+          select *
+            from Section se, Registration r
+           where s.id = r.registers
+             and se.id = r.registeredIn
+             and c.id = se.partOf
+           having count(*) > 1
+        )
+    then rollback;
+    end if;
+  end;
+</pre>
+<p>
+
+The actual syntax will depend on the particular stored procedure language, of
+couse.
+
+</ul>
+
+<p>
+
+<h2>Conclusion</h2>
+
+<p>
+
+Obviously, all of these strategies are a very clumsy way to enforce integrity
+constraints.  Directly specifying not null, check and assertion constraints is
+far easier.  Unfortunately, no major database management system all of these
+kinds of constraints.  At best, they support not null constraints and check
+constraints that do not have subqueries.  Some don't even support these (such
+as MySQL) in all cases.  So currently the only reliable way to enforce these
+constraints, in general, is to use triggers.
+
+</body>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/constraint.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:22 GMT -->
+</html>

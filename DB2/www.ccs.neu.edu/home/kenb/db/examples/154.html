@@ -1,0 +1,403 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/154.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:06 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+Problems 1, 2, 3 and 6 on the exam use this schema and statistics
+for a bakery database:
+<p>
+<pre>
+create table Dessert(
+  id int primary key,
+  name varchar(300),
+  description varchar(2000)
+);
+create table Material(
+  name varchar(100) primary key,
+  unit varchar(20) not null
+);
+create table Ingredient(
+  dessert int references Dessert(id) on delete cascade on update cascade,
+  material varchar(100) references Material(name)
+    on delete cascade on update cascade,
+  amount double not null,
+  primary key(dessert, material)
+);
+create table Cake(
+  id int primary key references Dessert(id) on update cascade on delete cascade,
+  shape varchar(100)
+);
+create table Cookie(
+  id int primary key references Dessert(id) on update cascade on delete cascade,
+  weight double not null
+);
+</pre>
+<p>
+<ul>
+<li> A record requires an average of 10 bytes administrative overhead,
+including the space required for specifying the rid.
+<li> An int uses 4 bytes.
+<li> A double uses 8 bytes.
+<li> A name (in any table) or a shape uses an average of 50 bytes.
+<li> A unit uses an average of 10 bytes.
+<li> A description uses an average of 500 bytes.
+<li> There are 10K desserts, 1K materials, 6K cakes and 6K cookies.
+<li> Each dessert uses an average of 20 ingredients.
+<li> The disk block size is 8K = 8192 bytes.
+<li> A random disk access requires 6ms.
+<li> A page can be transferred (read or write) in 0.6 ms = 600 microseconds.
+</ul>
+<p>
+<ol>
+<li><b>JPA</b>. (10 points) The following method finds all cakes that use at least 5 units of chocolate.  Note that 'chocolate' is the name of a material.
+Each table has a corresponding class, and the ingredients of a cake is
+specified by an ingredients field in the Cake class which is of type Set.
+Fill in the missing statements.
+ <pre>
+    public Set&lt;Cake> getChocolateCakes(EntityManagerFactory factory) {
+        EntityManager em = factory.createEntityManager();
+        em.getTransaction().begin();
+<font color="green">
+        Query q = em.createQuery("select c from Cake c join c.ingredients i where i.material.name='chocolate' and i.amount>=5");
+        Set&lt;Cake> cakes = new HashSet&lt;Cake>();
+        for (Cake cake : (List&lt;Cake>) q.getResultList()) {
+            cakes.add(cake);
+        }
+</font>
+        em.getTransaction().commit();
+        em.close();
+        return cakes;
+    }
+</pre>
+<p>
+<font color="blue">
+Scoring criteria (1 point each):
+<ol>
+<li>Create a query object: Query q = em.createQuery
+<li>The select clause returns a cake object: "select c"
+<li>The from clause retrieves from the Cake class: "from Cake c"
+<li>Join with ingredients: "join c.ingredients i"
+<li>Where clause restricts material: "where i.material.name='chocolate'"
+<li>Where clause restricts amount: "where i.amount>=5"
+<li>Construct the cakes set: Set&lt;Cake> cakes = new HashSet&lt;Cake>();
+<li>For loop on Cake instances
+<li>Compute q.getResultList()
+<li>cakes.add(cake);
+</ol>
+<p>
+</font>
+<li><b>Query performance</b>. (8 points) 
+<ol>
+<li type="a">Compute the number of blocks required
+for the Ingredient table using a clustered heap and
+also using a B-tree.
+<p>
+<font color="green">
+An ingredient record requires 10+4+50+8=72 bytes. There are 10K desserts each of which has 20 ingredients on average,
+for a total of 200K ingredient records or 72*200K = 14,400K bytes or about 1.8K blocks for the heap and 2.7K blocks for a B-tree.
+</font>
+<p>
+<font color="blue">
+Scoring criteria (1 point each):
+<ol>
+<li>Bytes per record is 72.
+<li>Total number of bytes is 14,400 KBytes.
+<li>1.8K blocks for clustered heap.
+<li>2.7K blocks for B-tree
+</ol>
+</font>
+<p>
+<li type="a">How long does it take to compute the list of ingredients for 
+a dessert specified by an id?  Compute this for both of the following
+file structures:
+<p>
+<ol>
+<li type="i">Clustered heap for all tables.
+<li type="i">Using the following file structures:
+ <ul>
+ <li>Dessert table uses a clustered hash table on its primary key and
+ a B-tree index on the name column.
+ <li>Ingredient table uses a clustered B-tree on its primary key.
+ <li>Material table has a clustered B-tree index on its primary key.
+ <li>Both Cake and Cookie tables use a clustered hash table on their
+ primary keys.
+ </ul>
+</ol>
+<p>
+<font color="green">
+Only the Ingredient table is used for either file structure. For the
+clustered heap one must scan the entire table.  Using the computation
+from the first part of the problem this requires 6ms + 1,800 * 0.6ms = 1086ms or about 1 sec.
+For the clustered B-tree, one can use the index because the dessert id is the first column.
+As only 20 ingredients are retrieved on average, they will nearly always be in the same block.
+So it will require 6ms + 6ms = 12ms in all.
+</font>
+<p>
+<font color="blue">
+Scoring criteria (1 point each):
+<ol>
+<li>Clustered heap is scanned.
+<li>Time for the scan is about 1 second.
+<li>B-tree index is used.
+<li>Time for use of B-tree index is 12ms.
+</ol>
+</font>
+</ol>
+<p>
+<li><b>Query Optimization</b>. (14 points) The following query lists
+the names and descriptions of all desserts that are both cakes and cookies
+and whose name begins with the letter 'Z':
+<p>
+<pre>
+  select d.description
+    from Dessert d, Cake c, Cookie k
+   where c.id = d.id
+     and k.id = d.id
+     and d.name like 'Z%';
+</pre>
+<p>
+Show the optimized query plan for this query using the following table
+structures. Estimate the size of the data flow (number of records)
+along each edge in the query evaluation plan.
+ <ul>
+ <li>Dessert table uses a clustered hash table on its primary key and
+ a B-tree index on the name column.
+ <li>Ingredient table uses a clustered B-tree on its primary key.
+ <li>Material table has a clustered B-tree index on its primary key.
+ <li>Both Cake and Cookie tables use a clustered hash table on their
+ primary keys.
+ </ul>
+<p>
+<font color="green">
+There are 26 letters in the alphabet so one would expect about 384 desserts to match.
+This is much lower than the number of records in the Cookie and Cake tables, but
+when record sizes are considered, the Cookie table is somewhat smaller.  This would
+suggest that the Cookie table should be the first one.  So I accepted using either
+the Dessert table or the Cookie table as the first one.  All of the joins must be
+sort-merge joins because the number of records is too large to use the indexes.
+The wildcard match could have used the name index, but the number of records is
+too large for this to be more efficient.  So here is the query plan:
+<ol>
+<li>Scan Dessert table and select on 'Z%'.  The input is 10K records, and the output is about 400.
+<li>Merge-join with either Cookie or Cake.  The inputs are 400 dessert records and 6K other records. The output is about 200 records.
+<li>Merge-join with the last table.  The inputs are 200 on one side and 6K on the other side. The output is about 100 records.
+<li>Scan to perform the projection on the description field.  The input and output are both about 100 records.
+</ol>
+</font>
+<p>
+<font color="blue">
+Scoring criteria (1 point each):
+<ol>
+<li>10K Dessert records
+<li>Select on name='Z%'
+<li>Use scan for select
+<li>400 records are selected
+<li>6K Cookie records
+<li>First join
+<li>Use sort-merge
+<li>Output of first join is 200 records
+<li>6K Cake records
+<li>Second join
+<li>Use sort-merge
+<li>Output of second join is 100 records
+<li>Project
+<li>Use scan for project
+</ol>
+</font>
+<p>
+<li><b>Concurrency</b> (5 points) Consider this schedule:
+<p>
+R<sub>3</sub>(B)
+W<sub>1</sub>(C)
+R<sub>2</sub>(B)
+W<sub>3</sub>(C)
+W<sub>3</sub>(A)
+R<sub>1</sub>(B)
+W<sub>2</sub>(C)
+C<sub>2</sub>
+R<sub>1</sub>(A)
+C<sub>3</sub>
+C<sub>1</sub>
+<p>
+Determine whether this schedule is view serializable. If it is view
+serializable, then give a view equivalent serial schedule. If it is
+not view serializable, then explain why not.
+<p>
+<font color="green">
+It is not conflict serializable, so the only way to show
+view serializability is to find an equivalent serial schedule.
+It is view serializable in the order 3, 1, 2:
+<p>
+R<sub>3</sub>(B)
+W<sub>3</sub>(C)
+W<sub>3</sub>(A)
+C<sub>3</sub>
+W<sub>1</sub>(C)
+R<sub>1</sub>(B)
+R<sub>1</sub>(A)
+C<sub>1</sub>
+R<sub>2</sub>(B)
+W<sub>2</sub>(C)
+C<sub>2</sub>
+<p>
+This is the only order that is view equivalent.
+</font>
+<p>
+<font color="blue">
+Scoring criteria:
+<ol>
+<li>(5 points) It is view serializable and the correct equivalent serial schedule was given.
+<li>(3.75 points) It is view serializable but the incorrect schedule 1, 3, 2 was given.
+<li>(2.5 points) It is view serializable but the incorrect schedule 2, 3, 1 was given.
+<li>(2.5 points) It is view serializable but the incorrect schedule 1, 2, 3 was given.
+<li>(2.5 points) It was not view serializable after checking every order or giving a proof.
+<li>(1.25 points) It is view serializable and every serial order is equivalent.
+<li>(1.25 points) It was not view serializable but no reason was given and no orders were checked.
+<li>(1.25 points) It is conflict serializable with schedule 3, 2, 1.
+<li>(1.25 points) It is view serializable but no serial schedule was given.
+<li>(1.25 points) It is not conflict serializable and from this it was incorrectly inferred that it is not view serializable.
+</ol>
+</font>
+<p>
+<li><b>Normalization</b>. (16 points) In a university, an employee
+has a name and may work for departments. A department has a name.
+Each department is part of college. A college has
+a unique name. An employee cannot work within more than one college.
+Design a database for this university. Show your database design using
+a UML diagram, and then translate your UML diagram to SQL. 
+<p>
+<font color="green">
+The UML diagram is
+<br><img src="images/187.gif" alt="University Data Model"/></br>
+As an alternative, one can model the name attributes using associations
+as in this diagram:
+<br>
+ <img src="images/186.gif" alt="Alternate University Data Model"/>
+<br>
+The translation of either of these to the relational model is:
+<p>
+<pre>
+create table College(
+  id int primary key,
+  name varchar(200) not null unique
+);
+create table Employee(
+  id int primary key,
+  name varchar(200) not null
+);
+create table Department(
+  id int primary key,
+  name varchar(200) not null,
+  college int not null,
+  foreign key(college) references College(id) on update cascade on delete cascade
+);
+create table Employment(
+  employee int,
+  foreign key(employee) references Employee(id) on update cascade on delete cascade,
+  department int,
+  foreign key(department) references Department(id) on update cascade on delete cascade,
+  primary key(employee, department)
+);
+create view WorksWithin(employee, college) as
+  select distinct e.employee, d.college
+    from Employment e, Department d
+   where e.department = d.id;
+</pre>
+</font>
+<p>
+<font color="blue">
+Scoring criteria (0.5 points each, except as noted):
+<ul>
+<li>UML Diagram (8 points)
+<ol>
+<li>Employee class
+<li>Employee name attribute
+<li>College class
+<li>College name attribute
+<li>College name attribute is unique
+<li>Department class
+<li>Department name attribute
+<li>Aggregation of Department by College
+<li>Aggregation has multiplicity 1 on College side
+<li>Aggregation has multiplicity 0..* on Department side
+<li>Association between Employee and Department
+<li>Association has multiplicity 0..* on Employee side
+<li>Association has multiplicity 0..* on Department side
+<li>Derived association between Employee and College
+<li>Derived association has multiplicity 0..* on Employee side
+<li>Derived association has multiplicity 0..1 on College side
+</ol>
+<li>Relational Schema (8 points)
+<ol>
+<li>(0.375 points) College table has a primary key
+<li>(0.375 points) College name attribute is not null
+<li>(0.375 points) College name attribute is unique
+<li>(0.375 points) Employee table has a primary key
+<li>(0.375 points) Employee name attribute is not null
+<li>(0.375 points) Department table has a primary key
+<li>(0.375 points) Department name attribute is not null
+<li>(0.375 points) Department college attribute is not null
+<li>(0.375 points) Department college attribute references College(id)
+<li>(0.375 points) Employment employee attribute references Employee(id)
+<li>(0.375 points) Employment employee attribute references Department(id)
+<li>(0.375 points) WorksWithin view
+<li>(1 point) WorksWithin view has a constraint
+<li>WorksWithin query has select distinct
+<li>WorksWithin query has select e.employee, d.college
+<li>WorksWithin query has from Employment
+<li>WorksWithin query has from Department
+<li>WorksWithin query has join condition
+</ol>
+</ul>
+</font>
+<p>
+<font color="red">
+The view unique constraint would have to be enforced by a mechanism such as a trigger.
+In such a trigger the view would be computed and the constraint would be checked.
+Simply saying that one would use a trigger and then restating the problem to be solved
+is not an acceptable answer.  One must show the SQL query that the trigger would evaluate
+and the SQL constraint it would check.
+</font>
+<p>
+<li><b>Security</b>. (7 points) Allow the user named 'Alice'
+to update the ingredients used by cakes (including whether an
+ingredient is used and what amount is used).
+<p>
+<font color="green">
+There are two parts to this problem.  A view must be developed and
+a grant command executed:
+<pre>
+create view CakeView as
+  select i.*
+    from Ingredient i, Cake c
+   where i.dessert = c.id;
+
+grant insert, update, delete on CakeView to 'Alice';
+</pre>
+<p>
+Giving select privileges on various tables would be appropriate in practice,
+but no points were deducted if this was not done.
+</font>
+<p>
+<font color="blue">
+Scoring criteria (1 point each):
+<ol>
+<li>View selects the ingredient columns
+<li>View query is from Ingredient table
+<li>View query is from Cake table
+<li>View query has the correct join condition
+<li>Grant command must include insert, update and delete
+<li>Grant command uses the view
+<li>Grant privileges to 'Alice'
+</ol>
+</font>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/154.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:09 GMT -->
+</html>

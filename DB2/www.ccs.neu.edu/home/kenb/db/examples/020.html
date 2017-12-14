@@ -1,0 +1,58 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/020.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+For the following SQL schema:
+<p> 
+<pre>
+create table Building (
+  id int primary key,
+  address varchar(5000) not null
+);
+create table Apartment (
+  id int primary key,
+  number varchar(31) not null,
+  building int not null references Building(id)
+    on update cascade on delete cascade
+);
+create table Person (
+  id int primary key,
+  name varchar(5000) not null
+);
+create table Owner (
+  person int references Person(id)
+    on update cascade on delete cascade,
+  apartment int references Apartment(id)
+    on update cascade on delete cascade,
+  primary key(person, apartment)
+);
+</pre>
+<p>
+1. Install a database system and create the tables above.
+<p>
+2. Develop methods using JDBC (or its equivalent in another language)
+to perform the following tasks:
+<ol>
+<li>Given an address and a number of apartments,
+creates a building and the apartments in the building.
+Generate apartment numbers using the letter "A" followed by
+the apartment id.
+<li>Given a name, create a person.
+<li>Given a person name and an apartment number and building address,
+make that person one of the owners of the apartment.
+<li>Given an apartment number and building address, remove all owners of
+the apartment.
+<li>Given a building id, list all apartments in the building (both id and number),
+and for each apartment list the owners (both name and id)
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/020.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>
+

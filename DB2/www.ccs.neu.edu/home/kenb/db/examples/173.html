@@ -1,0 +1,168 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/173.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+This is a solution to a <a href="174.html">sample exercise</a>.
+<p>
+Some of the problems in this assignment will use the
+<a href="149.html">Sample Schema</a>. The queries are listed below.  Assume that:
+the following are the sizes, counts and times:
+<ol>
+<li>A record requires an average of 4 bytes administrative overhead,
+including the space required for specifying the rid.
+<li>An int uses 4 bytes.
+<li>A double uses 8 bytes.
+<li>A Date uses 8 bytes.
+<li>A composition name uses an average of 40 bytes.
+<li>A person name uses an average of 30 bytes.
+<li>There are 10K compositions.
+<li>There are 1K persons.
+<li>The disk block size is 8K = 8192 bytes.
+<li>A random disk access requires 8ms.
+<li>A page can be transferred (read or write) in 0.1 ms = 100 microseconds.
+</ol>
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Table<th>Record Size<th>Records per full block<th>per 2/3 full block<th>No. full blocks<th>No. 2/3 blocks
+<tr><td>Person<td>46<td>178<td>118<td>6<td>9
+<tr><td>Composition<td>48<td>170<td>114<td>59<td>88
+</table>
+<p>
+Compute the approximate time required for every query listed below 
+for each of the following 4 table structures:
+<ol>
+<li>Clustered Heap.  An unordered collection of records packed into sequential blocks.
+<li>Clustered Sort.  An ordered collection of records packed into sequential blocks.
+In each case, order it by the field being queried (e.g., for the first query
+assume ordered by composer id).
+<li>Clustered B-tree.  The ordering and clustering is by the field being queried.
+<li>Unclustered heap with index.  Assume the index is
+a B-tree index in which only one level
+of the tree is on disk, and the other levels are in main memory.  
+Unclustered means the following:
+<ol>
+<li>The records are randomly located with respect to the query field.
+<li>The blocks are randomly located on the disk.
+<li>The blocks are only 2/3 full.
+</ol>
+</ol>
+<p>
+<ol>
+<li>
+Using the <a href="149.html">Sample Schema</a>,
+program a stored procedure for each of the table constraints (CHECK clauses) that does the following:
+ <ol>
+ <li>Computes the number of violations of the tables constraint; and
+ <li>Returns the primary key of one of the violations.
+ </ol>
+<p>
+<li>Find all compositions with a duration greater than 1 hour.
+<p>
+The distribution of durations was not specified, so assume that 50% of the compositions satisfy this condition.
+<p>
+ <ol>
+ <li>Heap. The file must be scanned. The first block requires 8ms, then the rest are read
+sequentially requiring 58*0.1=5.8ms or about 6ms. The total is 14ms.
+ <li>Sorted Heap. One must find the first block. Since 59 is approximately 2^6, this requires 6 random I/Os
+for a total of 48ms. One then reads half the file which requires about 3ms. The total is about 50ms.
+It would be faster to ignore the fact that the records are sorted and just scan the entire file as in the heap.
+ <li>Clustered B-Tree. Finding and reading the first block requires 2 random I/Os or 16ms. Then the remaining
+blocks are read. There will be around 44 blocks in all. If they are continguous, then this only requires
+43*0.1ms = 4.3ms for a total of about 20ms. If they are not contiguous, then it will require 43*8ms = 344ms
+for a total of 360ms.
+ <li>Secondary B-Tree. There will be about 5000 compositions satisfying the condition. Although the secondary
+leaf nodes are clustered by duration it requires a random I/O to retrieve each record. This requires 5000*8ms = 40 seconds.
+Note that each record is retrieved separately. A common mistake is to count the number of blocks rather than the
+number of records. Needless to say, it would be better to ignore the secondary index for such an unselective query.
+ </ol>
+<p>
+<li>Find the composition names of compositions composed by a composer given the composer's id.
+<p>
+There are 10 such compositions on the average.
+<p>
+ <ol>
+ <li>Heap. The whole file must be scanned. 14ms.
+ <li>Sorted Heap. About half the file must be scanned. 8ms + 29*0.1ms = 11ms.
+ <li>Clustered B-Tree. It is likely that all of them will be in the same disk block so only 2 random I/Os are
+necessary or 16ms.
+ <li>Secondary B-Tree. It is very likely that all of them will be in the same leaf block of the secondary index
+which can be found in 8ms. However, each of the 10 records requires its own random I/O. The total time is
+8ms + 10*8ms = 88ms.
+ </ol>
+<p>
+<li>Find the composition names of compositions composed by a composer given the composer's name.
+<p>
+This is the same as the previous problem except that one must now also find the composer's id. For convenience,
+only the time for this part will be shown.
+<p>
+ <ol>
+ <li>Heap. Half of the blocks must be scanned on average. The first block requires 8ms, then the other 2 require just 0.2ms,
+so the total is about 8ms.
+ <li>Sorted Heap. There are 6 blocks which is about 2^3, so it takes 3 random I/Os to find the composer's id by 
+binary search or 24ms. It would be faster to treat the file as a heap.
+ <li>Clustered B-Tree. It takes 2 random I/Os to find the composer's id or 16ms.
+ <li>Secondary B-Tree. Same as a clustered B-tree.
+ </ol>
+<p>
+<li>Find all persons born on a specified date.
+<p>
+This is very selective. One would expect only 1 person to satisfy this query, but it is possible to have more than 1.
+ <ol>
+ <li>Heap. Scan the file. This takes 8ms + 6*0.1ms = 8.6ms or about 8ms.
+ <li>Sorted Heap. Binary search takes 24ms as above. Again, it is faster to treat it as an unsorted heap. 
+ <li>Clustered B-Tree. It requires 2 random I/Os or 16ms.
+ <li>Secondary B-Tree. Same as clustered B-tree.
+ </ol>
+<p>
+<li>Insert a new composition.
+<p>
+ <ol>
+ <li>Heap. Read the last block, modify it and write it back. One can ignore
+ the case in which a new block must be allocated as it is a relatively rare occurrence.
+ Each operation is a random I/O, so 16ms.
+ <li>Sorted Heap. One must find the location for insertion which is 6*8ms or 48ms.
+ One must then update half of the blocks on average or about 30 blocks. If each is done
+ separately then it requires 60*8ms or 480ms. The total is 528ms or about a half second.
+ If the updates are all done at one time, then
+ reading takes 30*0.1ms or 3ms because we have already read the first block. Writing takes
+ 8ms + 30*0.1ms or 11ms for a total of 48ms + 3ms + 11ms = 72ms or about 70ms.
+ <li>Clustered B-Tree. Finding and reading the leaf block requires 2 random I/Os. Writing
+ takes one more for a total of 24ms. Splits are rare so they can be ignored.
+ <li>Secondary B-Tree. The secondary index requires just a single I/O for finding the
+disk pointer, and another to read the leaf block in the main file. So the insert takes the
+same time as a clustered B-tree: 24ms.
+ </ol>
+<p>
+<li>Delete a person (and all of the person's compositions).
+<p>
+On average each person has 10 compositions. So this is the time to delete 1 person
+record and 10 composition records.
+<p>
+ <ol>
+ <li>Heap. Both files must be rewritten. If done 1 block at a time, then it requires
+about 130 random I/Os or about 1 second. If done more efficiently it will require
+8ms+5*01ms or about 9ms to read the Person file and another 9ms to write it.
+It will require 8ms+58*0.1ms or about 14ms
+to read the Composition file and another 14ms to write it. The total is 46ms.
+ <li>Sorted Heap. It requires 3 random I/Os to find the block, then around 6 to rewrite about
+half of the file for a total of around 70ms for the Person table. The Composition table
+takes 8 to find the block and then 60 to rewrite for a total of about 550ms. The total for
+both tables is around 600ms. 
+ <li>Clustered B-Tree. Each update is highly selective, so that they both require 3 random I/Os,
+for a total 6*8ms = 48ms.
+ <li>Secondary B-Tree. The Person update takes 24ms, but the Composition update requires 10 separate
+updates for a total of around 160ms. The time to find the leaf block of the secondary index is insignificant.
+The total is around 180ms.
+ </ol>
+<p>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/173.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

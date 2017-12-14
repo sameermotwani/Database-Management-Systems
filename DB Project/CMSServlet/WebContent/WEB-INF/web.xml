@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>CMSServlet</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>login.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list> 
+  <servlet>
+    <description></description>
+    <display-name>addNew</display-name>
+    <servlet-name>addNew</servlet-name>
+    <servlet-class>com.servlet.addNew</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addNew</servlet-name>
+    <url-pattern>/addNew</url-pattern>
+  </servlet-mapping>
+  
+    <servlet>
+    <description></description>
+    <display-name>addDriver</display-name>
+    <servlet-name>addDriver</servlet-name>
+    <servlet-class>com.servlet.addDriver</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addDriver</servlet-name>
+    <url-pattern>/addDriver</url-pattern>
+  </servlet-mapping>
+  
+   <servlet>
+    <description></description>
+    <display-name>updateDriver</display-name>
+    <servlet-name>updateDriver</servlet-name>
+    <servlet-class>com.servlet.UpdateDriver</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>updateDriver</servlet-name>
+    <url-pattern>/updateDriver</url-pattern>
+  </servlet-mapping>
+ 
+  
+  <servlet>
+    <description></description>
+    <display-name>fetchDefaulters</display-name>
+    <servlet-name>fetchDefaulters</servlet-name>
+    <servlet-class>com.servlet.fetchDefaulters</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>fetchDefaulters</servlet-name>
+    <url-pattern>/fetchDefaulters</url-pattern>
+  </servlet-mapping>
+  
+  
+   <servlet>
+    <description></description>
+    <display-name>clearDefaulters</display-name>
+    <servlet-name>clearDefaulters</servlet-name>
+    <servlet-class>com.servlet.clearDefaulters</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>clearDefaulters</servlet-name>
+    <url-pattern>/clearDefaulters</url-pattern>
+  </servlet-mapping>
+  
+    <servlet>
+    <description></description>
+    <display-name>monitorDriver</display-name>
+    <servlet-name>monitorDriver</servlet-name>
+    <servlet-class>com.servlet.monitorDriver</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>monitorDriver</servlet-name>
+    <url-pattern>/monitorDriver</url-pattern>
+  </servlet-mapping>
+  
+     <servlet>
+    <description></description>
+    <display-name>monitorVehicle</display-name>
+    <servlet-name>monitorVehicle</servlet-name>
+    <servlet-class>com.servlet.monitorVehicle</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>monitorVehicle</servlet-name>
+    <url-pattern>/monitorVehicle</url-pattern>
+  </servlet-mapping>
+  
+     <servlet>
+    <description></description>
+    <display-name>monitorRide</display-name>
+    <servlet-name>monitorRide</servlet-name>
+    <servlet-class>com.servlet.monitorRide</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>monitorRide</servlet-name>
+    <url-pattern>/monitorRide</url-pattern>
+  </servlet-mapping>
+  
+  
+    <servlet>
+    <description></description>
+    <display-name>clearID</display-name>
+    <servlet-name>clearID</servlet-name>
+    <servlet-class>com.servlet.DeleteDefaulter</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>clearID</servlet-name>
+    <url-pattern>/clearID</url-pattern>
+  </servlet-mapping>
+  
+   <servlet>
+    <description></description>
+    <display-name>addNewVehicle</display-name>
+    <servlet-name>addNewVehicle</servlet-name>
+    <servlet-class>com.servlet.addNewVehicle</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addNewVehicle</servlet-name>
+    <url-pattern>/addNewVehicle</url-pattern>
+  </servlet-mapping>
+  
+     <servlet>
+    <description></description>
+    <display-name>addVehicle</display-name>
+    <servlet-name>addVehicle</servlet-name>
+    <servlet-class>com.servlet.addVehicle</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addVehicle</servlet-name>
+    <url-pattern>/addVehicle</url-pattern>
+  </servlet-mapping>
+  
+  
+   <servlet>
+    <description></description>
+    <display-name>UpdateFinal</display-name>
+    <servlet-name>UpdateFinal</servlet-name>
+    <servlet-class>com.servlet.UpdateFinal</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UpdateFinal</servlet-name>
+    <url-pattern>/UpdateFinal</url-pattern>
+  </servlet-mapping>
+  
+     <servlet>
+    <description></description>
+    <display-name>ActualUpdateDriver</display-name>
+    <servlet-name>ActualUpdateDriver</servlet-name>
+    <servlet-class>com.servlet.ActualUpdateDriver</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ActualUpdateDriver</servlet-name>
+    <url-pattern>/ActualUpdateDriver</url-pattern>
+  </servlet-mapping>
+  
+</web-app>

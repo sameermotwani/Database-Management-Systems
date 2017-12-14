@@ -1,0 +1,81 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/119.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+<h2>Sample Exercise</h2>
+<p>
+W<sub>2</sub>(C), W<sub>3</sub>(A), R<sub>1</sub>(A), R<sub>3</sub>(C), R<sub>2</sub>(C), R<sub>3</sub>(A), W<sub>1</sub>(A), W<sub>3</sub>(C), W<sub>1</sub>(B), C<sub>1</sub>, W<sub>2</sub>(B), C<sub>3</sub>, C<sub>2</sub>
+<p>
+The conflicts are the following:
+<ul>
+<li>W<sub>2</sub>(C) &rarr; R<sub>3</sub>(C)
+<li>W<sub>2</sub>(C) &rarr; W<sub>3</sub>(C)
+<li>W<sub>3</sub>(A) &rarr; R<sub>1</sub>(A)
+<li>W<sub>3</sub>(A) &rarr; W<sub>1</sub>(A)
+<li>R<sub>2</sub>(C) &rarr; W<sub>3</sub>(C)
+<li>R<sub>3</sub>(A) &rarr; W<sub>1</sub>(A)
+<li>W<sub>1</sub>(B) &rarr; W<sub>2</sub>(B)
+</ul>
+<p>
+These give the following transaction conflicts:
+<ul>
+<li>T<sub>2</sub> &rarr; T<sub>3</sub>
+<li>T<sub>3</sub> &rarr; T<sub>1</sub>
+<li>T<sub>1</sub> &rarr; T<sub>2</sub>
+</ul>
+<p>
+So there is a cycle. Therefore the schedule is not conflict-serializable.
+<p>
+Now consider view serializability.
+<ul>
+<li>
+T<sub>1</sub>
+reads the value of A that is written by 
+T<sub>3</sub>.
+Therefore in the serial order T<sub>1</sub>
+must come after T<sub>3</sub>.
+<li>
+T<sub>3</sub>
+reads the value of C that is written by 
+T<sub>2</sub>.
+Therefore in the serial order T<sub>3</sub>
+must come after T<sub>2</sub>.
+</ul>
+These two facts imply that the only possible serial order that could be view-equivalent to the schedule is 2,3,1:
+<p>
+W<sub>2</sub>(C), R<sub>2</sub>(C), W<sub>2</sub>(B), C<sub>2</sub>, W<sub>3</sub>(A), R<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>3</sub>(C), C<sub>3</sub>, R<sub>1</sub>(A), W<sub>1</sub>(A), W<sub>1</sub>(B), C<sub>1</sub>.
+<p>
+<ul>
+<li>R<sub>1</sub>(A) reads the value of W<sub>3</sub>(A) in both schedules.
+<li>R<sub>3</sub>(C) reads the value of W<sub>2</sub>(C) in both schedules.
+<li>R<sub>2</sub>(C) reads the value of W<sub>2</sub>(C) in both schedules.
+<li>R<sub>3</sub>(A) reads the value of W<sub>3</sub>(A) in both schedules.
+</ul>
+<p>
+So the reads are the same in both schedules.
+<p>
+<ul>
+<li>The final value of A is written by W<sub>1</sub>(A) in both schedules.
+<li>The final value of B is written by W<sub>2</sub>(B) in the original schedule and by W<sub>1</sub>(B) in the serial schedule.
+<li>The final value of C is written by W<sub>3</sub>(C) in both schedules.
+</ul>
+<p>
+The final values of the data items are not the same in the two schedules.
+Therefore, the schedule is not view-serializable.
+<p>
+Since the schedule is neither conflict-serializable nor view-serializable, it is not serializable.
+<p>
+Regarding strictness,
+T<sub>1</sub>
+reads the value of A that is written by 
+T<sub>3</sub>.
+Therefore T<sub>3</sub>
+must commit before T<sub>1</sub>, but T<sub>1</sub> commits before T<sub>3</sub>.
+Therefore, the schedule is not strict.
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/119.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

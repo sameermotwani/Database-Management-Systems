@@ -1,0 +1,126 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/171.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+This is a solution to a <a href="172.html">sample exercise</a>.
+<p>
+A database for a library has the following two tables:
+<pre>
+Book(isbn char(11), date Date, author int, publisher string, primary key(isbn))
+Person(id int, name string, date Date, primary key(int))
+</pre>
+<p>
+The publication date of a book is the year of publication.
+The date of a person is the date of birth.
+<p>
+The following are the sizes, counts and times:
+<ol>
+<li>A record requires an average of 6 bytes administrative overhead.
+<li>A rid uses 4 bytes.
+<li>An int uses 4 bytes.
+<li>A Date uses 8 bytes.
+<li>Names (publisher or author) use an average of 32 bytes.
+<li>Person names are nearly unique.
+<li>There are 6M books.
+<li>There are 4M persons.
+<li>There are 6K publishers.
+<li>The disk block size is 4K = 4096 bytes.
+<li>A random disk access requires 10ms.
+<li>A page can be transferred (read or write) in 0.1 ms = 100 microseconds.
+</ol>
+<p>
+Consider the following queries (or operations):
+<ol>
+<li>Find a person id, given the person's name.
+<li>Find all books published by a publisher.
+<li>Insert a book in the database.  Assume that the author is already
+in the database, but it is necessary to look up the author's id (as in the
+first query).
+</ol>
+<p>
+Perform the following computations:
+<p>
+<ol>
+<li>Compute the average amount of space required for the records of each table.
+ <ul>
+ <li>The Book table requires 65 bytes/record (3 pts).
+ <li>The Person table requires 54 bytes/record (3 pts).
+ </ul>
+<li>Compute the average number of records of each table that can fit in one disk block.
+ <ul>
+ <li>In the Book table 63 records can fit in one block or about 60 records (3 pts).
+ <li>In the Person table 76 records can fit in one block or about 80 records (3 pts).
+ </ul>
+<li>Compute the number of blocks required for each table in two cases:
+ <ol>
+ <li>The blocks are full.
+ <li>The blocks are only 2/3 full on average.
+ </ol>
+ <ul>
+ <li>The Book table requires 6M/60 = 100,000 full blocks or 150,000 blocks that are 2/3 full on average (4 pts).
+ <li>The Person table requires 4M/80 = 50,000 full blocks or 75,000 blocks that are 2/3 full on average (4 pts).
+ </ul>
+<li>Compute the approximate time required for the two queries and one operation 
+for each of the following 3 table structures:
+ <ol>
+ <li>Heap.  An unordered collection of records packed into sequential blocks. (14 points maximum)
+  <ol>
+  <li>The entire table must be scanned.  Names are nearly unique, but not always
+so one cannot stop scanning when the name is found.  The scan requires 50,000 * 0.1ms
+= 5,000ms = 5 seconds (5 pts).
+  <li>The entire table must be scanned.  This requires 100,000 * 0.1ms = 10,000ms = 10 seconds (5 pts).
+  <li>The last block in the table must be read, modified and written back.  
+This requires 20ms.  A new block will be allocated for only 1/60 of the 
+inserts so it does not have a significant impact on the average time required (4 pts).
+However, one must also look up the author's id which is the first query.
+This requires 5 seconds, so it dominates the query time! (1 pts).
+  </ol>
+ <li>Clustered Sort.  An ordered collection of records packed into sequential blocks.
+ In each case, order it by the field being queried (e.g., for the first query
+ assume ordered by person name). (14 points maximum)
+  <ol>
+  <li>One can find the block with log<sub>2</sub>(50,000) read operations.  Since
+2<sup>16</sup> is approximately equal to 64K, this requires about 16 * 10ms = 160ms.
+The names are nearly unique, so it is rare for the result records to be on 
+more than one block (5 pts).
+  <li>One can find the block with log<sub>2</sub>(100,000) read operations.  Since
+2<sup>17</sup> is approximately equal to 128K, it requires about 17 * 10ms = 170ms
+to find the first record.  Each publisher publishes 6M/6K = 1000 books on average,
+and there are 60 records on a block so about 17 blocks must be read, on average.
+However, these are contiguous, so this requires 17 * 0.1ms = 1.7ms which has no
+significant effect on the overall time required (5 pts).
+  <li>The block must first be found which requires log<sub>2</sub>(100,000) 
+read operations as in the previous query, for 170ms. However, one must then
+read, modify and write all of the blocks from that point to the end of the table.
+This is 50,000 blocks.  Doing it one block at a time requires 50,000 * 20ms =
+1,000,000ms = 1,000 seconds.  Doing it in sequential batches reduces the time
+to 50,000 * 0.1ms * 2 = 10,000ms = 10 seconds.  Either answer is okay (4 pts).
+The time to look up the author id is 160ms, so it is not significant (1 point).  
+  </ol>
+ <li>Clustered B-tree.  The ordering and clustering is by the field being queried. (14 points maximum)
+  <ol>
+  <li>This requires 2 disk reads for 20ms.  The fact that the name is not unique
+is not significant (5 pts).
+  <li>This requires 2 disk reads or 20ms to obtain the block with the first
+record.  This block will have about 50 records in all (since it is 2/3 full)
+and 25 on average that satisfy the query.  There are 1000 records on average
+that satisfy the query, which require 1000/50 = 20 blocks on average.  We already
+have 25 in the first block, but this is not significant.  The 20 blocks require
+20 * 10ms = 200ms since they are not contiguous.  The total time required is
+therefore 220ms in all or about 200ms (5 pts).
+  <li>Retrieving the block with the record requires 20ms.  Modifying it and
+writing it back requires 10ms, for a total of 30ms (3 pts).  In addition, one
+must find the author id which requires an additional 20ms for a total of 50ms (2 pts).
+  </ol>
+ </ol>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/171.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

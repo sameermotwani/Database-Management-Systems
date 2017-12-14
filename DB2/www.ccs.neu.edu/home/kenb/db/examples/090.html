@@ -1,0 +1,169 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/090.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:49 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+Here is a data model for musical instruments and compositions:
+<p>
+<img src="images/231.jpg" alt="Data Model"/>
+<p>
+Note that in this data model, persons need not have unique names,
+and musical instruments may not have unique names.
+The abbreviation "dob" stands for "date of birth".
+<p>
+The schema for this data model is the following:
+<p>
+<pre>
+create table Person(
+  id int primary key,
+  dob date not null,
+  name varchar(255) not null
+);
+create table Composition(
+  id int primary key,
+  name varchar(255) not null unique,
+  duration int not null,
+  composedBy int,
+  foreign key(composedBy) references Person(id) on update cascade on delete set null
+);
+create table Instrument(
+  id int primary key,
+  name varchar(255) not null,
+  musicalKey varchar(255)
+);
+create table usesInstrument(
+  isUsedBy int,
+  foreign key(isUsedBy) references Composition(id) on update cascade on delete cascade,
+  uses int,
+  foreign key(uses) references Instrument(id) on update cascade on delete cascade,
+  count int not null,
+  primary key(isUsedBy, uses)
+);
+
+create table User(
+  beingUsedComposition int,
+  beingUsedInstrument int,
+  foreign key(beingUsedComposition, beingUsedInstrument) references usesInstrument(isUsedBy, uses)
+    on update cascade on delete cascade,
+  user int,
+  foreign key(user) references Person(id) on update cascade on delete cascade,
+  primary key(beingUsedComposition, beingUsedInstrument, user)
+);
+
+create table StringInstrument(
+  id int primary key,
+  foreign key(id) references Instrument(id) on update cascade on delete cascade,
+  numberOfStrings int not null
+);
+create table BrassInstrument(
+  id int primary key,
+  foreign key(id) references Instrument(id) on update cascade on delete cascade,
+  numberOfValves int not null
+);
+create table PercussionInstrument(
+  id int primary key,
+  foreign key(id) references Instrument(id) on update cascade on delete cascade
+);
+
+-- The following is not required:
+
+alter table Composition
+  add foreign key(id) references usesInstrument(isUsedBy) on update no action on delete no action;
+</pre>
+<p>
+For each of the following queries, give the relational algebra expression:
+<p>
+<ol>
+<li>Find all distinct names of instruments in the key of C in descending alphabetical order.
+<p>
+<pre>
+select i.name
+  from Instrument i
+ where i.musicalKey = "C"
+ order by i.name desc;
+</pre>
+<li>Find all compositions and their composers (both by name) that use an instrument whose name begins with "o"
+<p>
+<pre>
+select c.name, p.name
+  from Composition c, Person p, usesInstrument u, Instrument i
+ where c.composedBy = p.id
+   and u.uses = i.id
+   and u.isUsedBy = c.id
+   and i.name like 'o%';
+</pre>
+<p>
+<li>Find the names of composers who never use a percussion instrument.
+<pre>
+select p.name
+  from Person p
+ where not exists (
+         select *
+           from Composition c, usesInstrument u, PercussionInstrument pi
+          where c.composedBy = p.id
+            and u.isUsedBy = c.id
+            and u.uses = pi.id
+       );
+</pre>
+<p>
+<li>Find all compositions by name that were not composed by a person who was born in the 20th century.
+<pre>
+select c.name
+  from Composition c
+ where not exists (
+         select *
+           from Person p
+          where c.composedBy = p.id
+            and p.dob >= '1900-01-01'
+            and p.dob < '2000-01-01'
+       );
+</pre>
+<li>This is an alternative solution to the above query:
+<pre>
+select c.name
+  from Composition c
+ where c.composedBy is null
+union
+select c.name
+  from Composition c, Person p
+ where c.composedBy = p.id
+   and (p.dob < '1900-01-01' or p.dob >= p.dob >= '2000-01-01');
+</pre>
+<p>
+<li>Find the names of instruments used by all the compositions that are at least an hour long.
+<p>
+<pre>
+select i.name
+  from Instrument i
+ where not exists (
+         select *
+           from Composition c
+          where c.duration >= 60
+            and not exists (
+                  select *
+                    from usesInstrument u
+                   where u.uses = i.id
+                     and u.isUsedBy = c.id
+                )
+       );
+</pre>
+<p>
+<li>Using table constraints (CHECK clauses), modify the schema above so that every composition uses at least two instruments and a composition can be composed by up to 2 composers (at most 2 composers).
+<p>
+<li>Write a program that does the following:
+ <ol>
+ <li>connect to a database;
+ <li>create the schema shown above;
+ <li>populate your database with compositions by Bach, Vivaldi and Hayden; and
+ <li>run the queries above.
+ </ol>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/090.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:51 GMT -->
+</html>

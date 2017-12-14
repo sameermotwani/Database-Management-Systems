@@ -1,0 +1,57 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/052.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+This assignment uses the rationale database of <a href="3.html3.html">Assignment #3</a>.
+For the first 3 parts of this assignment, design an SQL query to extract
+the specified information from the rationale database.
+<p>
+<ol>
+<li>For each issue, show the number of solutions, the number of related
+    criteria and the number of arguments.
+<li>For each issue and alternative solution, compute how support the
+    the criteria are to the solution. Convert support levels to numbers
+    by using +2 for 'very supportive', +1 for 'supportive', 0 for 'neutral',
+    -1 for 'opposed to' and -2 for 'strongly opposed to'. The sum of the
+    support levels measures how supportive the criteria are to the alternative.
+<li>For each person (author name) show how many arguments posted by that person
+    were favorable to an alternative and how many were unfavorable.
+<li>
+<p>
+Design and test a class with the following methods:
+ <ol>
+ <li>A method that lists the subjects of the solutions that were
+     posted by a person. The method has one parameter that specifies
+     the person name. The method returns a list of strings.
+ <li>A method that lists the arguments that are in favor of a
+     specified issue subject. The method has one parameter that
+     specifies the issue subject and returns a list of objects that
+     have two instance variables: the description and the author.
+ <li>A method that lists the distinct names of all persons (author names) 
+     who posted a criterion related to a specified issue with a specified
+     support level. The method
+     has two parameters: the support level and the subject of the issue.
+ </ol>
+The constructor of your class must load your driver and connect to
+your database. The constructor should have the following parameters:
+ <ol>
+ <li>The fully qualified name of the driver class.
+ <li>The URL for the database server.
+ <li>The username.
+ <li>The password.
+ </ol>
+Write a main program in your class that tests the methods of
+the class using your own database server.
+</ol>
+<p>
+See <a href="src/118.pdf">Sample Solution</a>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/052.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+</html>

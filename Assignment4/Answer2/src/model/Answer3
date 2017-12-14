@@ -1,0 +1,4 @@
+select e
+from employee e join e.qualification q join q.ProductType pt join pt.product p join p.machine m join m.factory f
+where m.id="specified machine id" and
+q.level in ('Novice' ,'Intermediate','Expert') and f.address=

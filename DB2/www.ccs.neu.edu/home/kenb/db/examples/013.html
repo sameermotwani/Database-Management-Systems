@@ -1,0 +1,89 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/013.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:06 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+<p>
+<h2>Part A</h2>
+<p>
+For the following SQL schema:
+<p> 
+<pre>
+create table Building (
+  id int primary key,
+  address varchar(750) not null unique,
+  photo mediumblob
+);
+create table Apartment (
+  id int primary key,
+  number varchar(31) not null,
+  building int not null references Building(id)
+    on update cascade on delete cascade,
+  photo mediumblob,
+  rent double,
+  unique(number, building)
+);
+create table Room (
+  id int primary key,
+  area double not null,
+  type varchar(50),
+  apartment int not null references Apartment(id)
+    on update cascade on delete cascade,
+  photo mediumblob
+);
+create table Person (
+  id int primary key,
+  name varchar(5000) not null,
+  email varchar(100) not null unique
+);
+create table Owner (
+  person int references Person(id)
+    on update cascade on delete cascade,
+  apartment int references Apartment(id)
+    on update cascade on delete cascade,
+  primary key(person, apartment)
+);
+</pre>
+<p>
+<ol>
+<li>Grant the person at email address 'Fred@mail.com' access to the apartment (and room) information
+for the apartments that he owns. His username is 'Fred'.
+<p><li>Grant the "super" the right to modify all the data associated with the building at "100 Main Street".
+</ol>
+<p>
+<h2>Part B</h2>
+<p>
+One has a collection of XML documents with information about parts and
+their component parts. Here is an example:
+<p>
+ <pre>
+&lt;root>
+  &lt;part id='001'>
+    &lt;part id='002' attach='rigid' description='top' strength='100'>
+      &lt;part id='003' attach='loose' quantity='2'/>
+      &lt;part id='004' attach='rigid' strength='50'/>
+    &lt;/part>
+  &lt;/part>
+&lt;/root>
+</pre>
+<p>
+Write XPath queries to extract the following information:
+<ol>
+<li>The description of the parts attached rigidly with strength at least 100.
+<p>
+<li>The quantity of loosely attached parts that are part of a top part (i.e., described as 'top').
+<p>
+</ol>
+<p>
+For each of the above tasks, you must have an XPath query and a select expression.
+<p>
+See the <a href="260.html">solution</a>.
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/013.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:06 GMT -->
+</html>

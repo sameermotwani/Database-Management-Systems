@@ -1,0 +1,324 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/179.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:09 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head>
+<body>
+<center><h2>Sample Exam</h2></center>
+<p>
+The exam is a two-hour exam and there are 60 points in all.
+The exam is an open-book/open-notes exam.
+No laptops, cell phones, PDAs or similar devices may be used during the exam.
+Only your own book and notes may be used during the exam: no sharing of books or notes is allowed.
+You must take the exam in your assigned seat. Your exam will have your name on it. You must turn
+in this sheet when you turn in your exam. Points will be deducted if this sheet is missing whether
+by accident or intentionally.
+<p>
+Some of the problems use the following Talent Agency Database:
+<p>
+<pre>
+create table Person(
+  id int,
+  name varchar(200) not null,
+  email varchar(200) not null,
+  primary key using hash(id),
+  unique using btree(name),
+  unique using btree(email)
+);
+create table Talent(
+  id int,
+  description varchar(2000) not null,
+  primary key using hash(id)
+);
+create table Performer(
+  id int,
+  foreign key(id) references Person(id)
+    on update cascade on delete cascade,
+  stageName varchar(200),
+  talent int not null references Talent(id)
+    on update cascade on delete no action,
+  primary key using hash(id),
+  index using hash(talent)
+);
+create table Client(
+  id int references Person(id)
+    on update cascade on delete cascade,
+  company varchar(200),
+  primary key using hash(id)
+);
+create table Interest(
+  client int references Client(id)
+    on update cascade on delete cascade,
+  interest int references Talent(id)
+    on update cascade on delete cascade,
+  primary key tree(client, interest)
+);
+</pre>
+<p>
+In this database the talent descriptions are not unique, but they are almost unique.
+<p>
+<ul>
+<li> A record requires an average of 8 bytes administrative overhead,
+including the space required for specifying the rid.
+<li> An int uses 4 bytes.
+<li> A double uses 8 bytes.
+<li> A Date uses 8 bytes.
+<li> A name (including stage name and company) or email address uses an average of 20 bytes.
+<li> A description uses an average of 200 bytes.
+<li> There are 5K performers and 5K clients, so there are 10K persons.
+<li> There are 1K talents.
+<li> Each client has an average of 10 interests.
+<li> The disk block size is 8K = 8192 bytes.
+<li> A random disk access requires 4ms.
+<li> A page can be transferred (read or write) in 0.1 ms = 100 microseconds.
+</ul>
+<p>
+<ol>
+<li><b>JPA</b>. (10 points)
+<p>
+The following method finds all clients that are interested in the talent of a specific performer.
+Each table has a corresponding class, except that the Interest table is specified by an interests field
+in the Client class and by a clients field in the Talent class, both of which are of type Set.
+Here is the full method:
+ <pre>
+    public Set&lt;Client> getInterestedClients(EntityManagerFactory factory, String performerName) {
+        EntityManager em = factory.createEntityManager();
+	em.getTransaction().begin();
+<font color="green">
+        Query q = em.createQuery("select c from Client c join c.interests i, Performer p where i=p.talent and p.name=:name");
+	q.setParameter("name", performerName);
+	Set&lt;Client> clients = new HashSet&lt;Client>();
+        for (Client client : (List&lt;Client>) q.getResultList()) {
+	    clients.add(client);
+        }
+</font>
+	em.getTransaction().commit();
+        em.close();
+	return clients;
+    }
+</pre>
+<p>
+<font color="red">
+Some common errors were to select c.id rather than c, i.e., the identifier of the clients rather than the client objects themselves.
+This is, perhaps, the most serious misunderstanding one could have about JPA compared with JDBC. JPA is an object-relational mapping,
+not just a relational API. JPA deals directly with objects, while SQL and JDBC are unable to deal with objets. In this case, the objects
+must be retrieved in order to be able to return a set of Client objects.
+<p>
+Another common error is to print the results. The method clearly specifies that it returns an object clients of type Set&lt;Client>.
+No printing is allowed. No points were deducted for printing results even though it is wrong.
+</font>
+<p>
+<li><b>Query performance</b>. (10 points)
+<p>
+How long does it take to compute the stage name of a performer given the email address of the performer using the following
+file structures?
+<ol>
+<li>Clustered heap for all tables.
+<p>
+<font color="green">
+A Person record requires 52 bytes and there are 10K Person records or 520K bytes in all. This requires 65 blocks.
+On average, half of these will have to be scanned to find an email address, so the time required is 4 + 32*0.1 = 7ms.
+A Performer record requires 36 bytes and there are 5K Performer records or 180K bytes in all. This requires about 20 blocks.
+On average, half of these will have to be scanned to find an id, so the time required is 4 + 10*0.1 = 5ms. The total time is 12ms.
+</font>
+<p>
+<font color="red">
+The most common mistake was to scan all of the blocks rather than just half. In both cases, the record being retrieved is unique,
+so one must only scan half of the blocks.
+<p>
+Another mistake was to use the number of records per block rather than the number of blocks when computing how many blocks to scan.
+</font>
+<li>Using the file structures specified in the schema:
+ <ul>
+ <li>Performer table uses a clustered hash table on its primary key.
+ <li>Person table uses a clustered hash table on its primary key.
+ <li>Person table has an unclustered B-tree index on the email address.
+ </ul>
+<p>
+<font color="green">
+Two random accesses will obtain the Person record with the email address or 8ms.
+Since the Performer table is using a clustered hash index, only one random access is required to find the Performer record or 4ms.
+The total time is 12ms.
+</font>
+<p>
+<font color="red">
+One common mistake was not to do this part at all. Another was to do some kind of sequential scan. Since both queries
+have unique results, no sequential scanning is involved.
+</font>
+</ol>
+<p>
+<li><b>Query Optimization</b>. (9 points)
+<p>
+The following query lists the stage names and email addresses of all performers who have a specified talent.
+<pre>
+select f.stageName, p.email
+  from Performer f, Person p, Talent t
+ where f.id = p.id
+   and f.talent = t.id
+   and t.description = ?
+</pre>
+<p>
+Show the optimized query plan for this query. Estimate the size of the data
+flow (either in number of records or number of blocks) along each edge in the
+query evaluation plan.
+<p>
+<font color="green">
+Because the description attribute of Talent is not indexed, it will be necessary to scan the Talent table no matter
+what join order is used. If the Talent table is the first table in the join order, then the number of records in the
+data flow will be approximately 1, so the best join order is Talent, Performer, Person. There are 1K talents and
+5K performers, so the result of the query will have about 5 performers. Although the joins
+for Performer and Person are selective, the tables are relatively small, so sort-merge is faster.
+<center><img src="images/216.gif" alt="optimized query plan"/></center>
+</font>
+<p>
+<font color="red">
+The most common mistake was not to show the technique for the selection and join operations.
+As a query evaluation plan is required, these are also required, and most students supplied them,
+but many omitted them entirely.
+</font>
+<p>
+<li><b>Normalization</b>. (10 points)
+<p>
+The relation ABCDEF has the following functional dependencies:
+<ul>
+<li>F&rarr;A
+<li>BF&rarr;C
+<li>CF&rarr;B
+<li>BE&rarr;F
+</ul>
+<p>
+Find at least one candidate key. Normalize the relation to 3NF.
+If possible, normalize the relation to BCNF.
+<p>
+<font color="green">
+<ol>
+<li>Neither D
+<li>Right   A
+<li>Left     E
+<li>Both  BCF
+</ol>
+<p>
+The core is DE<br>
+Closure of core is DE<br>
+Exterior attributes are BCF<br>
+The first choice gives a key: BDE<br>
+It was not required, but if you continue the algorithm the other key is CDEF.
+<p>
+Applying 3NF gives the following:
+<ul>
+<li>AF unique(F)
+<li>BCF unique(BF), unique(CF)
+<li>BEF unique(BE)
+<li>BDE unique(BDE) [or the other key]
+</ul>
+<p>
+The decomposition is BCNF.
+</font>
+<p>
+<font color="red">
+The most common mistake was to list BCF twice because BF&rarr;C and CF&rarr;B use the same
+three attributes. Another common mistake was to regard one of the FDs as being a unique constraint
+and the other as not being a unique constraint in BCF. In fact, both FDs determine all of BCF,
+so both are unique constraints.
+</font>
+<p>
+<li><b>Physical Database Design</b>. (12 points)
+<p>
+Suppose that your database consists of the following User table:
+ <pre>
+create table User(
+  id int,
+  name varchar(200) not null,
+  email varchar(200) not null,
+  primary key(id)
+);
+</pre>
+<p>
+Assume that there are 10K User records.
+The most common operations and their relative frequencies are:
+<ul>
+<li>Add a new user. (100)
+<li>Find a user (or users) by the beginning of their email address. (100)
+<li>Find a user (or users) by their name. (500)
+<li>Find a user given their id. (200)
+</ul>
+<p>
+What indexes should be on this table, and what kind of indexes should be used?
+In the case of the primary key, determine what kind of clustered index it should have.
+You may assume that all secondary indexes are non-clustered.
+Explain your choices quantitatively using a cost-benefit analysis.
+<p>
+<font color="green">
+The candidate indexes are:
+<ol>
+<li>Primary key hash table since only exact matches are ever done.
+<li>Secondary btree index on email since the matches are range queries.
+<li>Secondary hash index on name since the matches are exact.
+</ol>
+<p>
+The USER table requires about 100 blocks so scanning it requires 4 + 10 = 14ms to perform the second task without an index.
+If there is an unclustered index it would have to be a B-tree, so it would require 8ms for the same query (assuming a single
+result). This is an improvement of 6ms. If the result consists of multiple matches, then there is no significant improvement.
+This is the benefit. The cost of the index is that it must be updated each time a new user is added. This requires 4ms to obtain the leaf block,
+and another 4ms to update it. This is a total of 8ms. The cost is more than the benefit even if all matches have a single result, 
+since both operations have the same frequency.
+<p>
+Concerning the third task, scanning again requires 14ms. A secondary hash index requires 8ms.
+So there is benefit of 6ms. The cost of the index is the same as in the second task, but now it is required only 1/5 as many times as the update.
+So the benefit is more than the cost.
+<p>
+The fourth task is concerned with the primary key which necessarily must have an index. Only exact match is required, so it should be a hash index.
+<p>
+The design should be the following:
+<pre>
+create table User(
+  id int,
+  name varchar(200) not null,
+  email varchar(200) not null,
+  primary key using hash(id),
+  index using hash(name)
+);
+</pre>
+</font>
+<p>
+<font color="red">
+The most common mistake was to ignore the requirement that
+in the case of the primary key, one must determine what kind of clustered index it should have.
+It is also important that the analysis be quantitative, not qualitative.
+<p>
+Another very common misconception is that exact match queries are related to whether a column is unique.
+I saw statements such as "Since name is nearly unique one can use a hash index." Such a statement shows
+a complete misconception of what "exact match" means. One could have a hash index on a column that is
+far from being unique, and it can be useful to have a B-tree index on a column that is unique. An exact
+match is one that is specified by a where condition such as "attribute = value". A range query, by contrast,
+is one that is specified by a where condition such as "attribute like 'abc%'" or "attribute >= 5".
+</font>
+<p>
+<li><b>Security</b>. (9 points)
+<p>
+Allow the user named 'Fred' to access information about clients who are interested in a talent whose
+description begins with either "dance" or "tap".
+<p>
+<font color="green">
+The following is the view:
+<pre>
+create view ClientDanceTap as
+select p.id, p.name, p.email, c.company
+  from Person p, Client c, Interest i, Talent t
+ where p.id = c.id
+   and i.client = c.id
+   and i.interest = t.id
+   and (t.description like 'dance%' or t.description like 'tap%');
+</pre>
+<p>
+Grant access as follows:
+<pre>
+grant select on ClientDanceTap to 'Fred';
+</pre>
+</font>
+<p>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/179.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:09 GMT -->
+</html>

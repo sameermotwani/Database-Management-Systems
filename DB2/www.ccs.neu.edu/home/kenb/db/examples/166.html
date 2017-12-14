@@ -1,0 +1,86 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/166.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+Here is a data model for bands, musicians and the musical instruments they play:
+<p>
+<img src="images/213.jpg" alt="Data Model"/>
+<p>
+Note that in this data model, persons need not have unique names,
+and musical instruments may not have unique names.  Nevertheless,
+the result of any query should have no duplicate entities.  For example, in the second
+query if there is only one person named George there should not be more than one George in the result.
+However, if there are two persons named George and both satisfy the query, then both should appear in
+the result.
+<p>
+Use the following schema:
+<p>
+<pre>
+create table Person(
+  id int primary key,
+  dob date not null,
+  name varchar(255) not null
+);
+create table Band(
+  id int primary key,
+  name varchar(255) not null unique,
+  style varchar(255)
+);
+create table Instrument(
+  id int primary key,
+  name varchar(255) not null,
+  musicalKey varchar(255)
+);
+create table plays(
+  musician int references Person(id)
+    on update cascade on delete cascade,
+  instrument int references Instrument(id)
+    on update cascade on delete cascade,
+  primary key(musician, instrument)
+);
+
+create table memberOf(
+  musician int references Person(id)
+    on update cascade on delete cascade,
+  band varchar(255) references Band(name)
+    on update cascade on delete cascade,
+  primary key(musician, band)
+);
+create table StringInstrument(
+  id int primary key references Instrument(id)
+    on update cascade on delete cascade,
+  numberOfStrings int not null
+);
+create table BrassInstrument(
+  id int primary key references Instrument(id)
+    on update cascade on delete cascade,
+  numberOfValves int not null
+);
+create table PercussionInstrument(
+  id int primary key references Instrument(id)
+    on update cascade on delete cascade
+);
+</pre>
+<p>
+Write the following queries in SQL:
+<p>
+<ol>
+<li>Find the bands by name that have a percussionist (i.e., a person who plays a percussion instrument).
+<p>
+<li>Find the names of the persons who are not a member of an indie pop band.
+<p>
+<li>Find the names of the persons who are members of every indie pop band.
+<p>
+<li>Design a trigger that will automatically delete any updated instrument that no longer has a key
+(i.e., had a key before the update, but now does not have a key).
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/166.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:06 GMT -->
+</html>

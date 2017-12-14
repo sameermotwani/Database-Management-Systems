@@ -1,0 +1,162 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/5.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:30 GMT -->
+<head>
+<title>CS 5200 Introduction to Database Management Fall 2015</title>
+</head>
+<body>
+<center><h1>CS 5200 Introduction to Database Management Assignment #5</h1></center>
+<p>
+1. For each schedule:<ol type='a'>
+<li>Determine whether the schedule is view-serializable, conflict-serializable, recoverable, cascadeless and/or strict. Note: you must state separately whether each one of these holds.<li>For each of the 5 answers in the first part above, explain why or why not. In the case of the two notions of serializability, you must either give an equivalent serial schedule or a reason why the schedule is not serializable. For the other three concepts, you must give an example of a violation if the schedule does not have the property.
+</ol><p>The following are the schedules:
+<ol type='a'>
+<li>R<sub>3</sub>(A), R<sub>3</sub>(B), R<sub>1</sub>(C), R<sub>2</sub>(C), R<sub>2</sub>(B), R<sub>3</sub>(A), W<sub>3</sub>(A), C<sub>2</sub>, W<sub>1</sub>(C), C<sub>1</sub>, W<sub>4</sub>(B), W<sub>3</sub>(A), W<sub>4</sub>(B), C<sub>3</sub>, W<sub>4</sub>(A), W<sub>4</sub>(C), C<sub>4</sub>
+<li>W<sub>4</sub>(C), W<sub>3</sub>(C), W<sub>2</sub>(A), R<sub>2</sub>(B), R<sub>3</sub>(A), W<sub>4</sub>(A), W<sub>1</sub>(A), C<sub>4</sub>, C<sub>2</sub>, W<sub>1</sub>(C), R<sub>1</sub>(A), R<sub>3</sub>(B), C<sub>3</sub>, R<sub>1</sub>(B), C<sub>1</sub>
+<li>R<sub>2</sub>(B), R<sub>4</sub>(A), R<sub>2</sub>(C), W<sub>2</sub>(B), W<sub>3</sub>(C), R<sub>1</sub>(B), W<sub>4</sub>(C), R<sub>2</sub>(A), C<sub>4</sub>, C<sub>2</sub>, R<sub>1</sub>(B), W<sub>1</sub>(A), W<sub>3</sub>(B), R<sub>3</sub>(A), C<sub>3</sub>, C<sub>1</sub>
+<li>R<sub>2</sub>(A), R<sub>2</sub>(B), C<sub>2</sub>, R<sub>3</sub>(B), W<sub>4</sub>(B), W<sub>1</sub>(A), R<sub>4</sub>(C), R<sub>3</sub>(A), R<sub>1</sub>(A), C<sub>1</sub>, R<sub>4</sub>(C), W<sub>4</sub>(A), W<sub>3</sub>(B), R<sub>4</sub>(C), R<sub>3</sub>(A), C<sub>3</sub>, R<sub>4</sub>(A), R<sub>4</sub>(C), C<sub>4</sub>
+</ol>
+<p>
+2. This problem using the following data model:
+<p>
+<img src="products3.jpg" width="700"/>
+<p>
+The following is an XML schema for representing data in the data model above:
+<p>
+<pre>
+&lt;schema xmlns='http://www.w3.org/2001/XMLSchema'>
+
+ &lt;element name='Company'>
+  &lt;complexType>
+   &lt;choice minOccurs='0' maxOccurs='unbounded'>
+    &lt;element ref='Factory'/>
+    &lt;element ref='ProductType'/>
+   &lt;/choice>
+  &lt;/complexType>
+ &lt;/element>
+
+ &lt;element name='ProductType'>
+  &lt;complexType>
+   &lt;choice minOccurs='0' maxOccurs='unbounded'>
+    &lt;element ref='Repairer'/>
+    &lt;element ref='Product'/>
+   &lt;/choice>
+   &lt;attribute name='title' type='string' use='optional'/>
+   &lt;attribute name='description' type='string' use='required'/>
+   &lt;attribute name='size' type='integer' use='required'/>
+  &lt;/complexType>
+ &lt;/element>
+
+ &lt;element name='Repairer'>
+  &lt;complexType mixed='true'>
+   &lt;attribute name='qualification' use='required'>
+    &lt;simpleType>
+     &lt;restriction base='string'>
+      &lt;enumeration value='novice'/>
+      &lt;enumeration value='intermediate'/>
+      &lt;enumeration value='expert'/>
+     &lt;/restriction>
+    &lt;/simpleType>
+   &lt;/attribute>
+  &lt;/complexType>
+ &lt;/element>
+
+ &lt;element name='Product'>
+  &lt;complexType>
+   &lt;attribute name='label' type='string' use='optional'/>
+   &lt;attribute name='started' type='date' use='required'/>
+   &lt;attribute name='completed' type='date' use='optional'/>
+   &lt;attribute name='processedBy' type='IDREF' use='optional'/>
+  &lt;/complexType>
+ &lt;/element>
+
+ &lt;element name='Factory'>
+  &lt;complexType>
+   &lt;sequence minOccurs='0' maxOccurs='unbounded'>
+    &lt;element ref='Machine'/>
+   &lt;/sequence>
+   &lt;attribute name='address' type='string' use='required'/>
+  &lt;/complexType>
+ &lt;/element>
+
+ &lt;element name='Machine'>
+  &lt;complexType>
+   &lt;attribute name='id' type='ID' use='required'/>
+   &lt;attribute name='code' type='string' use='required'/>
+  &lt;/complexType>
+ &lt;/element>
+&lt;/schema>
+</pre>
+<p>
+Here is an example of an XML document for the XML schema
+<p>
+<pre>
+&lt;Company>
+  &lt;Factory address="100 Main Street">
+    &lt;Machine id="M1" code="101"/>
+    &lt;Machine id="M2" code="102"/>
+  &lt;/Factory>
+  &lt;ProductType title="Carpet" description="Shag Rug" size="50">
+    &lt;Product started="2015-10-27" processedBy="M1"/>
+    &lt;Repairer qualification="novice">John Doe&lt;/Repairer>
+    &lt;Repairer qualification="expert">Divya Bhaskar&lt;/Repairer>
+    &lt;Product started="2015-10-29" label="Green Carpet"/>
+  &lt;/ProductType>
+  &lt;Factory address="101 Main Street">
+    &lt;Machine id="N1" code="101"/>
+    &lt;Machine id="N2" code="102"/>
+  &lt;/Factory>
+&lt;/Company>
+</pre>
+<p>
+Suppose that we have a database with the following schema:
+<p>
+<pre>
+create table Company(
+  id int primary key auto_increment;
+  name varchar(200) not null,
+  factories text
+);
+</pre>
+<p>
+
+Solve the following problems:
+
+<p>
+
+<ol type="a">
+
+<li>Find the names of all experts who can repair a product with size at least 50 from the company named "Acme".
+
+<li>List the labels of all products that have not yet been completed and have a repairer who is at least at the intermediate level
+from any company.
+
+<li>List the addresses of the factories whose second machine has a code starting with "10"
+from companies whose name ends in "Inc".
+
+</ol>
+
+<p>
+
+Express your queries using SQL.  The queries must correctly retrieve the specified data for any consistent state of the database
+(i.e., any state of the database that satisfies all of the constraints specified in the SQL schema and the XSD schema).
+
+<p>
+
+An item is incomplete when the completed date is either unspecified or strictly later than the current date.
+A product is currently produced if the started date is earlier than or equal to the current date and the item is incomplete.
+The current date is current-date().  Not all XPath processors support the current-date function.  In this case, one can test your query by using
+the actual current date.  However, in your submission use the current-date function.
+
+<p>
+
+A node set is automatically converted to boolean if it occurs in a boolean context.  In this case, it is true when the node set is nonempty.
+In other words, it acts like the SQL "exists" operator.  One can explicitly convert to boolean by using the boolean() function.  In XPath,
+true is written true() and false is written false().
+
+<p>
+
+
+</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/5.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:30 GMT -->
+</html>

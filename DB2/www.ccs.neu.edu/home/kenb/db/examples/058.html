@@ -1,0 +1,34 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/058.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Selectivity of a "not exists" join</h1></center>
+<p>
+Consider the many-to-many association between students and courses.
+<p>
+<img src="images/214.gif" alt="Association between students and courses"/>
+<p>
+Suppose that, on average, each student takes 4 courses.
+The actual number of courses for a particular student could be as few as
+no courses and there is no specified upper bound on the number of courses.
+How many students take no courses at all? 
+The usual way to estimate this is with a probability model called the Poisson process.
+While the Poisson process is a complicated model in general, it is very simple
+in this case: <b>e<sup>-4</sup> = 0.0183</b>. In other words,
+about 2% of all students take no courses at all.
+<p>
+In general, if one has a many-to-many association between two classes A and B,
+and if each A object is related to <em>n</em> B objects, on average, then
+the number of A objects that are unrelated to any B objects is approximately
+equal to the fraction
+<b>e<sup>-n</sup></b> of all A objects. 
+In other words, the estimated selectivity is
+<b>e<sup>-n</sup></b>.
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/058.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

@@ -1,0 +1,427 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/097.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head>
+<body>
+<center><h1>Cost Model for File Organizations</h1></center>
+<p>
+<h2>Outline</h2>
+<p>
+Here is an outline of how one analyzes costs for file and index organizations.
+<p>
+The following information will be available:
+<ol>
+<li>Database information will be given.  This consists of tables, field sizes,
+number of values of each field, block sizes and operation durations.
+<li>A set of queries and operations will also be given.
+<li>A collection of file and indexing strategies will be proposed.
+</ol>
+<p>
+The analysis consists of these steps:
+<ol>
+<li>For each query or operation, compute the average number of records
+that will be produced.
+<li>For each table, compute the size of a record and use this to compute
+the number of records per block.
+<li>Combine the first two computations to obtain the average number
+of blocks in the result.  There are two answers.  One for the number of
+blocks when the records use all of the space (i.e., packed into the blocks)
+and one for blocks that are only 2/3 full on average.
+<li>For each query/operation and indexing strategy compute the time to
+compute the query.  This will usually consist of two or three steps:
+<ol>
+<li>Time to find the first result block.  This will depend on the indexing
+strategy being used.
+<li>Time to read the rest of the result blocks (if any).
+<li>Sometimes one must also include the time to write updated blocks.
+</ol>
+Note that one should not work too hard on the computations.  Getting the
+answer to one-place accuracy is all that is required.
+</ol>
+<p>
+<h2>Database Information</h2>
+<p>
+Consider a transaction database for an event database.  Two of the
+tables are the following:
+<pre>
+Event(id int, title string, abstract string, dateTime DateTime,
+      speaker int, host int, location string, duration Duration, primary key(id))
+Person(id int, name string, affiliation string, primary key(id))
+</pre>
+<p>
+The following are the sizes, counts and times:
+<ol>
+<li>A record requires an average of 4 bytes administrative overhead.
+<li>A rid uses 4 bytes.
+<li>An int uses 4 bytes.
+<li>A double uses 8 bytes.
+<li>A DateTime uses 8 bytes.  
+    A DateTime is a day (such as 3/31/08) and a time (such as 12:45pm).
+    The information is compressed to fit in 8 bytes.
+<li>A Duration uses 4 bytes.  A Duration is a period of time (such as 1 hour).
+    The information is compressed to fit in 4 bytes.
+<li>A title uses an average of 40 bytes.
+<li>An abstract uses an average of 1800 bytes.
+<li>A location uses an average of 8 bytes.
+<li>A name uses an average of 16 bytes.
+<li>An affiliation uses an average of 32 bytes.
+<li>A disk block pointer is 4 bytes.
+<li>There are 16K events.
+<li>There are 4K speakers.
+<li>There are 64 hosts.
+<li>There are 16 locations.
+<li>The events are over a 10-year period with 250 days/year
+    for a total of 2500 days.
+<li>Titles and abstracts are almost unique.
+<li>The disk block size is 4K = 4096 bytes.
+<li>A random disk access requires 10ms
+<li>A block can be transferred (read or write) in 1/16 ms.
+<li>In any B-tree,
+all levels are in the disk buffer (in main memory) except for the lowest internal level
+and the leaf level (if there is one).
+</ol>
+<p>
+<h2>Queries and Operations</h2>
+<p>
+Consider the following queries (or operations):
+<ol>
+<li>Find all events for one day.
+<li>Find all events for a speaker given the speaker id.
+<li>Find all events for one host.
+<li>Find an event by title (exact match), including the name and
+    affiliation of the speaker.
+<li>Insert a new event.
+<li>Insert a new person.
+</ol>
+<p>
+<h2>Indexing Strategies to be Compared</h2>
+<p>
+Compute the approximate time required for every query 
+for each of the following 4 table structures:
+<ol>
+<li>Clustered Heap.  An unordered collection of records packed into sequential blocks.
+<li>Clustered Sort.  An ordered collection of records packed into sequential blocks.
+In each case, order it by the field being queried (e.g., for the first query
+assume ordered by customer id).
+<li>Clustered B-tree.  The ordering and clustering is by the field being queried.
+<li>Unclustered heap with index.  Assume the index is
+a B-tree index in which only one level
+of the tree is on disk, and the other levels are in main memory.  
+Unclustered means the following:
+<ol>
+<li>The records are randomly located with respect to the query field.
+<li>The blocks are randomly located on the disk.
+<li>The blocks are only 2/3 full.
+</ol>
+</ol>
+<p>
+<h2>Computation of Selectivities</h2>
+<p>
+The selectivities of the queries and operations are:
+<ol>
+<li><b>Find all events for one day.</b>  There are 2500 days and 16K events.
+The selectivity is 1/2500.  The average number of events
+for one day is 16K/2500 = 6.4.
+<li><b>Find all events for a speaker given the speaker id.</b>  There are
+4K speakers and 16K events.  The selectivity is 1/4K = 0.0025.
+the average number of events for one speaker is 16K/4K = 4.
+<li><b>Find all events for one host.</b>.  There are 64 hosts and 16K events.
+The selectivity is 1/64=0.016.  The average number of events hosted
+by one person is 16K/64=250.
+<li><b>Find an event by title (exact match), including the name and
+    affiliation of the speaker.</b>  There are 16K events and
+a title is almost unique so the selectivity is 1/16K = 0.000625.  
+The average number of events with a specified title is 1.
+<li><b>Insert a new event.</b>  There are 16K events, 
+so the selectivity is 1/16K = 0.000625.  
+<li><b>Insert a new person.</b>  There are 4K persons,
+so the selectivity is 1/4K = 0.00025.
+</ol>
+<p>
+<h2>Record Sizes</h2>
+<p>
+The next step is to determine the sizes of the records
+and how many fit into a block.
+<p>
+<table cellpadding="5" border="2">
+<tr><th colspan="3">Event Record
+<tr><th>Field<th>Average Size<td>Records per block
+<tr><td>Overhead<td>4
+  <td rowspan="11">There are 2.18 Event records per block, on average,
+   or approximately 2 records per block.
+<tr><td>rid<td>4
+<tr><td>id<td>4
+<tr><td>title<td>40
+<tr><td>abstract<td>1800
+<tr><td>dateTime<td>8
+<tr><td>speaker<td>4
+<tr><td>host<td>4
+<tr><td>location<td>8
+<tr><td>duration<td>4
+<tr><td>Total<td>1880
+</table>
+<p>
+<table cellpadding="5" border="2">
+<tr><th colspan="3">Person Record
+<tr><th>Field<th>Average Size<th>Records per block
+<tr><td>overhead<td>4<td rowspan="6">There are 68 Person records per block on average.
+<tr><td>rid<td>4
+<tr><td>id<td>4
+<tr><td>name<td>16
+<tr><td>affiliation<td>32
+<tr><td>Total<td>60
+</table>
+<p>
+<h2>Performance Analysis</h2>
+<p>
+Analysis of each query or operation:
+<ol>
+<li><b>Find all events for one day.</b>
+This is an example of a <i>range query</i> because it must select
+all events that have a dateTime from midnight one day to midnight the next day.
+<ol>
+<li><b>Heap Organization.</b>  The entire file must be scanned to find all
+the selected records.  There are 2.18 records/block so a total
+of 7340 blocks are required.  It is okay to use the approximation of
+2 records/block for a total of 8000 blocks.  The scan is sequential
+so the scan will take 10ms to read the first block, and
+7339 * 1/16 ms = 0.46 seconds for the others for a total of approximately
+0.5 seconds.
+<li><b>Sort Organization.</b>  A binary search must be performed.  This requires
+log<sub>2</sub>(7340) = 12.8 random disk accesses to find the first event. If one
+uses the approximation, this is log<sub>2</sub>(8K) = log<sub>2</sub>(2<sup>13</sup>)
+= 13 random disk accesses.  So the time required is 12.8 * 10ms = 128ms or approximately
+130ms.  One must then sequentially read the records having the events on the
+specified day.  There are 6.4 records or 3 blocks which requires 3 * 1/16 ms =
+0.19 ms.  This does not have a significant effect on the overall time.
+See <a href="#note1">Note 1</a> below.
+<li><b>Clustered B-tree Organization.</b>  By assumption, in any B-tree,
+all levels are in the disk buffer (in main memory) except for the lowest internal level
+and the leaf level (if there is one).  In this case, there is a leaf level,
+so the number of random disk accesses required to retrieve the first relevant
+leaf block is 2 which requires 20ms.  This block contains 1 or 2 of the desired
+event records.  One must then read the remaining
+records that have the desired events.  There are 6.4 in all on average,
+so we need to read an additional 5 more records, approximately.
+Unlike the Heap and Sort organizations,
+these blocks are randomly located, so each retrieval requires 10ms.  Also,
+unlike the Heap and Sort organizations, the blocks are only 2/3 full so
+1.5 * 5/2 = 3.75 blocks will be needed rather 
+than the 2.5 = 5/2 blocks that one would expect.  
+This will take an additional 3.75 * 10ms = 37.5ms, for a total of 
+20ms + 37.5ms = 57.5ms on average.
+<li><b>Unclustered Heap with Index Organization.</b>  In this case the index
+(which could be either a B-tree or a hash table) has no leaf level (i.e., no
+level that contains database records), so only 1 random disk access is required
+to determine the location of the block containing the first desired event record.
+However, the records are not clustered in blocks at the leaf level so each
+of the 6.4 records must be retrieved in a separate random disk access.
+Thus the total time is 10ms + 64ms = 74ms.
+</ol>
+<li><b>Find all events for a speaker given the speaker id.</b>
+<ol>
+<li><b>Heap Organization.</b>  The entire file must be scanned, so the
+time required is approximately 0.5 seconds.
+<li><b>Sort Organization.</b>  A binary search must be performed.
+As we computed above, the time required is approximately 130ms.
+<li><b>Clustered B-tree Organization.</b>  As we computed above,
+it will take 20ms to retrieve the first block.  The only difference
+in this case is that only 4 records must be retrieved on average
+rather than 6.4.  We already have 1 or 2 of them (or 1.5 on average), 
+so we only need to read an additional 2.5.  Since blocks are only
+2/3 full, we will need to read another 1.5 * 2.5/2 = 1.875 blocks
+or about 2 more blocks.  So the total time is about 40ms.
+<li><b>Unclustered Heap with Index Organization.</b>
+As in the previous query, we need one disk access to find the locations
+of the records and then 4 disk access to retrieve the records for
+a total of 10ms + 40ms = 50ms.
+</ol>
+<li><b>Find all events for one host.</b>
+<ol>
+<li><b>Heap Organization.</b>  The entire file must be scanned, so the
+time required is approximately 0.5 seconds.
+<li><b>Sort Organization.</b>  A binary search must be performed.
+As we computed above, the time required is approximately 130ms.
+One must then read the 250 records or 125 blocks.  This takes 125 * 1/16 ms
+= 7.8ms.  The total time is therefore about 140ms.
+<li><b>Clustered B-tree Organization.</b>  As we computed above,
+it will take 20ms to retrieve the first block.  The only difference
+in this case is that 250 records must be retrieved on average
+rather than 6.4 or 4.  The fact that we already have 1 or 2 of the
+records has little effect.  The total time will be approximately
+1.5 * 250/2 * 10ms = 1875ms or about 1.9 seconds.  This is the worst yet, but there
+is a trick one can employ.  See <a href="#note2">Note 2</a>.
+<li><b>Unclustered Heap with Index Organization.</b> As before, we will
+need a disk access to find the location of the first record.  An index
+entry consists of a key and disk location each of which requires 4 bytes
+for a total of 8 bytes.  A disk block has 4K bytes, so there can be up to
+512 such pairs.  Since the block will be 2/3 full on average, each block
+will have around 340 index entries.  So usually we would expect that
+the locations of the 250 event records will all be in a single index block,
+but sometimes it will take 2 of them.  So we will need about 10 or 20ms to
+obtain the locations of the 250 event records, each of which must then
+be retrieved using a random disk access, for a total of about 2500ms or 2.5 seconds.
+Fortunately, it is possible to do much better as discussed in
+<a href="#note2">Note 2</a>.
+</ol>
+<li><b>Find an event by title (exact match), including the name and
+    affiliation of the speaker.</b>  This is actually two queries.
+The first is a query to the Event table by title, and the second is a 
+query to the Person table by id.  Both are exact match queries.
+<ol>
+<li><b>Heap Organization.</b>  The entire Event file must be scanned.
+While there will almost always be just one result, this is not guaranteed.
+So the time required is about 0.5 second.  
+The second query requires that half of the
+Person table be scanned, on average.  The reason is that there
+is exactly 1 record in the Person table with the id we are seeking, so
+we can stop scanning when we find it.  There are 68 records/block and
+4K records, so this table has only 59 blocks.  The time to read the
+first block is 10ms, and the time for the other blocks is
+58/2 * 1/16 ms = 1.8ms for a total of 11.8ms.
+The total time required is therefore 500ms + 11.8ms
+= 511.8ms or about 0.5 second.
+<li><b>Sort Organization.</b>  Using binary search, the first query
+requires about 130ms.  Additional reading is almost never required,
+so this is the total time for the first query.  For the second query,
+a binary search requires log<sub>2</sub>(59) = 5.9 steps, which
+is approximately 6 steps.  Another way
+to compute this is to notice that 59 is close to 64 and log<sub>2</sub>(64)
+= log<sub>2</sub>(2<sup>6</sup>) = 6.  These are random accesses, so
+the time required is 60ms.  The total time for both queries is 190ms.
+<li><b>Clustered B-tree Organization.</b>  The first query requires two
+random accesses to retrieve the block with the first record or 20ms.
+There are seldom any others so the total time of the first query is about 20ms.
+The second query also requires 20ms to retrieve the block with the first record.
+In this case there are never any others, so the total time for the second
+query is 20ms.  The time for both queries is 40ms.
+<li><b>Unclustered Heap with Index Organization.</b>  This is the same
+as for a Clustered B-tree because the clustering does not matter when
+one is retrieving a single record.
+</ol>
+<li><b>Insert a new event.</b>
+<ol>
+<li><b>Heap Organization.</b>  One simply reads the last block on disk,
+adds the next record and writes it back out.  This requires 20ms.
+See <a href="#note3">Note 3</a>.
+<li><b>Sort Organization.</b>  One must scan the file for the location
+of the new record.  Half of the file will be scanned on average for
+about 250ms.  One must then modify every block from that point to the
+end of the file.  This cannot be done sequentially so each modification
+requires 20ms.  There are 7340 blocks in all, and we need to modify half
+of them on average or 3670 blocks for a total of 73400ms = 73.4 seconds.
+However, see <a href="#note4">Note 4</a>.
+<li><b>Clustered B-tree Organization.</b>  One must first retrieve
+the block that will contain the new event.
+We have already computed this to be 20ms.  Now modify the block to
+include the new record and write it back.  The total time is 30ms.
+If the block is full, then it must be split and a new key added to
+the parent node.  This requires 4 more disk accesses (2 for each
+modification) for a total of 40ms.  However, this only happens about
+half of the time (since each block contains 1 or 2 records).  So it
+adds an average of 20ms.  Additional splits can occur but these are
+much less common so they do not add a significant amount of time.
+The total average time is then 50ms.
+<li><b>Unclustered Heap with Index Organization.</b>
+Both the heap and the index must be updated.  If the heap is the
+leaf level of a Clustered B-tree, then we use the update time just
+computed above, 50ms.  If the heap is nothing more than just a heap,
+then it requires 20ms.  To update the index, we must modify one block
+on disk.  This requires 20ms.  While a split is possible, it is unusual,
+so it adds no significant time.  Adding these up, we get a total time
+of either 70ms or 40ms, depending on how the heap is organized.
+</ol>
+<li><b>Insert a new person.</b>
+<ol>
+<li><b>Heap Organization.</b>  One simply reads the last block on disk,
+adds the next record and writes it back out.  This requires 20ms.
+See <a href="#note3">Note 3</a>.
+<li><b>Sort Organization.</b>  The Person file is only 59 blocks, so
+it is most efficient just to read the entire file, modify it in main
+memory and then write it back.  The read takes 10ms + 58 * 1/16 ms = 13.6ms.
+The write takes the same, for a total of 27.2ms.
+<li><b>Clustered B-tree Organization.</b> One must retrieve the block that
+will have the new record, modify it and write it back.  Retrieval takes
+20ms and writing it back takes 10ms.  There are 68 records on one block,
+so it is uncommon for a block to be split, so the total time is about 30ms.
+<li><b>Unclustered Heap with Index Organization.</b>  
+Both the heap and the index must be updated.  If the heap is the
+leaf level of a Clustered B-tree, then we use the update time just
+computed above, 30ms.  If the heap is nothing more than just a heap,
+then it requires 20ms.  To update the index, we must modify one block
+on disk.  This requires 20ms.  While a split is possible, it is unusual,
+so it adds no significant time.  Adding these up, we get a total time
+of either 50ms or 40ms, depending on how the heap is organized.
+</ol>
+</ol>
+<p>
+<h2>Summary</h2>
+<p>
+Here is a summary of the costs in milliseconds.  Alternative values
+computed in the notes are shown in brackets if they are significantly
+different.  Since all of the values are approximations, they were
+rounded to give only one or two-place accuracy.
+<p>
+<table cellpadding="5" border="2">
+<tr><th>Query<th>Heap<th>Sort<th>B-tree<th>Heap+Index
+<tr><td>Events for one day<td>500<td>130<td>60<td>70
+<tr><td>Events for one speaker<td>500<td>130<td>40<td>50
+<tr><td>Events for one host<td>500<td>140<td>1900 [500]<td>2500 [500]
+<tr><td>Event by title<td>500<td>190<td>40<td>40
+<tr><td>Insert event<td>20<td>73000 [750]<td>50<td>70 or 40
+<tr><td>Insert person<td>20<td>30<td>30<td>50 or 40
+</table>
+<p>
+<h2>Database Design: Creating the Indexes</h2>
+<p>
+To determine which file organization to use, and especially to
+determine which indexes should be created, one needs the probability
+for each query or operation to occur.  One then multiplies these
+probabilities by the costs for each design choice and adds them
+up to obtain a total cost.
+<p>
+<h2>Notes</h2>
+<p>
+<a name="note1"/>Note 1: A more refined analysis would consider the
+possibility that the binary search would find the required disk block
+on an earlier step than the last one.  It can be shown that this
+reduces the number steps from 13 to 12 on average.  In addition,
+when the disk block is found during the binary search, one will already
+have some of the selected records.  In this case there will be 1 or 2
+of the desired records.  This reduces the average total time by a small
+amount.  Note that such a refined analysis is not necessary
+since we only want the cost to one-place accuracy.
+<p>
+<a name="note2"/>Note 2: Although the blocks are randomly arranged,
+one can usually assume that the file as a whole is stored in 
+blocks that are nearly contiguous on the disk even if one cannot
+assume that the blocks are arranged in sorted order as in the
+Sort organization.
+Tools that "defragment" the disk are responsible for
+ensuring this property.  One can then sequentially read the entire file
+to achieve a time that is only somewhat longer than the 0.5 seconds we
+computed for the case of the Heap organization.
+<p>
+<a name="note3"/>Note 3:
+If the block was full, then one must allocate another block.  This
+requires an additional disk access.  This happens very frequently,
+since there are only 2 records in each block, on average.  This
+requires an additional random disk access which adds 5ms
+(since it only happens half of the time), so the average time is
+actually 25ms.  Again, such detailed analyses are not necessary
+when one is only computing an answer to one-place accuracy.
+<p>
+<a name="note4"/>Note 4:  As usual, there are various tricks one
+can employ to speed this task.  One can read blocks sequentially
+in "batches", modify them in memory, and then write them out
+in batches.  If a batch is the entire remaining file, then the
+time required to read is 10ms + 3760 * 1/16 ms = 245ms.  The time
+to write the modified blocks is the same.  So the total time for
+searching and modification is 750ms.
+If the batches are smaller than the entire remaining file,
+it will take somewhat longer, but not significantly.
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/097.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>

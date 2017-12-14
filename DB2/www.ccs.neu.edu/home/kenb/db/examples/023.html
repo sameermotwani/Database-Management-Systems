@@ -1,0 +1,77 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/023.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:11 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+This assignment will use an SQL schema similar to the one in Assignment #3,
+except that some uniqueness constraints have been added.
+<p> 
+<pre>
+create table Building (
+  id int primary key,
+  address varchar(500) not null unique
+);
+create table Apartment (
+  id int primary key,
+  number varchar(31) not null,
+  building int not null references Building(id)
+    on update cascade on delete cascade,
+  unique(building, number)
+);
+create table RoomType (
+  id int primary key,
+  description varchar(5000)
+);
+create table RoomTypeName (
+  type int references RoomType(id)
+    on update cascade on delete cascade,
+  name varchar(255),
+  primary key(type, name)
+);
+create table Room (
+  id int primary key,
+  area double not null,
+  type int not null references RoomType(id)
+    on update cascade on delete no action,
+  apartment int not null references Apartment(id)
+    on update cascade on delete cascade
+);
+create table ApartmentFloor (
+  apartment int references Apartment(id)
+    on update cascade on delete cascade,
+  floor int,
+  primary key(apartment, floor)
+);
+create table Person (
+  id int primary key,
+  name varchar(5000) not null
+);
+create table Owner (
+  person int references Person(id)
+    on update cascade on delete cascade,
+  apartment int references Apartment(id)
+    on update cascade on delete cascade,
+  primary key(person, apartment)
+);
+</pre>
+<p>
+Design and develop persistable classes with JPA annotations that map
+to the schema above. Develop a main program that performs the following
+commands using the JPA query language, printing the results of queries
+to the console. Test your program using OpenJPA.
+<p>
+<ol>
+<li>Change the owners of Apartment 2C in the building at 100 Main Street to George and Fred.
+<li>Find the addresses of all buildings that have a Living Room with area greater than 1000 s.f. owned by Fred in an apartment on the fifth floor or higher.
+<li>Find all apartments, showing the address and apartment number that have 3 or more rooms with the same type.
+<li>List the buildings in order by address together with the number of apartments in each building.
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/023.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:11 GMT -->
+</html>

@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)https://dev.mysql.com/doc/refman/5.5/en/index-btree-hash.html -->
+<html lang="en" class="svg js"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <!--[if IE ]>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+    <title>MySQL :: MySQL 5.5 Reference Manual :: 8.3.8 Comparison of B-Tree and Hash Indexes</title>
+    <link rel="stylesheet" media="all" href="./MySQL __ MySQL 5.5 Reference Manual __ 8.3.8 Comparison of B-Tree and Hash Indexes_files/main-20151124.min.css">
+            <link rel="stylesheet" media="all" href="./MySQL __ MySQL 5.5 Reference Manual __ 8.3.8 Comparison of B-Tree and Hash Indexes_files/docs-20151124.min.css">
+    
+    
+    <link rel="stylesheet" media="print" href="./MySQL __ MySQL 5.5 Reference Manual __ 8.3.8 Comparison of B-Tree and Hash Indexes_files/print-20151124.min.css">
+
+    
+    
+    
+            <link rel="contents" href="https://dev.mysql.com/doc/refman/5.5/en/index.html" title="MySQL 5.5 Reference Manual">
+<link rel="start" href="https://dev.mysql.com/doc/refman/5.5/en/index.html" title="MySQL 5.5 Reference Manual">
+<link rel="prev" href="https://dev.mysql.com/doc/refman/5.5/en/index-statistics.html" title="8.3.7 InnoDB and MyISAM Index Statistics Collection">
+<link rel="next" href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-database-structure.html?ff=nopfpls" title="8.4 Optimizing Database Structure">
+<link rel="up" href="https://dev.mysql.com/doc/refman/5.5/en/optimization-indexes.html" title="8.3 Optimization and Indexes">
+
+    
+    <link rel="shortcut icon" href="https://dev.mysql.com/common/themes/sakila/favicon.ico">
+    <script>(function(H){ H.className=H.className.replace(/\bno-js\b/,'js') })(document.documentElement)</script>
+    <script src="./MySQL __ MySQL 5.5 Reference Manual __ 8.3.8 Comparison of B-Tree and Hash Indexes_files/site-20151004.min.js"></script>
+
+    
+    
+    
+    <!--[if lt IE 9]>
+        <script src="//www-jp.mysql.com/common/js/polyfills/html5shiv-printshiv-3.7.2.min.js"></script>
+        <script src="//www-jp.mysql.com/common/js/polyfills/respond-1.4.2.min.js"></script>
+    <![endif]-->
+        <!--[if IE 9]>
+        <style>#docs-sidebar-toc { box-sizing: content-box; }</style>
+    <![endif]-->
+    </head>
+
+<body class="no-sidebar full-page dev">
+    <header>
+
+                        <a href="http://dev.mysql.com/" title="MySQL" id="l1-home-link"></a>
+        
+        <div id="l1-nav-container">
+            <div>
+                <div id="l1-search-auth">
+                    <div id="l1-auth-links">
+                        <a href="http://www.mysql.com/about/contact/"><strong>Contact MySQL</strong></a>
+                        <span id="l1-contact-separator">&nbsp;|&nbsp;</span>
+                        <span id="l1-contact-separator-br"><br></span>
+                                                     <a href="https://dev.mysql.com/auth/login/?dest=http%3A%2F%2Fdev.mysql.com%2Fdoc%2Frefman%2F5.5%2Fen%2Findex-btree-hash.html">Login</a> &nbsp;|&nbsp;
+                             <a href="https://dev.mysql.com/auth/register/">Register</a>
+                                            </div>
+                    <div id="l1-search-box">
+                        <form id="l1-search-form" method="get" action="https://search.oracle.com/search/search">
+                        <input type="hidden" name="group" value="MySQL">
+                        <input type="text" id="l1-search-input" name="q">
+                        <button type="submit" class="l1-search-btn" title="Search"><span class="icon-search"></span></button>
+                        </form>
+                    </div>
+                </div>
+                <div class="social-icons">
+                    <a title="Join us on Facebook" href="http://www.facebook.com/mysql"><span class="icon-facebook-square"></span></a>
+                    <a title="Follow us on Twitter" href="https://twitter.com/#!/mysql"><span class="icon-twitter-square"></span></a>
+                    <a title="Join Google+ to follow MySQL" href="https://plus.google.com/+mysql"><span class="icon-google-plus-square"></span></a>
+                    <a title="Visit our YouTube channel" href="http://www.youtube.com/mysqlchannel"><span class="icon-youtube-square"></span></a>
+                </div>
+                <div id="l1-slogan">
+                    The world's most popular open source database
+                </div>
+            </div>
+            <div>
+                <ul id="l1-nav">
+                    <li>
+                        <a href="http://www.mysql.com/"><!-- <span class="icon-sakila"></span>  -->MySQL.com</a>
+                    </li><li>
+                        <a href="http://www.mysql.com/downloads/"><!-- <span class="icon-download-thin"></span>  -->Downloads</a>
+                    </li><li class="active">
+                        <a href="https://dev.mysql.com/doc/"><!-- <span class="icon-books"></span>  -->Documentation</a>
+                    </li><li>
+                        <a href="https://dev.mysql.com/"><!-- <span class="icon-code"></span>  -->Developer Zone</a>
+                    </li>                </ul>
+            </div>
+        </div>
+        <div id="sub-header">
+            <div id="l2-nav-container">
+                <div id="l2-nav-toggle">
+                    <span class="icon-three-bars"></span>
+                </div>
+                                                                                        <a class="button nav-button-3" href="https://dev.mysql.com/"><span class="icon-code"></span> Developer Zone</a>
+                                                                                                                                    <a class="button nav-button-2" href="http://www.mysql.com/downloads/"><span class="icon-download-thin"></span> Downloads</a>
+                                                                                                <a class="button nav-button-1" href="http://www.mysql.com/"><span class="icon-sakila"></span> MySQL.com</a>
+                                                                        <div id="l2-search-toggle">
+                    <span class="icon-search"></span>
+                </div>
+                <div id="l2-site-icon">
+                                                                                                                                                                                                    <span class="icon-books"></span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                <div id="l1-section-title">
+                    <span id="l1-section-label">
+                        <a href="https://dev.mysql.com/doc/">Documentation</a>
+                    </span>
+                </div>
+                <nav>
+                    
+
+<ul id="l2-nav">
+    	<li class="active"><a class="active " href="https://dev.mysql.com/doc/refman/en/">MySQL Server</a>
+
+			</li>
+	    	<li class=""><a href="https://dev.mysql.com/doc/index-enterprise.html">MySQL Enterprise</a>
+
+			</li>
+	    	<li class=""><a href="https://dev.mysql.com/doc/workbench/en/">Workbench</a>
+
+			</li>
+	    	<li class=""><a href="https://dev.mysql.com/doc/mysql-router/en/">Router</a>
+
+			</li>
+	    	<li class=""><a href="https://dev.mysql.com/doc/index-utils-fabric.html">Utilities/Fabric</a>
+
+			</li>
+	    	<li class=""><a href="https://dev.mysql.com/doc/index-cluster.html">Cluster</a>
+
+			</li>
+	    	<li class=""><a href="https://dev.mysql.com/doc/index-connectors.html">Connectors</a>
+
+			</li>
+	    	<li class=" last"><a href="https://dev.mysql.com/doc/index-other.html">More</a>
+
+			</li>
+	                        <li class="other-section"><a href="http://www.mysql.com/">MySQL.com</a></li>
+                            <li class="other-section"><a href="http://www.mysql.com/downloads/">Downloads</a></li>
+                                        <li class="other-section"><a href="https://dev.mysql.com/">Developer Zone</a></li>
+            </ul>
+                </nav>
+            </div>
+            <div id="l3-search-container"></div>
+            <div id="top-orange"><span id="section-nav">Section Menu: &nbsp; </span></div>
+        </div>
+    </header>
+    <div id="page">
+                        <div role="main" id="main">
+
+            
+                
+            
+<div>
+    <div id="docs-sidebar-toc" class="" style="max-height: 667px; overflow-y: hidden;">
+    <div id="docs-toc-inner">
+        <div class="docs-sidebar-header" id="docs-nav-header">
+            <a class="docs-show-hide-nav" id="docs-hide-nav" href="" title="Hide Sidebar"><span class="icon-arrow-small-left"></span></a>
+            <div class="docs-nav-links">
+                                    
+    <a href="https://dev.mysql.com/doc/refman/5.5/en/index-statistics.html" title="Previous: InnoDB and MyISAM Index Statistics Collection"><span class="icon-chevron-left"></span></a>
+<a href="https://dev.mysql.com/doc/refman/5.5/en/index.html" title="Home"><span class="icon-home"></span></a>
+        <a href="https://dev.mysql.com/doc/refman/5.5/en/optimization-indexes.html" title="Up: Optimization and Indexes"><span class="icon-chevron-up"></span></a>
+    <a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-database-structure.html" title="Next: Optimizing Database Structure"><span class="icon-chevron-right"></span></a>
+                            </div>
+        </div>
+                    
+<div id="docs-sidebar-search-container">
+    <div id="docs-sidebar-search-box">
+        <form method="get" action="https://dev.mysql.com/doc/search/">
+            <input type="hidden" name="d" id="d" value="10">
+            <input type="hidden" name="p" id="p" value="1">
+            <input type="text" name="q" id="q" value="Search this Manual" style="color: #bbb;" onfocus="if(this.value == &#39;Search this Manual&#39;) {this.value=&#39;&#39;;this.style.color=&#39;#555&#39;;}" onblur="if(this.value == &#39;&#39;) {this.value=&#39;Search this Manual&#39;;this.style.color=&#39;#bbb&#39;;}">
+
+            <button class="docs-sidebar-search-btn" title="Search" type="submit">
+                <span class="icon-search"></span>
+            </button>
+        </form>
+    </div>
+</div>
+                <div class="docs-sidebar-nav">
+            <a href="https://dev.mysql.com/doc/">Documentation Home</a><hr>
+            <div class="docs-sidebar-mtitle">MySQL 5.5 Reference Manual</div>
+            <nav class="doctoc" id="doc-10">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/preface.html">Preface and Legal Notices</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/introduction.html">General Information</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/installing.html">Installing and Upgrading MySQL</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/tutorial.html">Tutorial</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/programs.html">MySQL Programs</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/server-administration.html">MySQL Server Administration</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/security.html">Security</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/backup-and-recovery.html">Backup and Recovery</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-down"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimization.html">Optimization</a></div></div>                        <div class="docs-submenu">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimize-overview.html">Optimization Overview</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/statement-optimization.html">Optimizing SQL Statements</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/select-optimization.html">Optimizing SELECT Statements</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/select-speed.html">Speed of SELECT Statements</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/where-optimizations.html">How MySQL Optimizes WHERE Clauses</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/range-optimization.html">Range Optimization</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/index-merge-optimization.html">Index Merge Optimization</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/condition-pushdown-optimization.html">Engine Condition Pushdown Optimization</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/is-null-optimization.html">IS NULL Optimization</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/left-join-optimization.html">LEFT JOIN and RIGHT JOIN Optimization</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/nested-loop-joins.html">Nested-Loop Join Algorithms</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/nested-join-optimization.html">Nested Join Optimization</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/outer-join-simplification.html">Outer Join Simplification</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/order-by-optimization.html">ORDER BY Optimization</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/group-by-optimization.html">GROUP BY Optimization</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/distinct-optimization.html">DISTINCT Optimization</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/subquery-optimization-with-exists.html">Optimizing Subqueries with EXISTS Strategy</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/limit-optimization.html">Optimizing LIMIT Queries</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/how-to-avoid-table-scan.html">How to Avoid Full Table Scans</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/non-select-optimization.html">Optimizing DML Statements</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/insert-speed.html">Speed of INSERT Statements</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/update-speed.html">Speed of UPDATE Statements</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/delete-speed.html">Speed of DELETE Statements</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/permission-optimization.html">Optimizing Database Privileges</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/information-schema-optimization.html">Optimizing INFORMATION_SCHEMA Queries</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/miscellaneous-optimization-tips.html">Other Optimization Tips</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-down"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimization-indexes.html">Optimization and Indexes</a></div></div>                        <div class="docs-submenu">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/mysql-indexes.html">How MySQL Uses Indexes</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-primary-keys.html">Using Primary Keys</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-foreign-keys.html">Using Foreign Keys</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/column-indexes.html">Column Indexes</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/multiple-column-indexes.html">Multiple-Column Indexes</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/verifying-index-usage.html">Verifying Index Usage</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/index-statistics.html">InnoDB and MyISAM Index Statistics Collection</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link current"><a href="./MySQL __ MySQL 5.5 Reference Manual __ 8.3.8 Comparison of B-Tree and Hash Indexes_files/MySQL __ MySQL 5.5 Reference Manual __ 8.3.8 Comparison of B-Tree and Hash Indexes.html">Comparison of B-Tree and Hash Indexes</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-database-structure.html">Optimizing Database Structure</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/data-size.html">Optimizing Data Size</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimize-data-types.html">Optimizing MySQL Data Types</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimize-numeric.html">Optimizing for Numeric Data</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimize-character.html">Optimizing for Character and String Types</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimize-blob.html">Optimizing for BLOB Types</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/procedure-analyse.html">Using PROCEDURE ANALYSE</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimize-multi-tables.html">Optimizing for Many Tables</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/table-cache.html">How MySQL Opens and Closes Tables</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/creating-many-tables.html">Disadvantages of Creating Many Tables in the Same Database</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/internal-temporary-tables.html">How MySQL Uses Internal Temporary Tables</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb.html">Optimizing for InnoDB Tables</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-storage-layout.html">Optimizing Storage Layout for InnoDB Tables</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-transaction-management.html">Optimizing InnoDB Transaction Management</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-logging.html">Optimizing InnoDB Redo Logging</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-bulk-data-loading.html">Bulk Data Loading for InnoDB Tables</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-queries.html">Optimizing InnoDB Queries</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-ddl-operations.html">Optimizing InnoDB DDL Operations</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-diskio.html">Optimizing InnoDB Disk I/O</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-configuration-variables.html">Optimizing InnoDB Configuration Variables</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-many-tables.html">Optimizing InnoDB for Systems with Many Tables</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-myisam.html">Optimizing for MyISAM Tables</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-queries-myisam.html">Optimizing MyISAM Queries</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-myisam-bulk-data-loading.html">Bulk Data Loading for MyISAM Tables</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/repair-table-speed.html">Speed of REPAIR TABLE Statements</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-memory-tables.html">Optimizing for MEMORY Tables</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/execution-plan-information.html">Understanding the Query Execution Plan</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/using-explain.html">Optimizing Queries with EXPLAIN</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/explain-output.html">EXPLAIN Output Format</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/explain-extended.html">EXPLAIN EXTENDED Output Format</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/estimating-performance.html">Estimating Query Performance</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/controlling-optimizer.html">Controlling the Query Optimizer</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/controlling-query-plan-evaluation.html">Controlling Query Plan Evaluation</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/switchable-optimizations.html">Controlling Switchable Optimizations</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/index-hints.html">Index Hints</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/buffering-caching.html">Buffering and Caching</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/innodb-buffer-pool.html">The InnoDB Buffer Pool</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/myisam-key-cache.html">The MyISAM Key Cache</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/shared-key-cache.html">Shared Key Cache Access</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/multiple-key-caches.html">Multiple Key Caches</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/midpoint-insertion.html">Midpoint Insertion Strategy</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/index-preloading.html">Index Preloading</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/key-cache-block-size.html">Key Cache Block Size</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/key-cache-restructuring.html">Restructuring a Key Cache</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/query-cache.html">The MySQL Query Cache</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/query-cache-operation.html">How the Query Cache Operates</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/query-cache-in-select.html">Query Cache SELECT Options</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/query-cache-configuration.html">Query Cache Configuration</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/query-cache-status-and-maintenance.html">Query Cache Status and Maintenance</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/locking-issues.html">Optimizing Locking Operations</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/internal-locking.html">Internal Locking Methods</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/table-locking.html">Table Locking Issues</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/concurrent-inserts.html">Concurrent Inserts</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/metadata-locking.html">Metadata Locking</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/external-locking.html">External Locking</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-the-server.html">Optimizing the MySQL Server</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/system-optimization.html">System Factors and Startup Parameter Tuning</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/server-parameters.html">Tuning Server Parameters</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/disk-issues.html">Optimizing Disk I/O</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/symbolic-links.html">Using Symbolic Links</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/symbolic-links-to-databases.html">Using Symbolic Links for Databases on Unix</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/symbolic-links-to-tables.html">Using Symbolic Links for MyISAM Tables on Unix</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/windows-symbolic-links.html">Using Symbolic Links for Databases on Windows</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-memory.html">Optimizing Memory Use</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/memory-use.html">How MySQL Uses Memory</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/large-page-support.html">Enabling Large Page Support</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-network.html">Optimizing Network Use</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/connection-threads.html">How MySQL Uses Threads for Client Connections</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/host-cache.html">DNS Lookup Optimization and the Host Cache</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/thread-pool-plugin.html">The Thread Pool Plugin</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/thread-pool-installation.html">Thread Pool Components and Installation</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/thread-pool-operation.html">Thread Pool Operation</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/thread-pool-tuning.html">Thread Pool Tuning</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/optimize-benchmarking.html">Measuring Performance (Benchmarking)</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/select-benchmarking.html">Measuring the Speed of Expressions and Functions</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/mysql-benchmarks.html">The MySQL Benchmark Suite</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/custom-benchmarks.html">Using Your Own Benchmarks</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/monitoring-performance-schema.html">Measuring Performance with performance_schema</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable  loaded" href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/thread-information.html">Examining Thread Information</a></div></div>                        <div class="docs-submenu hidden">
+                                    
+    <ul>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/thread-commands.html">Thread Command Values</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/general-thread-states.html">General Thread States</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/delayed-insert-thread-states.html">Delayed-Insert Thread States</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/query-cache-thread-states.html">Query Cache Thread States</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/master-thread-states.html">Replication Master Thread States</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/slave-io-thread-states.html">Replication Slave I/O Thread States</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/slave-sql-thread-states.html">Replication Slave SQL Thread States</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/slave-connection-thread-states.html">Replication Slave Connection Thread States</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/mysql-cluster-thread-states.html">MySQL Cluster Thread States</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/event-scheduler-thread-states.html">Event Scheduler Thread States</a></div></div>                    </li>
+        </ul>
+                            </div>
+                    </li>
+        </ul>
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/language-structure.html">Language Structure</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/globalization.html">Globalization</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/data-types.html">Data Types</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/functions.html">Functions and Operators</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/sql-syntax.html">SQL Statement Syntax</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/innodb-storage-engine.html">The InnoDB Storage Engine</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/storage-engines.html">Alternative Storage Engines</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/ha-overview.html">High Availability and Scalability</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/replication.html">Replication</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/mysql-cluster.html">MySQL Cluster NDB 7.2</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/partitioning.html">Partitioning</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/stored-programs-views.html">Stored Programs and Views</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/information-schema.html">INFORMATION_SCHEMA Tables</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/performance-schema.html">MySQL Performance Schema</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/connectors-apis.html">Connectors and APIs</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/extending-mysql.html">Extending MySQL</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/mysql-enterprise.html">MySQL Enterprise Edition</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/workbench.html">MySQL Workbench</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/faqs.html">MySQL 5.5 Frequently Asked Questions</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/error-handling.html">Errors, Error Codes, and Common Problems</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/restrictions.html">Restrictions and Limits</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/glossary.html">MySQL Glossary</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><a class="expandable " href=""><span class="icon-chevron-right"></span></a></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/licenses-third-party.html">Licenses for Third-Party Components</a></div></div>                        <div class="docs-submenu hidden">
+                            </div>
+                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/ix01.html">General Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-cfunc.html">Function Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-command.html">Command Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-function.html">Function Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-is.html">INFORMATION_SCHEMA Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-jointype.html">Join Types Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-operator.html">Operator Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-option.html">Option Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-priv.html">Privileges Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-sqlmode.html">Modes Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-statement.html">Statement/Syntax Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-statvar.html">Status Variable Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-sysvar.html">System Variable Index</a></div></div>                    </li>
+            <li>
+            <div><div class="docs-sidebar-nav-icon"><span class="icon-dot"></span></div><div class="docs-sidebar-nav-link"><a href="https://dev.mysql.com/doc/refman/5.5/en/dynindex-isolevel.html">Transaction Isolation Level Index</a></div></div>                    </li>
+        </ul>
+                            </nav>
+        </div>
+
+                <a class="docs-sidebar-section" href=""><span class="icon-related"></span>
+            <span class="text">Related Documentation</span></a>
+        <div class="docs-sidebar-accordian open">
+            <div class="text">
+                        <a href="https://dev.mysql.com/doc/relnotes/mysql/5.5/en/">MySQL 5.5 Release Notes</a><br>
+                        </div>
+        </div>
+        
+                    
+<a class="docs-sidebar-section" href=""><span class="icon-download-thin"></span>
+    <span class="text">
+        Download
+                    this Manual
+            </span>
+</a>
+<div class="docs-sidebar-accordian">
+    <div class="text">
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.pdf">PDF (US Ltr)</a>
+        - 25.9Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.a4.pdf">PDF (A4)</a>
+        - 26.1Mb<br>
+                <a href="http://downloads.mysql.com/docs/mysql-refman-5.5-en-pdf-1-20151215.noarch.rpm">PDF (RPM)</a>
+        - 25.7Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.epub">EPUB</a>
+        - 6.7Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.html-chapter.tar.gz">HTML Download (TGZ)</a>
+        - 6.5Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.html-chapter.zip">HTML Download (Zip)</a>
+        - 6.5Mb<br>
+                <a href="http://downloads.mysql.com/docs/mysql-refman-5.5-en-html-chapter-1-20151215.noarch.rpm">HTML Download (RPM)</a>
+        - 5.6Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.eclipse.tar.gz">Eclipse Doc Plugin (TGZ)</a>
+        - 7.1Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.eclipse.zip">Eclipse Doc Plugin (Zip)</a>
+        - 8.9Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.man-gpl.tar.gz">Man Pages (TGZ)</a>
+        - 182.7Kb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.man-gpl.zip">Man Pages (Zip)</a>
+        - 288.9Kb<br>
+                <a href="http://downloads.mysql.com/docs/mysql-5.5.info.gz">Info (Gzip)</a>
+        - 2.4Mb<br>
+                <a href="http://downloads.mysql.com/docs/mysql-5.5.info.zip">Info (Zip)</a>
+        - 2.4Mb<br>
+            </div>
+</div>
+        
+                <a class="docs-sidebar-section" href=""><span class="icon-book-open"></span>
+            <span class="text">Excerpts from this Manual</span></a>
+        <div class="docs-sidebar-accordian">
+            <div class="text">
+                                <a href="https://dev.mysql.com/doc/mysql-backup-excerpt/5.5/en/">MySQL Backup and Recovery</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-cluster-excerpt/5.5/en/">MySQL Cluster NDB 7.2</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-g11n-excerpt/5.5/en/">MySQL Globalization</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-infoschema-excerpt/5.5/en/">MySQL Information Schema</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-installation-excerpt/5.5/en/">MySQL Installation Guide</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-linuxunix-excerpt/5.5/en/">MySQL and Linux/Unix</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-osx-excerpt/5.5/en/">MySQL and OS X</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-partitioning-excerpt/5.5/en/">MySQL Partitioning</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-perfschema-excerpt/5.5/en/">MySQL Performance Schema</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-replication-excerpt/5.5/en/">MySQL Replication</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-reslimits-excerpt/5.5/en/">MySQL Restrictions and Limitations</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-security-excerpt/5.5/en/">Security in MySQL</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-solaris-excerpt/5.5/en/">MySQL and Solaris</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-sourcebuild-excerpt/5.5/en/">Building MySQL from Source</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-startstop-excerpt/5.5/en/">Starting and Stopping MySQL</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-tutorial-excerpt/5.5/en/">MySQL Tutorial</a><br>
+                                <a href="https://dev.mysql.com/doc/mysql-windows-excerpt/5.5/en/">MySQL and Windows</a><br>
+                            </div>
+        </div>
+        
+        <br><span id="wkr" style="display: inline-block;"><br></span>
+    </div>
+    </div>
+
+    <div id="docs-main" class="has-toc" style="min-height: 667px;">
+    <div id="docs-main-inner">
+
+                <div class="right" id="docs-version-nav">
+            <a href="" id="docs-version-nav-toggle">version 5.5
+            <span class="icon-chevron-down"></span></a>
+            <div>
+                                                        <a href="https://dev.mysql.com/doc/refman/5.7/en/index-btree-hash.html">
+                        5.7
+                                                &nbsp;current
+                                            </a><br>
+                                                                            <a href="https://dev.mysql.com/doc/refman/5.6/en/index-btree-hash.html">
+                        5.6
+                                            </a><br>
+                                                                                                                <a href="https://dev.mysql.com/doc/refman/5.1/en/index-btree-hash.html">
+                        5.1
+                                            </a><br>
+                                                                            <a href="https://dev.mysql.com/doc/refman/5.0/en/index-btree-hash.html">
+                        5.0
+                                            </a><br>
+                                                                        <div id="docs-version-nav-lang">
+                                                                                                                                                    <a href="https://dev.mysql.com/doc/refman/5.6/ja/index-btree-hash.html">
+                                    5.6&nbsp;
+                                                                            Japanese
+                                                                    </a><br>
+                                                                                            </div>
+                            </div>
+        </div>
+        
+        <div id="docs-show-nav" class="left hidden" style="margin-right: 15px;">
+            <a class="docs-show-hide-nav" href="" title="Show Sidebar"><span class="icon-arrow-small-right"></span></a>
+        </div>
+
+                        <div id="docs-breadcrumbs">
+            <a href="https://dev.mysql.com/doc/refman/5.5/en/">MySQL 5.5 Reference Manual</a> &nbsp;/&nbsp;
+                            <span id="breadcrumbs-link"><a href="" id="show-breadcrumbs">...</a> &nbsp;/&nbsp;</span>
+                <span class="hidden" id="hidden-breadcrumbs">
+                                                        <a href="https://dev.mysql.com/doc/refman/5.5/en/optimization.html">Optimization</a> &nbsp;/&nbsp;
+                                                            <a href="https://dev.mysql.com/doc/refman/5.5/en/optimization-indexes.html">Optimization and Indexes</a> &nbsp;/&nbsp;
+                                                                                        </span>
+                                        Comparison of B-Tree and Hash Indexes
+                                    </div>
+        
+        <div id="docs-body">
+        
+<div class="section">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title"><a name="index-btree-hash"></a>8.3.8 Comparison of B-Tree and Hash Indexes</h3>
+
+</div>
+
+</div>
+
+</div>
+<a class="indexterm" name="idm139974652397232"></a><a class="indexterm" name="idm139974652396192"></a><p>
+        Understanding the B-tree and hash data structures can help
+        predict how different queries perform on different storage
+        engines that use these data structures in their indexes,
+        particularly for the <code class="literal">MEMORY</code> storage engine
+        that lets you choose B-tree or hash indexes.
+</p>
+<h4><a name="idm139974652393712"></a>B-Tree Index Characteristics</h4>
+<a class="indexterm" name="idm139974652392992"></a><a class="indexterm" name="idm139974652391504"></a><a class="indexterm" name="idm139974652390016"></a><a class="indexterm" name="idm139974652388528"></a><p>
+        A B-tree index can be used for column comparisons in expressions
+        that use the <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#operator_equal"><code class="literal">=</code></a>,
+        <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#operator_greater-than"><code class="literal">&gt;</code></a>,
+        <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#operator_greater-than-or-equal"><code class="literal">&gt;=</code></a>,
+        <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#operator_less-than"><code class="literal">&lt;</code></a>,
+        <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#operator_less-than-or-equal"><code class="literal">&lt;=</code></a>,
+        or <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#operator_between"><code class="literal">BETWEEN</code></a> operators. The index
+        also can be used for <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/string-comparison-functions.html#operator_like"><code class="literal">LIKE</code></a>
+        comparisons if the argument to <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/string-comparison-functions.html#operator_like"><code class="literal">LIKE</code></a>
+        is a constant string that does not start with a wildcard
+        character. For example, the following
+        <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/select.html" title="13.2.9 SELECT Syntax"><code class="literal">SELECT</code></a> statements use indexes:
+      </p><pre class="programlisting"><div class="docs-select-all" style="display: none;"><div class="copy-help left" style="display: none;">Press CTRL+C to copy</div> <div class="right"><a href="" title="Select All" id="sa19331998"><span class="icon-clipboard"></span></a></div></div>SELECT * FROM <em class="replaceable"><code>tbl_name</code></em> WHERE <em class="replaceable"><code>key_col</code></em> LIKE 'Patrick%';
+SELECT * FROM <em class="replaceable"><code>tbl_name</code></em> WHERE <em class="replaceable"><code>key_col</code></em> LIKE 'Pat%_ck%';
+</pre><p>
+        In the first statement, only rows with <code class="literal">'Patrick' &lt;=
+        <em class="replaceable"><code>key_col</code></em> &lt; 'Patricl'</code> are
+        considered. In the second statement, only rows with
+        <code class="literal">'Pat' &lt;= <em class="replaceable"><code>key_col</code></em> &lt;
+        'Pau'</code> are considered.
+      </p><p>
+        The following <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/select.html" title="13.2.9 SELECT Syntax"><code class="literal">SELECT</code></a> statements
+        do not use indexes:
+      </p><pre class="programlisting"><div class="docs-select-all" style="display: none;"><div class="copy-help left" style="display: none;">Press CTRL+C to copy</div> <div class="right"><a href="" title="Select All" id="sa41457907"><span class="icon-clipboard"></span></a></div></div>SELECT * FROM <em class="replaceable"><code>tbl_name</code></em> WHERE <em class="replaceable"><code>key_col</code></em> LIKE '%Patrick%';
+SELECT * FROM <em class="replaceable"><code>tbl_name</code></em> WHERE <em class="replaceable"><code>key_col</code></em> LIKE <em class="replaceable"><code>other_col</code></em>;
+</pre><p>
+        In the first statement, the <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/string-comparison-functions.html#operator_like"><code class="literal">LIKE</code></a>
+        value begins with a wildcard character. In the second statement,
+        the <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/string-comparison-functions.html#operator_like"><code class="literal">LIKE</code></a> value is not a constant.
+      </p><p>
+        If you use <code class="literal">... LIKE
+        '%<em class="replaceable"><code>string</code></em>%'</code> and
+        <em class="replaceable"><code>string</code></em> is longer than three
+        characters, MySQL uses the <span class="firstterm">Turbo
+        Boyer-Moore algorithm</span> to initialize the pattern for
+        the string and then uses this pattern to perform the search more
+        quickly.
+      </p><a class="indexterm" name="idm139974652359392"></a><a class="indexterm" name="idm139974652357904"></a><p>
+        A search using <code class="literal"><em class="replaceable"><code>col_name</code></em> IS
+        NULL</code> employs indexes if
+        <em class="replaceable"><code>col_name</code></em> is indexed.
+      </p><p>
+        Any index that does not span all
+        <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/logical-operators.html#operator_and"><code class="literal">AND</code></a> levels in the
+        <code class="literal">WHERE</code> clause is not used to optimize the
+        query. In other words, to be able to use an index, a prefix of
+        the index must be used in every <a class="link" href="https://dev.mysql.com/doc/refman/5.5/en/logical-operators.html#operator_and"><code class="literal">AND</code></a>
+        group.
+      </p><p>
+        The following <code class="literal">WHERE</code> clauses use indexes:
+      </p><pre class="programlisting">... WHERE <em class="replaceable"><code>index_part1</code></em>=1 AND <em class="replaceable"><code>index_part2</code></em>=2 AND <em class="replaceable"><code>other_column</code></em>=3
+
+    /* <em class="replaceable"><code>index</code></em> = 1 OR <em class="replaceable"><code>index</code></em> = 2 */
+... WHERE <em class="replaceable"><code>index</code></em>=1 OR A=10 AND <em class="replaceable"><code>index</code></em>=2
+
+    /* optimized like "<em class="replaceable"><code>index_part1</code></em>='hello'" */
+... WHERE <em class="replaceable"><code>index_part1</code></em>='hello' AND <em class="replaceable"><code>index_part3</code></em>=5
+
+    /* Can use index on <em class="replaceable"><code>index1</code></em> but not on <em class="replaceable"><code>index2</code></em> or <em class="replaceable"><code>index3</code></em> */
+... WHERE <em class="replaceable"><code>index1</code></em>=1 AND <em class="replaceable"><code>index2</code></em>=2 OR <em class="replaceable"><code>index1</code></em>=3 AND <em class="replaceable"><code>index3</code></em>=3;
+</pre><p>
+        These <code class="literal">WHERE</code> clauses do
+        <span class="emphasis"><em>not</em></span> use indexes:
+      </p><pre class="programlisting">    /* <em class="replaceable"><code>index_part1</code></em> is not used */
+... WHERE <em class="replaceable"><code>index_part2</code></em>=1 AND <em class="replaceable"><code>index_part3</code></em>=2
+
+    /*  Index is not used in both parts of the WHERE clause  */
+... WHERE <em class="replaceable"><code>index</code></em>=1 OR A=10
+
+    /* No index spans all rows  */
+... WHERE <em class="replaceable"><code>index_part1</code></em>=1 OR <em class="replaceable"><code>index_part2</code></em>=10
+</pre><p>
+        Sometimes MySQL does not use an index, even if one is available.
+        One circumstance under which this occurs is when the optimizer
+        estimates that using the index would require MySQL to access a
+        very large percentage of the rows in the table. (In this case, a
+        table scan is likely to be much faster because it requires fewer
+        seeks.) However, if such a query uses <code class="literal">LIMIT</code>
+        to retrieve only some of the rows, MySQL uses an index anyway,
+        because it can much more quickly find the few rows to return in
+        the result.
+</p>
+<h4><a name="idm139974652334576"></a>Hash Index Characteristics</h4>
+<a class="indexterm" name="idm139974652333856"></a><p>
+        Hash indexes have somewhat different characteristics from those
+        just discussed:
+</p>
+<div class="itemizedlist">
+<ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+            They are used only for equality comparisons that use the
+            <code class="literal">=</code> or <code class="literal">&lt;=&gt;</code>
+            operators (but are <span class="emphasis"><em>very</em></span> fast). They are
+            not used for comparison operators such as
+            <code class="literal">&lt;</code> that find a range of values. Systems
+            that rely on this type of single-value lookup are known as
+            <span class="quote">“<span class="quote">key-value stores</span>”</span>; to use MySQL for such
+            applications, use hash indexes wherever possible.
+          </p></li><li class="listitem"><p>
+            The optimizer cannot use a hash index to speed up
+            <code class="literal">ORDER BY</code> operations. (This type of index
+            cannot be used to search for the next entry in order.)
+          </p></li><li class="listitem"><p>
+            MySQL cannot determine approximately how many rows there are
+            between two values (this is used by the range optimizer to
+            decide which index to use). This may affect some queries if
+            you change a <code class="literal">MyISAM</code> or
+            <code class="literal">InnoDB</code> table to a hash-indexed
+            <code class="literal">MEMORY</code> table.
+          </p></li><li class="listitem"><p>
+            Only whole keys can be used to search for a row. (With a
+            B-tree index, any leftmost prefix of the key can be used to
+            find rows.)
+</p></li></ul>
+</div>
+
+</div>
+
+<br>
+        </div>
+
+                <div id="docs-in-page-nav-container">
+            <div id="docs-in-page-nav">
+                
+    <a href="https://dev.mysql.com/doc/refman/5.5/en/index-statistics.html" title="Previous: InnoDB and MyISAM Index Statistics Collection"><span class="icon-chevron-left"></span> PREV</a> &nbsp;
+<a href="https://dev.mysql.com/doc/refman/5.5/en/index.html" title="Home"> HOME</a> &nbsp;
+        <a href="https://dev.mysql.com/doc/refman/5.5/en/optimization-indexes.html" title="Up: Optimization and Indexes"> UP</a> &nbsp;
+    <a href="https://dev.mysql.com/doc/refman/5.5/en/optimizing-database-structure.html" title="Next: Optimizing Database Structure">NEXT <span class="icon-chevron-right"></span></a>
+            </div>
+        </div>
+        
+         <div id="docs-downloads">
+                            
+<div class="docs-sidebar-header">
+    <div class="left"><span class="icon-download-thin"></span></div>
+    <div class="docs-sidebar-header-text">
+        Download
+                    this Manual
+            </div>
+</div>
+<div class="docs-sidebar-accordian open">
+    <div class="text">
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.pdf">PDF (US Ltr)</a>
+        - 25.9Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.a4.pdf">PDF (A4)</a>
+        - 26.1Mb<br>
+                <a href="http://downloads.mysql.com/docs/mysql-refman-5.5-en-pdf-1-20151215.noarch.rpm">PDF (RPM)</a>
+        - 25.7Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.epub">EPUB</a>
+        - 6.7Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.html-chapter.tar.gz">HTML Download (TGZ)</a>
+        - 6.5Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.html-chapter.zip">HTML Download (Zip)</a>
+        - 6.5Mb<br>
+                <a href="http://downloads.mysql.com/docs/mysql-refman-5.5-en-html-chapter-1-20151215.noarch.rpm">HTML Download (RPM)</a>
+        - 5.6Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.eclipse.tar.gz">Eclipse Doc Plugin (TGZ)</a>
+        - 7.1Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.eclipse.zip">Eclipse Doc Plugin (Zip)</a>
+        - 8.9Mb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.man-gpl.tar.gz">Man Pages (TGZ)</a>
+        - 182.7Kb<br>
+                <a href="http://downloads.mysql.com/docs/refman-5.5-en.man-gpl.zip">Man Pages (Zip)</a>
+        - 288.9Kb<br>
+                <a href="http://downloads.mysql.com/docs/mysql-5.5.info.gz">Info (Gzip)</a>
+        - 2.4Mb<br>
+                <a href="http://downloads.mysql.com/docs/mysql-5.5.info.zip">Info (Zip)</a>
+        - 2.4Mb<br>
+            </div>
+</div>
+                     </div>
+
+                     
+<div id="docs-comments">
+    <div class="docs-comments-header"><span class="icon-bubbles"></span> User Comments</div>
+
+    <div id="comment-listing">
+    
+    </div>
+
+        <div class="docs-comment-disclaimer">
+        <a href="https://dev.mysql.com/auth/register/?dest=http%3A%2F%2Fdev.mysql.com%2Fdoc%2Frefman%2F5.5%2Fen%2Findex-btree-hash.html%3Facf%3D1%23add-comment" class="docs-comment-btn right">Sign Up</a>
+        <a href="https://dev.mysql.com/auth/login/?dest=http%3A%2F%2Fdev.mysql.com%2Fdoc%2Frefman%2F5.5%2Fen%2Findex-btree-hash.html%3Facf%3D1%23add-comment" class="docs-comment-btn right">Login</a>
+        You must be logged in to post a comment.
+    </div>
+    </div>
+              </div>
+     </div>
+
+</div>
+
+<script>
+$(function() {
+    var doc = new $.doc({ 'mobile': $.browser.mobile, 'docId': 1 });
+});
+</script>
+    
+
+            
+        </div>
+    </div>
+
+    <footer class="collapsed">
+        <div id="footer-links">
+
+            <div id="footer-nav"></div>
+
+            <div id="footer-contact">
+                <p><span class="top">Contact Sales</span></p>
+                <p>USA: <span class="nobr">+1-866-221-0634</span><br>
+Canada: <span class="nobr">+1-866-221-0634</span><br><br>
+
+Germany: <span class="nobr">+49 89 143 01280</span><br>
+France: <span class="nobr">+33 1 57 60 83 57</span><br>
+Italy: <span class="nobr">+39 02 249 59 120</span><br>
+UK: <span class="nobr">+44 207 553 8447</span><br><br>
+
+Japan: <span class="nobr">0120-065556</span><br>
+China: <span class="nobr">10800-811-0823</span><br>
+India: <span class="nobr">0008001005870</span><br><br>
+
+<a href="http://www.mysql.com/about/contact/phone/">More Countries&nbsp;»</a><br>
+                <strong><a href="http://www.mysql.com/about/contact/">Contact Us Online&nbsp;»</a></strong></p>
+            </div>
+
+            <div class="links">
+                <ul>
+                    <li class="top"><a href="http://www.mysql.com/products/">Products</a></li>
+                    <li><a href="http://www.mysql.com/products/enterprise/">MySQL Enterprise Edition</a></li>
+                    <li><a href="http://www.mysql.com/products/standard/">MySQL Standard Edition</a></li>
+                    <li><a href="http://www.mysql.com/products/classic/">MySQL Classic Edition</a></li>
+                    <li><a href="http://www.mysql.com/products/cluster/">MySQL Cluster CGE</a></li>
+                    <li><a href="http://www.mysql.com/oem/">MySQL Embedded (OEM/ISV)</a></li>
+                </ul>
+                <br>
+                <ul>
+                    <li class="top"><a href="http://www.mysql.com/services/">Services</a></li>
+                    <li><a href="http://www.mysql.com/training/">Training</a></li>
+                    <li><a href="http://www.mysql.com/certification/">Certification</a></li>
+                    <li><a href="http://www.mysql.com/consulting/">Consulting</a></li>
+                    <li><a href="http://www.mysql.com/support/">Support</a></li>
+                </ul>
+            </div>
+
+            <div class="links">
+                <ul>
+                    <li class="top"><a href="http://dev.mysql.com/downloads/">Downloads</a></li>
+                    <li><a href="http://dev.mysql.com/downloads/mysql/">MySQL Community Server</a></li>
+                    <li><a href="http://dev.mysql.com/downloads/cluster/">MySQL Cluster</a></li>
+                    <li><a href="http://dev.mysql.com/downloads/fabric/">MySQL Fabric</a></li>
+                    <li><a href="http://dev.mysql.com/downloads/utilities/">MySQL Utilities</a></li>
+                    <li><a href="http://dev.mysql.com/downloads/workbench/">MySQL Workbench</a></li>
+                </ul>
+                <br>
+                <ul>
+                    <li class="top"><a href="http://www.mysql.com/about/">About MySQL</a></li>
+                    <li><a href="http://www.mysql.com/about/contact/">Contact Us</a></li>
+                                         <li><a href="http://www.mysql.com/buy-mysql/">How to Buy</a></li>
+                    <li><a href="http://www.mysql.com/partners/">Partners</a></li>
+                    <li><a href="http://www.mysql.com/about/jobs/">Job Opportunities</a></li>
+                    <li><a href="http://www.mysql.com/sitemap.html">Site Map</a></li>
+                </ul>
+            </div>
+
+            <div class="links">
+                <ul>
+                    <li class="top"><a href="http://dev.mysql.com/doc/">Documentation</a></li>
+                    <li><a href="http://dev.mysql.com/doc/">MySQL Reference Manuals</a></li>
+                    <li><a href="http://dev.mysql.com/doc/index-gui.html">MySQL Workbench</a></li>
+                    <li><a href="http://dev.mysql.com/doc/index-expert.html">Expert Guides</a></li>
+                    <li><a href="http://dev.mysql.com/doc/index-topic.html">Topic Guides</a></li>
+                    <li><a href="http://dev.mysql.com/doc/index-cluster.html">MySQL Cluster</a></li>
+                </ul>
+                <br>
+                <ul>
+                    <li class="top"><a href="http://www.mysql.com/about/legal/">Legal</a></li>
+                    <li><a href="http://www.mysql.com/about/legal/">Legal Policies</a></li>
+                    <li><a href="http://www.oracle.com/us/legal/privacy/index.htm">Your Privacy Rights</a></li>
+                    <li><a href="http://www.oracle.com/us/legal/terms/index.html">Terms of Use</a></li>
+                    <li><a href="http://www.oracle.com/us/legal/third-party-trademarks/index.html">Trademark Policy</a></li>
+                    <li><a href="http://www.oracle.com/technetwork/community/oca-486395.html">Contributor Agreement</a></li>
+                </ul>
+            </div>
+        </div>
+        <div id="footer-bottom">
+                                    <div id="footer-collapse">
+                <a href="" id="expand-footer" title="Expand Footer"><span class="icon-chevron-up"></span></a>
+            </div>
+                        <div id="footer-logo">
+                <a href="http://www.oracle.com/"><span id="oracle-logo"></span></a>
+                &nbsp; © 2015, Oracle Corporation and/or its affiliates
+            </div>
+                        <div class="social-icons">
+                <a title="Join us on Facebook" href="http://www.facebook.com/mysql"><span class="icon-facebook-square"></span></a>
+                <a title="Follow us on Twitter" href="https://twitter.com/#!/mysql"><span class="icon-twitter-square"></span></a>
+                <a title="Join Google+ to follow MySQL" href="https://plus.google.com/+mysql"><span class="icon-google-plus-square"></span></a>
+                <a title="Visit our YouTube channel" href="http://www.youtube.com/mysqlchannel"><span class="icon-youtube-square"></span></a>
+            </div>
+            <br class="clear">
+        </div>
+    </footer>
+
+        <script src="./MySQL __ MySQL 5.5 Reference Manual __ 8.3.8 Comparison of B-Tree and Hash Indexes_files/s_code_remote.js"></script><script type="text/javascript" src="./MySQL __ MySQL 5.5 Reference Manual __ 8.3.8 Comparison of B-Tree and Hash Indexes_files/metrics_group1.js"></script>
+
+        
+
+
+</body></html>

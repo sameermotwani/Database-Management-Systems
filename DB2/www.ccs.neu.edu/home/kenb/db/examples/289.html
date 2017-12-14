@@ -1,0 +1,35 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/289.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:04 GMT -->
+<body>
+<center><h3>Extra Identifier in UML Class</h3></center>
+<p>
+During translation from UML to the relational model, the object identity must be simulated in some way.
+The usual way to accomplish this is to introduce a new field to act as the object identity.
+Most commonly, this field is named "id" and it has type int.  The reason for using int as the type is
+that modern computers are very highly optimized for handling the int type.
+<p>
+If a UML class has a field has a field named "id", then one cannot use this name for the primary key
+when translating from UML to the relational model.  One must use some other name for the primary key.
+Here is an example:
+<p>
+<center> <img src="images/290.jpg"/></center>
+<p>
+The corresponding relational schema is:
+<p>
+<pre>
+create table Student (
+  id2 int primary key,
+  id int not null unique,
+  name varchar(200) not null,
+  phone varchar(200)
+);
+</pre>
+<p>
+
+In general, when translating from UML to the relational model, there will be
+issues such as name clashes (as in the case of the extra id field above),
+different syntax for names (e.g., UML allows spaces in names, but not all
+databases and programming languages allow this).  Consequently, the translation
+to the relation model (or to other languages) will involve name changes.
+
+<p>&#169; 2015 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>

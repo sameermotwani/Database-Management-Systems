@@ -1,0 +1,106 @@
+<html>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/044.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:36 GMT -->
+<head>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution is permitted only if no modifications are performed and this copyright notice is retained."/>
+</head>
+<body>
+<center><h1>Criteria for data modeling notation</h1></center>
+<p>
+Virtually every database textbook uses ER notation (or some variation of ER
+notation such as "crowsfoot" or EER diagrams) for database design.
+On the web, one finds many
+misconceptions and misleading statements about ER. In some cases, the
+statements are simply wrong, representing commonly held beliefs that either
+have no basis in fact at all or have never be tested. For example, it is often
+claimed that the UML class diagram was derived from ER. In fact, UML was
+derived from the notations of Booch and Rumbaugh, both of which arose from 
+notations that predate the ER notation. The ER notation seems to have been
+derived from Bachmann diagrams, which are unrelated to the Booch and Rumbaugh
+diagrams.
+</p><p>
+The following discussion is an effort to clarify the advantages and
+disadvantages of UML class diagrams versus ER.
+</p><p>
+<ol>
+<li><b>Standards.</b> 
+The issue is whether a notation is an industry standard (either de jure or de
+facto) rather than vendor- and/or product-specific notation. ER is completely
+nonstandard. There is a very large variety of notations that claim to be ER
+notation.  It is dependent not only on the vendor but also on the
+product. UML is not dependent on either a vendor or a product.
+</li><li><b>Use in Industry.</b>
+The issue is whether industry actually uses a notation for their software
+projects.  In Brodie and Liu [1], a recent survey of 10 randomly chosen large
+corporations did not find a single example of the use of ER modeling.  By
+contrast, UML is ubiquitous in industry, frequently being used even in projects
+that are unrelated to software development.  A very different picture emerges
+when one looks at database textbooks.  I know of only a couple of database
+textbooks that have more than a brief reference to UML, and only a single
+database textbook that uses UML as its only data modeling language.  Clearly,
+there is a deep and wide chasm between academics and industry when it comes to data
+modeling.
+</li><li><b>Programming language compatibility.</b>
+This is important when databases are accessed via a programming
+language. Object-relational mapping frameworks such as Hibernate and JPA are
+increasingly important. UML can be used to generate code for such
+applications. ER is of no use for this purpose.
+<ul>
+<li><b>Tool support.</b>
+UML has excellent and widespread tool support in the
+ industry. ER is also supported but only within the confines of the database
+ industry so it is not as widespread.
+</li><li><b>Code generation.</b>
+UML has excellent code generation support. ER has none.
+</li><li><b>Client development.</b>
+UML is compatible with Hibernate, JPA and other
+ frameworks for client development. ER is not.
+</li></ul>
+</li><li><b>Compatibility with other notations.</b>
+UML is integrated with a large number of other diagram notations. This is
+important for modern software development.  ER diagrams are completely
+isolated.  Not only are they incompatible with other notations, they are even
+incompatible with other types of ER diagram.
+</li><li><b>Notational simplicity.</b>
+Arguably, UML is much simpler and more compact.  ER
+has a separate bubble for every attribute which makes even small designs into
+huge diagrams. Cardinality constraints and association classes are considerably
+more compact and cleaner in UML. Some ER diagram notations have adopted the UML
+notations which suggests that ER will eventually be subsumed by UML.
+</li><li><b>Interoperability.</b>
+An ER diagram of one type is rarely interoperable with
+one of another type, other than by manual translation. UML diagrams can be
+downloaded in XMI format and uploaded to another UML tool.
+</li><li><b>Semantics.</b>
+This issue concerns whether the notation has explicit formal semantics or just
+implicit and/or informal semantics. UML has not been completely specified
+formally, but it is in the process of being formally specified, and class
+diagrams are already finished. ER diagrams have no formal semantics other than
+their translation to the relational model which does have formal semantics.
+Unfortunately, this is only implicit, and one has access to it only if one can
+obtain the source code of the translator.  Moreover, since the translation is
+always to a specific database system, the semantics are further complicated by
+the fact that database systems do not entirely conform to either the relational
+model or to the SQL standard.
+</li><li><b>Object-Orientation.</b>
+UML is fully object-oriented. ER has none of the critical object-oriented
+features: object identity, encapsulation and data hiding.  Because the
+relational model does not have these features, translations from UML to the
+relational model will necessarily make some compromises.  However, this is no
+worse than the compromises that typically occur when compiling a programming
+language to machine code since machine code also does not have the critical
+object-oriented features.  While ER has been extended to include some of the
+peripheral object-oriented features such as inheritance, the fact that the
+relational model has no support for these features makes these extensions
+dubious at best (since the semantics of ER is not defined independently,
+but rather defined in terms of the relational model).
+</li>
+</ol>
+<p>
+[1] M. L. Brodie and J. T. Liu. The power and limits of relational technology
+in the age of information ecosystems. On The Move Federated Conferences, 2010.
+<p>
+&#169; 2010 Ken Baclawski. All rights reserved. Redistribution is
+permitted only if no modifications are performed and this copyright notice
+is retained.
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>

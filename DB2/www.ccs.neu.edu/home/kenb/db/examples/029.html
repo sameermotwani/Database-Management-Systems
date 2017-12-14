@@ -1,0 +1,199 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/029.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+This is a solution to a <a href="030.html">sample exercise</a>.
+<p>
+Normalize the following relations when each one satisfies the specified
+functional dependencies. Decompose into BCNF if possible. If not, then
+decompose into 3NF. Show your work. In particular, show the list of all
+candidate keys of the original relation. To compute the candidate keys, use the
+discussion in <a href="039.html">Candidate Keys and Normalization</a>. 
+In your decomposition show the attributes in each relation and the primary key of each relation.
+<p>
+<ol>
+<li>The relation is ABCDE
+<ul>
+<li>E&rarr;D
+<li>D&rarr;E
+<li>ACD&rarr;B
+</ul>
+<p>
+<table cellpadding="5" border="2">
+<tr><td>Neither <td>
+<tr><td>Right   <td>B
+<tr><td>Left    <td>AC
+<tr><td>Both    <td>DE
+</table>
+<p>
+<ul>
+<li>The core is AC
+<li>Closure of core is AC
+<li>Exterior attributes are DE
+<li>Keys: ACD, ACE
+<li>BCNF Normalization: ED (both E and D are unique), ABCD (ACD is unique)
+</ul>
+<p>
+
+<li>The relation is ABCDE
+<ul>
+<li>A&rarr;C
+<li>BC&rarr;D
+<li>C&rarr;D
+<li>BD&rarr;A
+<li>A&rarr;D
+</ul>
+<p>
+The FD A&rarr;D is a consequence of A&rarr;C and C&rarr;D, so it was deleted.
+The FD BC&rarr;D is a consequence of C&rarr;D, so it was deleted.
+<p>
+<table cellpadding="5" border="2">
+<tr><td>Neither <td>E
+<tr><td>Right   <td>
+<tr><td>Left    <td>B
+<tr><td>Both    <td>ACD
+</table>
+<p>
+<ul>
+<li>The core is BE
+<li>Closure of core is BE
+<li>Exterior attributes are ACD
+<li>Keys: BEA, BEC, BED
+<li>3NF Normalization: AC (A is unique), BDA (BD is unique but A&rarr;D), CD (C is unique), BED (BED is unique).
+</ul>
+<p>
+
+
+
+<li>The relation is ABCDEF
+<ul>
+<li>DF&rarr;C
+<li>BC&rarr;F
+<li>E&rarr;A
+<li>ABC&rarr;E
+</ul>
+<p>
+<table cellpadding="5" border="2">
+<tr><td>Neither <td>
+<tr><td>Right   <td>
+<tr><td>Left    <td>BD
+<tr><td>Both    <td>ACEF
+</table>
+<p>
+<ul>
+<li>The core is BD
+<li>Closure of core is BD
+<li>Exterior attributes are ACEF
+<li>Keys: BDAC, BDAF, BDCE, BDEF
+<li>3NF Normalization: AE (E is unique), ABCE (ABC is unique but E&rarr;A), BCF (BC is unique), BDAC (BDAC is unique), DFC (DF is unique)
+</ul>
+<p>
+
+
+<li>The relation is ABCDEF
+<ul>
+<li>BC&rarr;D
+<li>B&rarr;D
+<li>B&rarr;F
+<li>CDF&rarr;B
+</ul>
+<p>
+The FD BC&rarr;D is a consequence of C&rarr;D, so it was deleted.
+<p>
+<table cellpadding="5" border="2">
+<tr><td>Neither <td>AE
+<tr><td>Right   <td>
+<tr><td>Left    <td>C
+<tr><td>Both    <td>BDF
+</table>
+<p>
+<ul>
+<li>The core is ACE
+<li>Closure of core is ACE
+<li>Exterior attributes are BDF
+<li>Keys: ACEB, ACEDF
+<li>3NF Normalization: ACEB (ACEB is unique), BCDF (CDF is unique, but B&rarr;DF) BD (B is unique), BF (F is unique), 
+</ul>
+<p>
+
+
+<li>The relation is ABCDEF
+<ul>
+<li>BE&rarr;A
+<li>BC&rarr;E
+<li>AEF&rarr;B
+<li>B&rarr;F
+</ul>
+<p>
+<table cellpadding="5" border="2">
+<tr><td>Neither <td>D
+<tr><td>Right   <td>
+<tr><td>Left    <td>C
+<tr><td>Both    <td>ABEF
+</table>
+<p>
+<ul>
+<li>The core is CD
+<li>Closure of core is CD
+<li>Exterior attributes are ABEF
+<li>Keys: CDB, CDAEF
+<li>3NF Normalization: ABE (BE is unique), ABEF (AEF is unique but B&rarr;F and BE&rarr;A), BCD (BCD is unique), BCE (BC is unique), BF (B is unique)
+</ul>
+<p>
+
+<li>The relation is ABCDEFGH
+<ul>
+<li>DE&rarr;B
+<li>ACG&rarr;E
+<li>B&rarr;C
+<li>BCFG&rarr;E
+</ul>
+<p>
+<table cellpadding="5" border="2">
+<tr><td>Neither <td>H
+<tr><td>Right   <td>
+<tr><td>Left    <td>ADFG
+<tr><td>Both    <td>BCE
+</table>
+<p>
+<ul>
+<li>The core is ADFGH
+<li>Closure of core is ADFGH
+<li>Exterior attributes are BCE
+<li>Keys: ADFGHB, ADFGHC, ADFGHE
+<li>3NF Normalization: ABDFGH (ABDFGH is unique), ACEG (ACG is unique), BC (B is unique), BCEFG (BCFG is unique but B&rarr;C), BDE (DE is unique)
+</ul>
+<p>
+
+<li>The relation is ABCDEFGH
+<ul>
+<li>EH&rarr;F
+<li>H&rarr;A
+<li>BG&rarr;C
+</ul>
+<p>
+<table cellpadding="5" border="2">
+<tr><td>Neither <td>D
+<tr><td>Right   <td>ACF
+<tr><td>Left    <td>BEGH
+<tr><td>Both    <td>
+</table>
+<p>
+<ul>
+<li>The core is BDEGH
+<li>Closure of core is ABCDEFGH
+<li>The core is the only key.
+<li>BCNF Normalization: AH (H is unique), BCG (BG is unique), BDEGH (BDEGH is unique), EFH (EH is unique)
+</ul>
+
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/029.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+</html>

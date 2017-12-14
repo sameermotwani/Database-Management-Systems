@@ -1,0 +1,86 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/256.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:06 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+Show the optimized query evaluation plans for the following schema and queries:
+<pre>
+create table Person(
+  id int primary key, -- [hash index of size 2000]
+  dob date not null,
+  name varchar(255) not null -- [tree index of size 1000]
+);
+create table Band(
+  id int primary key, -- [hash index of size 1000]
+  name varchar(255),
+  style varchar(255)
+);
+create table Instrument(
+  id int primary key, -- [hash index of size 200]
+  name varchar(255) not null,
+  musicalKey varchar(255)
+);
+create table plays(
+  person int references Person(id)
+    on update cascade on delete cascade,
+  instrument int references Instrument(id)
+    on update cascade on delete cascade,
+  primary key(person, instrument) -- [tree index of size 4000]
+);
+create table memberOf(
+  person int references Person(id)
+    on update cascade on delete cascade,
+  band int references Band(id)
+    on update cascade on delete cascade,
+  primary key(person, band) -- [tree index of size 4000]
+);
+create table StringInstrument(
+  id int primary key references Instrument(id) -- [hash index of size 100]
+    on update cascade on delete cascade,
+  numberOfStrings int not null -- [range: 1 to 300]
+);
+create table BrassInstrument(
+  id int primary key references Instrument(id) -- [hash index of size 50]
+    on update cascade on delete cascade,
+  numberOfValves int not null
+);
+create table PercussionInstrument(
+  id int primary key references Instrument(id) -- [hash index of size 50]
+    on update cascade on delete cascade
+);
+</pre>
+ <ol>
+ <li>Find all bands by name that have style "indie pop".
+<pre>
+select b.name
+  from Band b
+ where b.style = 'indie pop'
+</pre>
+ <li>Find all musicians who play a 10-string instrument 
+along with their names.  Do not eliminate duplicates.
+<pre>
+select m.id, m.name
+  from Person m, plays p, Instrument i, StringInstrument si
+ where p.person = m.id
+   and p.instrument = i.id
+   and i.id = si.id
+   and si.numberOfStrings = 10
+</pre>
+ <li>Find all band names of bands that have a musician that plays 
+an instrument that is both a string instrument and a percussion instrument. Do not eliminate duplicates.
+<pre>
+select b.name
+  from Band b, plays p, StringInstrument si, PercussionInstrument pi, memberOf m
+ where b.id = m.band
+   and p.person = m.person
+   and p.instrument = si.id
+   and p.instrument = pi.id
+</pre>
+ </ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/256.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:06 GMT -->
+</html>
+

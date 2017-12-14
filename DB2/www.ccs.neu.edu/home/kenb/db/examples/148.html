@@ -1,0 +1,69 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/148.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:11 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+Here is the sample solution. Note that none of the associations is bidirectional in the design.
+Including inverses increases the size and complexity of the design, but simplifies the queries.
+<ol>
+<li><a href="src/Apartment.java">Apartment.java</a>
+<li><a href="src/Building.java">Building.java</a>
+<li><a href="src/Person.java">Person.java</a>
+<li><a href="src/Room.java">Room.java</a>
+<li><a href="src/RoomType.java">RoomType.java</a>
+</ol>
+<p>
+<ol>
+<li>Task 1
+<pre>
+    em = factory.createEntityManager();
+    em.getTransaction().begin();
+    Set&lt;Person> newOwners = new HashSet&lt;Person>();
+    newOwners.add((Person) em.createQuery("select p from Person p where p.name='Fred'").getSingleResult());
+    newOwners.add((Person) em.createQuery("select p from Person p where p.name='George'").getSingleResult());
+    Query q = em.createQuery("select a from Apartment a where a.number = '2C' and a.building.address = '100 Main Street'");
+    for (Apartment a : (List&lt;Apartment>) q.getResultList()) {
+        a.setOwners(newOwners);
+    }
+    em.getTransaction().commit();
+    em.close();
+</pre>
+<li>Task 2
+<pre>
+    em = factory.createEntityManager();
+    q = em.createQuery("select distinct r.apartment.building.address " +
+                       "from Room r join r.type.names n join r.apartment.floors f join r.apartment.owners o " +
+                       "where f >= 5 and n = 'Living Room' and o.name = 'Fred' and r.area > 1000");
+    for (String address : (List&lt;String>) q.getResultList()) {
+        System.out.println(address);
+    }
+    em.close();
+</pre>
+<li>Task 3
+<pre>
+    em = factory.createEntityManager();
+    q = em.createQuery("select a.building.address, a.number from Apartment a where " +
+                       "exists (select t from RoomType t where " +
+                       "3 <= (select count(r) from Room r where r.type = t and r.apartment = a))");
+    for (Object[] l : (List&lt;Object[]>) q.getResultList()) {
+        System.out.println(l[0] + " " + l[1]);
+    }
+    em.close();
+</pre>
+<li>Task 4
+<pre>
+    em = factory.createEntityManager();
+    q = em.createQuery("select a.building.address, count(a) from Apartment a group by a.building, a.building.address");
+    for (Object[] l : (List&lt;Object[]>) q.getResultList()) {
+        System.out.println(l[0] + " " + l[1]);
+    }
+    em.close();
+</pre>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/148.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:12 GMT -->
+</html>

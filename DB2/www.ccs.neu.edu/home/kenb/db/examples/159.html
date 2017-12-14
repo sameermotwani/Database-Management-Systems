@@ -1,0 +1,289 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/159.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:55 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+<ol>
+<li>(10 points)
+
+A contract is an agreement between exactly 2 parties. A contract consists
+of one or more clauses. A clause has a text and may contain subclauses.
+A party is either a person or a corporation. A corporation has names.
+A person may have an address.
+
+<p>
+<img src="images/251.gif" alt="Contract UML Class Diagram"/>
+<p>
+<font color="green">
+Grading criteria (0.48 points each):
+<ol type="i">
+<li>Contract class
+<li>Party class
+<li>Person class
+<li>Corporation class
+<li>Clause class
+<li>Person subclass of Party
+<li>Corporation subclass of Party
+<li>Agreement association
+<li>Agreement association has multiplicity 0..* on Contract side
+<li>Agreement association has multiplicity 2..2 on Party side
+<li>Contract is an aggregation of Clause
+<li>Contract aggregation has multiplicity 0..1 or 1..1 on Contract side
+<li>Contract aggregation has multiplicity 1..* on Clause side
+<li>Clause has a recursive aggregation
+<li>Clause aggregation has multiplicity 1..1 on aggregation side
+<li>Clause aggregation has multiplicity 0..* on non-aggregation side
+<li>Clause has attribute text of type string
+<li>Corporation attribute name
+<li>Corporation attribute name has multiplicity 1..*
+<li>Person attribute address of type string
+<li>Person attribute address multiplicity 0..1
+</ol>
+</font>
+
+<p>
+<li>(12 points)
+
+Translate the following UML diagram to an SQL schema:
+<p>
+<img src="images/252.gif" alt="UML Diagram"/>
+
+<p>
+<font color="blue">
+<pre>
+  create table Counselor(
+    id int primary key,
+    title varchar(200) not null);
+  create table Client(
+    id int primary key,
+    name varchar(200) not null);
+  create table Meeting(
+    /* If either a client or a counselor is deleted or updated, all meetings
+       are also deleted or updated because Meeting is an association between
+       Counselor and Client. */
+    sees int references Client(id) on delete cascade on update cascade,
+    meetsWith int references Counselor(id) on delete cascade on update cascade,
+    primary key(sees, meetsWith));
+  create table MeetingDay(
+    sees int,
+    meetsWith int,
+    day enum('Monday','Tuesday','Wednesday','Thursday','Friday'),
+    /* If a meeting is deleted or updated, the days are also deleted or updated
+       because they implement a multi-valued attribute of Meeting. */
+    foreign key(sees, meetsWith) references Meeting(sees, meetsWith) on delete cascade on update cascade,
+    primary key(sees, meetsWith, day));
+</pre>
+</font>
+<p>
+<font color="red">
+Note that the foreign key of MeetingDay is the primary key of Meeting,
+so one cannot use the abbreviation for specifying a foreign key in this case. Specifying
+separately that MeetingDay.sees and MeetingDay.meetsWith are foreign keys is wrong.
+It would allow one to specify a MeetingDay that does not correspond to a Meeting.
+</font>
+<p>
+<font color="green">
+Grading criteria
+<ol type="i">
+<li>create table Counselor
+<li>Counselor.id int primary key
+<li>Counselor.title varchar(200)
+<li>Counselor.title is not null
+<li>create table Client
+<li>Client.id int primary key
+<li>Client.name varchar(200)
+<li>Client.name is not null
+<li>create table Meeting
+<li>Meeting.sees int
+<li>Meeting.sees attribute references Client(id)
+<li>Enforcement step for Meeting.sees foreign key
+<li>Meeting.meetsWith int
+<li>Meeting.meetsWith references Counselor(id)
+<li>Enforcement step for Meeting.meetsWith foreign key
+<li>Meeting primary key is (sees, meetsWith)
+<li>create table MeetingDay
+<li>MeetingDay.sees int
+<li>MeetingDay.meetsWith int
+<li>foreign key(sees, meetsWith) references Meeting(sees, meetswith)
+<li>Enforcement step for foreign key of MeetingDay
+<li>MeetingDay.day enum('Monday','Tuesday','Wednesday','Thursday','Friday')
+<li>MeetingDay has all attributes as its primary key
+</ol>
+</font>
+<p>
+<li>(22 points overall)
+
+This is the schema for a database of paint and colors:
+<pre>
+create table Color(
+  name varchar(100) primary key
+);
+create table Texture(
+  type varchar(20) primary key,
+  description varchar(255)
+);
+create table Paint(
+  sku int primary key,
+  price double not null,
+  maker varchar(100) not null,
+  color varchar(100) references Color(name)
+   on update cascade on delete no action,
+  texture varchar(20) references Texture(type)
+   on update cascade on delete no action
+);
+</pre>
+<p>
+Express the following queries in SQL:
+
+<p>
+<ol type="a">
+<li>(12 points)
+List all paint color names that have the letter "z" and the number of textures that are available for that color.
+<p>
+<font color="red">
+One must be careful in this query to be sure that colors with no paints are listed with a count of 0.
+One must also be careful to avoid overcounting the number of textures. There could be several Paint
+records with the same color and texture but each texture should be counted only once.
+Here is the simplest solution:
+</font>
+<p>
+<font color="blue">
+<pre>
+  select c.name, count(distinct p.texture)
+    from Color c left join Paint p on (c.name = p.color)
+   where c.name like '%z%'
+   group by c.name;
+</pre>
+</font>
+<p>
+<font color="red">
+Alternatively, one can avoid the outer join by using a union of two
+queries. The first handles the case in which a paint exists, and the
+second handles the case in which a paint does not exist. In the former
+case, no join is required. For the latter case, one must use a subquery:
+</font>
+<p>
+<font color="blue">
+<pre>
+  select p.color, count(distinct p.texture)
+    from Paint p
+   where p.color like '%z%'
+   group by p.color
+ union all
+  select c.name, 0
+    from Color c
+   where c.name like '%z%'
+     and not exists (
+         select *
+           from Paint p
+          where p.color = c.name
+        );
+</pre>
+</font>
+<p>
+<font color="green">
+Grading criteria:
+<ul>
+<li>(1.5 points) select c.name [or p.color]
+<li>(2 points) select count(texture)
+<li>(1.5 points) from Color c
+<li>(2 points) left join of Color with Paint p
+<li>(1.5 points) join condition for Color and Paint
+<li>(2 points) where c.name [or p.color] like '%z%'
+<li>(1.5 points) group by c.name [or p.color]
+</ul>
+</font>
+<p>
+<li>(10 points)
+Find all distinct textures, showing their type and description, for yellow, that cost less than $10.
+<font color="blue">
+<pre>
+  select distinct t.type, t.description
+    from Texture t, Paint p
+   where t.type = p.texture
+     and p.color = 'yellow'
+     and p.price < 10;
+</pre>
+</font>
+<p>
+<font color="green">
+Grading criteria (1.25 points each):
+ <pre>
+<ul>
+<li>select distinct
+<li>select t.type
+<li>select t.description
+<li>from Texture t
+<li>from Paint p
+<li>where t.type = p.texture
+<li>where p.color = 'yellow'
+<li>where p.price < 10
+</ul>
+</pre>
+</font>
+</ol>
+<p>
+<li>(16 points) The following method finds a paint having the lowest price for a specified color and texture type.
+It prints the price, sku and maker for one paint having the lowest price.
+<p>
+ <pre>
+  public void printALowestPricePaint(String color, String texture) {
+    PreparedStatement ps = connection.prepareStatement(
+      "select p.sku, p.price, p.maker from Paint p" +
+      " where p.color=? and p.texture=?"
+    );
+<font color="blue">
+    ps.setString(1, color);
+    ps.setString(2, texture);
+    ResultSet rs = ps.executeQuery();
+    double lowestPrice = Double.POSITIVE_INFINITY;
+    int sku;
+    String maker;
+    while (rs.next()) {
+      double price = rs.getDouble(2);
+      if (price < lowest) {
+        lowest = price;
+        sku = rs.getInt(1);
+        maker = rs.getString(3);
+      }
+    }
+    if (lowestPrice < Double.POSITIVE_INFINITY) {
+      System.out.println(lowest + " " + sku + " " + maker);
+    } else {
+      System.out.println("The color/texture combination is not available.");
+    }
+</font>
+  }
+</pre>
+<p>
+<font color="red">
+The most common mistake was to omit dealing with the case when there are no paints for the specified color and texture combination.
+</font>
+<p>
+<font color="green">
+Grading criteria (1.46 points each):
+ <pre>
+<ol type="i">
+<li>ps.setString(1, color);
+<li>ps.setString(2, texture);
+<li>ResultSet rs = ps.executeQuery();
+<li>initialize a variable that will have the lowest price
+<li>while (rs.next())
+<li>double price = rs.getDouble(2);
+<li>check for lower price
+<li>sku = rs.getInt(1);
+<li>maker = rs.getString(3);
+<li>System.out.println(lowest + " " + sku + " " + maker);
+<li>The case of a color and texture for which there is no paint was properly handled.
+</ol>
+</pre>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/159.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:58 GMT -->
+</html>

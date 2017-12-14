@@ -1,0 +1,65 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/129.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:11 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+This assignment will use the following SQL schema:
+<p>
+<pre>
+create table Person(
+  id int primary key,
+  name varchar(255) not null
+);
+create table Style(
+  id int primary key,
+  description varchar(20000)
+);
+create table Band(
+  id int primary key,
+  name varchar(255),
+  style int,
+  foreign key(style) references Style(id) on update cascade on delete set null
+);
+create table memberOf(
+  person int,
+  foreign key(person) references Person(id) on update cascade on delete cascade,
+  band int,
+  foreign key(band) references Band(id) on update cascade on delete cascade,
+  primary key(person, band)
+);
+create table StyleName(
+  style int,
+  foreign key(style) references Style(id) on update cascade on delete cascade,
+  name varchar(200),
+  primary key(name, style)
+);
+</pre>
+<p>
+Design and develop persistable classes for Person, Band and Style with
+JPA annotations that map to the schema above. Note that the memberOf
+and StyleName tables do not have corresponding classes.  Develop a
+main program that performs the following tasks using the JPA query
+language, printing the results of queries. Test your program using
+OpenJPA. The queries must use the JPA object-oriented query language,
+not SQL.
+<p>
+<ol>
+<li>Show all bands that a musician is a member of, along with the
+names of the styles of the bands. The input is the musician id. Show
+the musician name, band name, and list the style names all on a single
+line.
+<li>Compute the number of degrees of separation between a specified
+musician (specified by id) and any other musician, using only bands
+having a style with a specified name. Show the degree of separation
+and the other musician's name in ascending order by degree of
+separation and other musician name.
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/129.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:11 GMT -->
+</html>

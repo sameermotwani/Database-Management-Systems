@@ -1,0 +1,105 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/040.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+This is a solution to a <a href="109.html">sample exercise</a>.
+<p>
+Normalize the following relations.  Decompose into BCNF if possible.
+If not, then decompose into 3NF.  Show your work.  In particular,
+show the list of all candidate keys of the original relation.  To compute the
+candidate keys, use the discussion in <a href="039.html">Candidate Keys</a>.
+In your decomposition show the attributes in each relation and the primary
+key of each relation.  Do not show any foreign key constraints.
+<p>
+<ol>
+<li>Relation has attributes ABCD.  The FD is AB&rarr;CD.
+<br>
+First find the keys.  Using the technique in <a href="039.html">Candidate Keys</a>,
+the attribute sets are:
+ <ol>
+ <li>empty
+ <li>CD
+ <li>AB
+ </ol>
+The core is AB.  The core determines CD, so it is a key and the only key.
+<p>
+The relation is already BCNF.  The primary key is AB.
+<p>
+<li>Relation has attributes ABCDE.  The FDs are AB&rarr;CD, E&rarr;A, D&rarr;A.
+<br>
+First find the keys.
+ <ol>
+ <li>empty
+ <li>C
+ <li>BE
+ </ol>
+The core is BE.  E determines A, and AB determines CD, so BE is a key and the only key.
+<p>
+None of the FDs are key constraints, so the relation is not BCNF.
+All of the FDs have attributes that are outside the key, so the relation is not 3NF.
+<p>
+The BCNF algorithm is applied starting with each of the FDs as follows:
+<ol>
+<li>
+Applying the BCNF algorithm to AB&rarr;CD produces ABE and ABCD which include all FDs.
+Applying the BCNF algorithm recursively to ABE E&rarr;A produces BE and AE.
+Applying the BCNF algorithm recursively to ABCD D&rarr;A produces BCD and AD.
+Unfortunately, AB&rarr;CD is no longer included.
+<li>
+Applying the BCNF algorithm to E&rarr;A produces BCDE and AE which does not include
+AB&rarr;CD.
+<li>
+Applying the BCNF algorithm to D&rarr;A produces BCDE and AD which does not include
+AB&rarr;CD.
+</ol>
+Therefore the BCNF algorithm does not succeed.
+<p>
+To apply the 3NF algorithm we must find a minimal cover.  The first step is to write
+the FDs as AB&rarr;C, AB&rarr;D, E&rarr;A, D&rarr;A.  The left-hand sides are minimal,
+and none of the FDs is redundant.  The decomposition is ABC, ABD, AE and AD.  None
+of these has a key, so we must also add BE.  So the final decomposition is
+ABC, ABD, AE, AD, BE, with primary keys AB, AB, E, D and BE, respectively.
+<p>
+<li>Relation has attributes ABCDEF.  The FDs are AC&rarr;EF, AE&rarr;D, D&rarr;F.
+<br>
+First find the keys.
+ <ol>
+ <li>B
+ <li>F
+ <li>AC
+ </ol>
+The core is ABC.  AC determines EF and AE then determines D, so ABC is a key and the only key.
+<p>
+None of the FDs is a key constraint, so the relation is not BCNF.
+The right-hand sides are not in the key, so the relation is not 3NF.
+<p>
+The BCNF algorithm is applied starting with each of the FDs as follows:
+<ol>
+<li>
+Applying the BCNF algorithm to AC&rarr;EF produces ABCD and ACEF which do not include AE&rarr;D.
+<li>
+Applying the BCNF algorithm to AE&rarr;D produces ABCEF and ADE which do not include D&rarr;F.
+<li>
+Applying the BCNF algorithm to D&rarr;F produces ABCDE and DF which do not include AC&rarr;EF.
+</ol>
+Therefore the BCNF algorithm does not succeed.
+<p>
+To apply the 3NF algorithm we must find a minimal cover.  The first step is to write
+the FDs as AC&rarr;E, AC&rarr;F, AE&rarr;D, D&rarr;F.  The left-hand sides are minimal.
+However, the FDs are redundant because AC&rarr;F is a consequence of the other FDs:
+AC determines E, then AE determines D which determines F.  Eliminating this FD gives
+a minimal cover:  AC&rarr;E, AE&rarr;D, D&rarr;F.  The decomposition is
+ACE, ADE and DF.  The key is not in any of these, so we must add ABC.
+The final decomposition is ABC, ACE, ADE and DF, with primary keys ABC, AC, AE and D,
+respectively.
+<p>
+If you succeed in finding and eliminating the redundancy above, then you are
+given 5 bonus points.  There is no penalty if you do not find it.
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/040.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+</html>

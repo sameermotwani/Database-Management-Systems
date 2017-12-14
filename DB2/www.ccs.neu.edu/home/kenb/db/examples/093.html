@@ -1,0 +1,71 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/093.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+Normalize the following relations when each one satisfies the specified functional dependencies.  
+Decompose into BCNF if possible.
+If not, then decompose into 3NF.  Show your work.  In particular,
+show the list of all candidate keys of the original relation.  To compute the
+candidate keys, use the discussion in <a href="039.html">Candidate Keys</a>.
+In your decomposition show the attributes in each relation and the primary
+key of each relation.  
+<ol>
+<li>The relation is ABCDE
+<ul>
+<li>AB&rarr;C
+<li>B&rarr;E
+<li>C&rarr;A
+</ul>
+<li>The relation is ABCDEF
+<ul>
+<li>C&rarr;BE
+<li>BDF&rarr;C
+<li>E&rarr;F
+</ul>
+<li>The relation is ABCDEF
+<ul>
+<li>B&rarr;CD
+<li>ACF&rarr;D
+<li>C&rarr;D
+</ul>
+<li>The relation is ABCDEFG
+<ul>
+<li>AEF&rarr;D
+<li>D&rarr;A
+<li>G&rarr;C
+<li>AB&rarr;D
+</ul>
+<li>The relation is ABCDEFG
+<ul>
+<li>CDFG&rarr;A
+<li>D&rarr;F
+<li>C&rarr;E
+<li>ACD&rarr;B
+<li>AF&rarr;D
+</ul>
+<li>The relation is ABCDEFGH
+<ul>
+<li>ADF&rarr;G
+<li>CEF&rarr;H
+<li>F&rarr;G
+<li>D&rarr;B
+<li>CFH&rarr;A
+</ul>
+<li>The relation is ABCDEFGH
+<ul>
+<li>ABGH&rarr;D
+<li>C&rarr;B
+<li>CF&rarr;G
+<li>E&rarr;G
+<li>ACH&rarr;D
+<li>AG&rarr;D
+</ul>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/093.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+</html>
+

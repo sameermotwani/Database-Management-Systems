@@ -1,0 +1,97 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/264.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2012 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+This example will use the following SQL schema:
+<p>
+<pre>
+create table Forest(
+  id int primary key,
+  name varchar(500),
+  area double not null,
+  location varchar(500) not null
+);
+create table TreeSpecies(
+  scientificName varchar(255) primary key,
+  description varchar(5000)
+);
+create table ForestTree(
+  forest int,
+  foreign key(forest) references Forest(id) on update cascade on delete cascade,
+  tree varchar(255),
+  foreign key(tree) references TreeSpecies(scientificName) on update cascade on delete cascade,
+  status enum('extinct', 'threatened', 'least concern') not null,
+  primary key(forest, tree)
+);
+</pre>
+<p>
+<ol>
+<li>Develop queries (or sets of queries) for the following:
+<ol type="a">
+<li>List all extinct tree species and their forests.  A tree species 
+is <em>extinct</em> if every forest in which it occurs, the status is extinct,
+or if the tree species is not associated with any forest.
+<li>List all threatened tree species and the total area of all forests
+that have the tree species and it is not extinct in that forest.  Order
+them by the total area.
+A tree species is <em>threatened</em> if it is either threatened or extinct
+in every forest where it is one of the tree species in the forest.
+</ol>
+<p>
+The queries are in <a href="src/Trees.java">Trees.java</a>.
+<p>
+<li>Develop two XSLT scripts that produce HTML files for the output of
+each of the two queries (or sets of queries) above as produced by javax.sql.rowset.WebRowSet.writeXml(ResultSet rs, OutputStream oStream).
+The HTML file should display the results
+as a table with a column for the scientific name and row(s) for the other
+information.
+<ol type="a">
+<li>  
+There should be one row for each forest,
+with columns for the name and location.  Note that there could be tree
+species with no forests.  
+A separate table shows the descriptions of the tree species
+in the first table.
+For example:
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Tree<th>Forest<th>Location
+<tr><td rowspan="2">G. biloba<td>Tian Mu Shan<td>Zhejiang
+<tr><td>Tianmu<td>Zhejiang
+<tr><td rowspan="1">B. archaeocarpa<td>Kennedy Range<td>Australia
+<tr><td rowspan="1">P. peregrinus
+</table>
+<p>
+<table cellpadding="5" border="1">
+<tr><th>Tree<th>Description
+<tr><td>G. biloba<td>Ancient non-flowering tree
+<tr><td>B. archaeocarpa<td>Small tree with bright flower spikes
+<tr><td rowspan="1">P. peregrinus<td>Pine tree
+</table>
+<p>
+The transform is in <a href="src/query1.xsl">query1.xsl</a>.
+<p>
+<li>
+For the second query, show the tree scientific name and the area.
+For example:
+<table cellpadding="5" border="1">
+<tr><th>Tree<th>Area
+<tr><td>A. ulugurensis<td>4000
+<tr><td>A. digitata<td>6000
+<tr><td>A. quanzensis<td>8000
+</table>
+<p>
+The transform is in <a href="src/query2.xsl">query2.xsl</a>.
+<p>
+</ol>
+</ol>
+<p>&#169; 2012 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/264.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+</html>

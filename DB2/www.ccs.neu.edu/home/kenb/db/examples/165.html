@@ -1,0 +1,83 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/165.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+This is a solution to a <a href="166.html">sample exercise</a>.
+<p>
+Design the following queries for the composition schema in <a href="168.html">Sample Exercise</a>.
+In every case the result of the query should have no duplicates.
+<p>
+<ol>
+<li>Find the bands by name that have a percussionist (i.e., a person who plays a percussion instrument).
+<pre>
+select b.name
+  from Band b
+ where exists (
+         select *
+           from memberOf m, plays p, PercussionInstrument pi
+          where m.band = b.id
+            and m.musician = p.musician
+            and p.instrument = pi.id
+       );
+</pre>
+One can also perform the query without a nested query as follows:
+<pre>
+select distinct b.name
+  from Band b, memberOf m, plays p, PercussionInstrument pi
+ where m.band = b.id
+   and m.musician = p.musician
+   and p.instrument = pi.id;
+</pre>
+<p>
+<li>Find the names of the persons who are not a member of an indie pop band.
+<pre>
+select p.name
+  from Person p
+ where not exists (
+         select *
+           from memberOf m, Band b
+          where m.musician = p.id
+            and m.band = b.id
+            and b.style = 'indie pop'
+       );
+</pre>
+<p>
+<li>Find the names of the persons who are members of every indie pop band.
+<pre>
+select p.name
+  from Person p
+ where not exists (
+         select *
+           from Band b
+          where b.style = 'indie pop'
+            and not exists (
+                  select *
+                    from memberOf m
+                   where m.musician = p.id
+                     and m.band = b.id
+                )
+       );
+</pre>
+<p>
+<li>Design a trigger that will automatically delete any updated instrument that no longer has a key
+(i.e., had a key before the update, but now does not have a key).
+<pre>
+create trigger InstrumentTrigger after update on Instrument
+  for each row 
+    delete from Instrument
+     where new.id = id
+       and old.musicalKey is not null
+       and new.musicalKey is null;
+</pre>
+</ol>
+<p>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/165.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+</html>

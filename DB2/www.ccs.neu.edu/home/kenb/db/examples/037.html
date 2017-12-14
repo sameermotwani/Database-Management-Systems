@@ -1,0 +1,74 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/037.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:11 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+Using the following schema:
+<pre>
+create table Student (
+  id int primary key,
+  name varchar(100)
+);
+create table Course (
+  code varchar(10) primary key,
+  title varchar(5000) not null
+);
+create table Enroll (
+  student int not null,
+  foreign key(student) references Student(id) on update cascade on delete cascade,
+  course varchar(10),
+  foreign key(course) references Course(code) on update cascade on delete cascade,
+  primary key(student, course)
+);
+</pre>
+the following method enrolls a student in a course:
+ <pre>
+    /**
+     * Enroll a student in a course.
+     * @param driver The driver class name.
+     * @param url The database URL.
+     * @param user The database user.
+     * @param password The database password.
+     * @param student The student name.
+     * @param course The course title.
+     * @return true if the student was enrolled in the course,
+     * false if the student was already enrolled in the course or
+     * could not be enrolled in the course.
+     * @throws SQLException if a database error occurred.
+     * @throws ClassNotFoundException if the driver could not be loaded.
+     */
+    public boolean enrollStudent(String driver, String url, String user, String password, String student,
+				 String course) throws SQLException, ClassNotFoundException {
+<!--
+	Class.forName(driver);
+	Connection connection = DriverManager.getConnection(url, user, password);
+-->
+     /* Fill in the missing statements here. */
+
+	PreparedStatement statement = connection.prepareStatement
+	    ("insert ignore into Enroll(student, course) select s.id, c.code " +
+	     "from Student s, Course c where s.name=? and c.title=?");
+<!--
+	statement.setString(1, student);
+	statement.setString(2, course);
+	int count = statement.executeUpdate();
+-->
+     /* Also fill in the missing statements here. */
+
+	statement.close();
+	connection.close();
+	return (count == 1);
+    }
+</pre>
+Fill in the missing statements.
+<p>
+The <a href="283.html">solution</a> is available.
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/037.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:11 GMT -->
+</html>

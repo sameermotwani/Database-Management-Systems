@@ -1,0 +1,145 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/2.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:22 GMT -->
+<head>
+<title>CS 5200 Introduction to Database Management Fall 2015</title>
+</head>
+<body>
+<center><h1>CS 5200 Introduction to Database Management Individual Assignment #2 SQL</h1></center>
+<p>
+The assignment uses the following schema:
+<pre>
+create table ServerType (
+  id int primary key auto_increment,
+  name varchar(100) not null unique,
+  description varchar(255)
+);
+create table Server (
+  id int primary key auto_increment,
+  name varchar(255) not null unique,
+  specification varchar(5000),
+  type int not null,
+  foreign key(type) references ServerType(id) on update cascade on delete no action
+); 
+create table ServerUsage (
+  usesServer int not null,
+  foreign key(usesServer) references Server(id) on update cascade on delete no action,
+  usedByServer int not null,
+  foreign key(usedByServer) references Server(id) on update cascade on delete no action,
+  primary key(usesServer, usedByServer)
+);
+create table Method (
+  id int primary key auto_increment,
+  name varchar(255) not null,
+  partOf int not null,
+  foreign key(partOf) references Server(id) on update cascade on delete cascade,
+  unique(partOf, name)
+);
+create table Parameter (
+  id int primary key auto_increment,
+  name varchar(255) not null,
+  usedBy int not null,
+  foreign key(usedBy) references Method(id) on update cascade on delete cascade,
+  unique(usedBy, name),
+  type varchar(255) not null,
+  alternative enum('in', 'out', 'inout') not null
+);
+</pre>
+<p>
+<ol>
+<li>Find all web servers by name that have an inout parameter.
+<li>Find all unspecified database servers with a method that has 3 or more parameters. Show the server name and the methods that have 3 or more parameters.
+<li>List all servers that use the "content management" server type.
+<li>List all methods that can return a document. For each method show its name and the name of its server.
+<li>Show how to add a new web server with a single method that has no parameters.
+<li>Find all types used by input methods of a server specified by its name as well as all servers that the specified server uses.
+<li>Show how to add a new parameter to an existing method.
+<li>Show how to delete a method from a server.
+<li>Provide a view for all "content management" servers, including all of their methods and parameters and all properties of the methods and parameters.
+</ol>
+<p>
+Express your queries and other statements using SQL.  The queries must correctly retrieve the specified data for any consistent state of the database
+(i.e., any state of the database that satisifies all of the constraints specified in the schema).
+<p>
+
+The following sample data was provided by Tianhe Wang with one modification
+that I made.  This sample data is provided independently of the assignment.
+Your queries must function correctly regardless of what data is in the
+database.  It is not enough for your queries to function correctly only on the
+sample data.
+
+<p>
+<pre>
+insert into ServerType(name,description)
+values ('database server','database server'),
+('content management','content management'),
+('load balancer','load balancer'),
+('def','st-def'),
+('web','web server');
+
+insert into Server(name,specification,type)
+values ('aaa','st-abc',1),
+('bbb','sta-bcd',2),
+('ccc','sta-def',3),
+('ddd',null,1),
+('eee',null,2),
+('fff',null,3);
+
+insert into ServerUsage(usesServer, usedByServer)
+values (1,1),
+(1,2),
+(1,3),
+(1,4),
+(2,1),
+(2,2),
+(2,3),
+(2,4),
+(3,1),
+(3,2),
+(3,3),
+(3,4),
+(4,5),
+(4,6),
+(5,3),
+(5,4),
+(5,6);
+
+insert into Method(name,partOf)
+values ('m1',1),
+('m1',2),
+('m2',2),
+('m1',3),
+('m2',3),
+('m1',4),
+('m2',4),
+('m3',4),
+('m2',5),
+('m3',5),
+('m4',5),
+('m5',5),
+('m2',6),
+('m3',6);
+
+insert into Parameter(name, usedBy, type, alternative)
+values ('p1-m1',1,'String','in'),
+('p2-m1',1,'Integer','inout'),
+('p3-m1',1,'String','out'),
+('p1-m2',2,'Float','out'),
+('p2-m2',2,'Double','in'),
+('p1-m3',3,'HashMap','out'),
+('p2-m3',3,'Double','out'),
+('p3-m3',3,'Integer','in'),
+('p4-m3',3,'Float','inout'),
+('p1-m5',5,'String','in'),
+('p2-m5',5,'Integer','out'),
+('p3-m5',5,'Float','out'),
+('p4-m5',5,'String','in'),
+('p5-m5',5,'Double','inout'),
+('p1-m6',6,'Integer','in'),
+('p2-m6',6,'Double','out'),
+('p1-m13',13,'Integer','out'),
+('p2-m13',13,'String','inout'),
+('p3-m13',13,'Float','in');
+</pre>
+</body>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/2.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:22 GMT -->
+</html>

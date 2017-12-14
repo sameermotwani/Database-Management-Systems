@@ -1,0 +1,122 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/291.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2015 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head><body>
+<center><h1>Sample Exercise</h1></center>
+<ol>
+<li>R<sub>2</sub>(A), W<sub>2</sub>(C), R<sub>1</sub>(A), W<sub>2</sub>(B), R<sub>1</sub>(B), R<sub>3</sub>(C), W<sub>3</sub>(A), R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>1</sub>, C<sub>2</sub>, C<sub>3</sub>
+<p><font color='green'><ol type='a'>
+<li>The transaction conflicts are:
+<ol type='i'>
+<li>RW 2&rarr;3 <font color='black'>R<sub>2</sub>(A)</font>, W<sub>2</sub>(C), R<sub>1</sub>(A), W<sub>2</sub>(B), R<sub>1</sub>(B), R<sub>3</sub>(C), <font color='black'>W<sub>3</sub>(A)</font>, R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>1</sub>, C<sub>2</sub>, C<sub>3</sub>
+<li>WR 2&rarr;3 R<sub>2</sub>(A), <font color='black'>W<sub>2</sub>(C)</font>, R<sub>1</sub>(A), W<sub>2</sub>(B), R<sub>1</sub>(B), <font color='black'>R<sub>3</sub>(C)</font>, W<sub>3</sub>(A), R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>1</sub>, C<sub>2</sub>, C<sub>3</sub>
+<li>RW 1&rarr;3 R<sub>2</sub>(A), W<sub>2</sub>(C), <font color='black'>R<sub>1</sub>(A)</font>, W<sub>2</sub>(B), R<sub>1</sub>(B), R<sub>3</sub>(C), <font color='black'>W<sub>3</sub>(A)</font>, R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>1</sub>, C<sub>2</sub>, C<sub>3</sub>
+<li>WR 2&rarr;1 R<sub>2</sub>(A), W<sub>2</sub>(C), R<sub>1</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, <font color='black'>R<sub>1</sub>(B)</font>, R<sub>3</sub>(C), W<sub>3</sub>(A), R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>1</sub>, C<sub>2</sub>, C<sub>3</sub>
+<li>WW 2&rarr;1 R<sub>2</sub>(A), W<sub>2</sub>(C), R<sub>1</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, R<sub>1</sub>(B), R<sub>3</sub>(C), W<sub>3</sub>(A), R<sub>2</sub>(C), <font color='black'>W<sub>1</sub>(B)</font>, C<sub>1</sub>, C<sub>2</sub>, C<sub>3</sub>
+</ol>
+<li>Conflict serializable with serial order(s):
+<ol type='i'>
+<li>2, 1, 3
+</ol>
+<li>View serializable with serial order(s):
+<ol type='i'>
+<li>2, 1, 3
+</ol>
+<li>Not recoverable due to:
+<ol type='i'>
+<li>R<sub>2</sub>(A), <font color='blue'>W<sub>2</sub>(C)</font>, R<sub>1</sub>(A), W<sub>2</sub>(B), R<sub>1</sub>(B), <font color='blue'>R<sub>3</sub>(C)</font>, W<sub>3</sub>(A), R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>1</sub>, <font color='blue'>C<sub>2</sub></font>, <font color='blue'>C<sub>3</sub></font>
+<li>R<sub>2</sub>(A), W<sub>2</sub>(C), R<sub>1</sub>(A), <font color='red'>W<sub>2</sub>(B)</font>, <font color='red'>R<sub>1</sub>(B)</font>, R<sub>3</sub>(C), W<sub>3</sub>(A), R<sub>2</sub>(C), W<sub>1</sub>(B), <font color='red'>C<sub>1</sub></font>, <font color='red'>C<sub>2</sub></font>, C<sub>3</sub>
+<li>R<sub>2</sub>(A), W<sub>2</sub>(C), R<sub>1</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, R<sub>1</sub>(B), R<sub>3</sub>(C), W<sub>3</sub>(A), R<sub>2</sub>(C), <font color='black'>W<sub>1</sub>(B)</font>, <font color='black'>C<sub>1</sub></font>, <font color='black'>C<sub>2</sub></font>, C<sub>3</sub>
+</ol>
+<br/>Violations of recoverability are shown in <font color='red'>red</font>.
+<br/>Violations of cascadelessness are shown in <font color='blue'>blue</font>.
+<br/>Violations of strictness are shown in <font color='black'>black</font>.
+</ol></font><p>
+<li>R<sub>3</sub>(B), W<sub>1</sub>(C), R<sub>2</sub>(B), W<sub>3</sub>(C), W<sub>3</sub>(A), R<sub>1</sub>(B), W<sub>2</sub>(C), C<sub>2</sub>, R<sub>1</sub>(A), C<sub>3</sub>, C<sub>1</sub>
+<p><font color='green'><ol type='a'>
+<li>The transaction conflicts are:
+<ol type='i'>
+<li>WW 1&rarr;3 R<sub>3</sub>(B), <font color='black'>W<sub>1</sub>(C)</font>, R<sub>2</sub>(B), <font color='black'>W<sub>3</sub>(C)</font>, W<sub>3</sub>(A), R<sub>1</sub>(B), W<sub>2</sub>(C), C<sub>2</sub>, R<sub>1</sub>(A), C<sub>3</sub>, C<sub>1</sub>
+<li>WW 1&rarr;2 R<sub>3</sub>(B), <font color='black'>W<sub>1</sub>(C)</font>, R<sub>2</sub>(B), W<sub>3</sub>(C), W<sub>3</sub>(A), R<sub>1</sub>(B), <font color='black'>W<sub>2</sub>(C)</font>, C<sub>2</sub>, R<sub>1</sub>(A), C<sub>3</sub>, C<sub>1</sub>
+<li>WW 3&rarr;2 R<sub>3</sub>(B), W<sub>1</sub>(C), R<sub>2</sub>(B), <font color='black'>W<sub>3</sub>(C)</font>, W<sub>3</sub>(A), R<sub>1</sub>(B), <font color='black'>W<sub>2</sub>(C)</font>, C<sub>2</sub>, R<sub>1</sub>(A), C<sub>3</sub>, C<sub>1</sub>
+<li>WR 3&rarr;1 R<sub>3</sub>(B), W<sub>1</sub>(C), R<sub>2</sub>(B), W<sub>3</sub>(C), <font color='black'>W<sub>3</sub>(A)</font>, R<sub>1</sub>(B), W<sub>2</sub>(C), C<sub>2</sub>, <font color='black'>R<sub>1</sub>(A)</font>, C<sub>3</sub>, C<sub>1</sub>
+</ol>
+<li>Not conflict serializable
+<li>View serializable with serial order(s):
+<ol type='i'>
+<li>3, 1, 2
+</ol>
+<li>Recoverable but allows cacading rollback due to:
+<ol type='i'>
+<li>R<sub>3</sub>(B), <font color='black'>W<sub>1</sub>(C)</font>, R<sub>2</sub>(B), <font color='black'>W<sub>3</sub>(C)</font>, W<sub>3</sub>(A), R<sub>1</sub>(B), W<sub>2</sub>(C), C<sub>2</sub>, R<sub>1</sub>(A), <font color='black'>C<sub>3</sub></font>, <font color='black'>C<sub>1</sub></font>
+<li>R<sub>3</sub>(B), <font color='black'>W<sub>1</sub>(C)</font>, R<sub>2</sub>(B), W<sub>3</sub>(C), W<sub>3</sub>(A), R<sub>1</sub>(B), <font color='black'>W<sub>2</sub>(C)</font>, <font color='black'>C<sub>2</sub></font>, R<sub>1</sub>(A), C<sub>3</sub>, <font color='black'>C<sub>1</sub></font>
+<li>R<sub>3</sub>(B), W<sub>1</sub>(C), R<sub>2</sub>(B), <font color='black'>W<sub>3</sub>(C)</font>, W<sub>3</sub>(A), R<sub>1</sub>(B), <font color='black'>W<sub>2</sub>(C)</font>, <font color='black'>C<sub>2</sub></font>, R<sub>1</sub>(A), <font color='black'>C<sub>3</sub></font>, C<sub>1</sub>
+<li>R<sub>3</sub>(B), W<sub>1</sub>(C), R<sub>2</sub>(B), W<sub>3</sub>(C), <font color='blue'>W<sub>3</sub>(A)</font>, R<sub>1</sub>(B), W<sub>2</sub>(C), C<sub>2</sub>, <font color='blue'>R<sub>1</sub>(A)</font>, <font color='blue'>C<sub>3</sub></font>, <font color='blue'>C<sub>1</sub></font>
+</ol>
+<br/>Violations of cascadelessness are shown in <font color='blue'>blue</font>.
+<br/>Violations of strictness are shown in <font color='black'>black</font>.
+</ol></font><p>
+<li>R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), W<sub>2</sub>(B), C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<p><font color='green'><ol type='a'>
+<li>The transaction conflicts are:
+<ol type='i'>
+<li>RW 3&rarr;1 <font color='black'>R<sub>3</sub>(B)</font>, R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), <font color='black'>W<sub>1</sub>(B)</font>, W<sub>2</sub>(B), C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>RW 3&rarr;2 <font color='black'>R<sub>3</sub>(B)</font>, R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), <font color='black'>W<sub>2</sub>(B)</font>, C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>RW 3&rarr;2 <font color='black'>R<sub>3</sub>(B)</font>, R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), W<sub>2</sub>(B), C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>WW 4&rarr;3 R<sub>3</sub>(B), R<sub>4</sub>(A), <font color='black'>W<sub>4</sub>(C)</font>, R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), W<sub>2</sub>(B), C<sub>4</sub>, W<sub>3</sub>(B), <font color='black'>W<sub>3</sub>(C)</font>, R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>WW 4&rarr;2 R<sub>3</sub>(B), R<sub>4</sub>(A), <font color='black'>W<sub>4</sub>(C)</font>, R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), W<sub>2</sub>(B), C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, <font color='black'>W<sub>2</sub>(C)</font>, R<sub>2</sub>(B), C<sub>2</sub>
+<li>WW 1&rarr;2 R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), <font color='black'>W<sub>1</sub>(B)</font>, <font color='black'>W<sub>2</sub>(B)</font>, C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>WW 1&rarr;3 R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), <font color='black'>W<sub>1</sub>(B)</font>, W<sub>2</sub>(B), C<sub>4</sub>, <font color='black'>W<sub>3</sub>(B)</font>, W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>WW 1&rarr;2 R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), <font color='black'>W<sub>1</sub>(B)</font>, W<sub>2</sub>(B), C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>WR 1&rarr;2 R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), <font color='black'>W<sub>1</sub>(B)</font>, W<sub>2</sub>(B), C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), <font color='black'>R<sub>2</sub>(B)</font>, C<sub>2</sub>
+<li>WW 2&rarr;3 R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), <font color='black'>W<sub>2</sub>(B)</font>, C<sub>4</sub>, <font color='black'>W<sub>3</sub>(B)</font>, W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>WW 3&rarr;2 R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), W<sub>2</sub>(B), C<sub>4</sub>, <font color='black'>W<sub>3</sub>(B)</font>, W<sub>3</sub>(C), R<sub>3</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>WR 3&rarr;2 R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), W<sub>2</sub>(B), C<sub>4</sub>, <font color='black'>W<sub>3</sub>(B)</font>, W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, W<sub>2</sub>(C), <font color='black'>R<sub>2</sub>(B)</font>, C<sub>2</sub>
+<li>WW 3&rarr;2 R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), W<sub>2</sub>(B), C<sub>4</sub>, W<sub>3</sub>(B), <font color='black'>W<sub>3</sub>(C)</font>, R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, C<sub>1</sub>, <font color='black'>W<sub>2</sub>(C)</font>, R<sub>2</sub>(B), C<sub>2</sub>
+</ol>
+<li>Not conflict serializable
+<li>View serializable with serial order(s):
+<ol type='i'>
+<li>3, 1, 4, 2
+<li>3, 4, 1, 2
+<li>4, 3, 1, 2
+</ol>
+<li>Cascadeless but not strict due to:
+<ol type='i'>
+<li>R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), <font color='black'>W<sub>1</sub>(B)</font>, <font color='black'>W<sub>2</sub>(B)</font>, C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), C<sub>3</sub>, <font color='black'>C<sub>1</sub></font>, W<sub>2</sub>(C), R<sub>2</sub>(B), <font color='black'>C<sub>2</sub></font>
+<li>R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), <font color='black'>W<sub>1</sub>(B)</font>, W<sub>2</sub>(B), C<sub>4</sub>, <font color='black'>W<sub>3</sub>(B)</font>, W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), <font color='black'>C<sub>3</sub></font>, <font color='black'>C<sub>1</sub></font>, W<sub>2</sub>(C), R<sub>2</sub>(B), C<sub>2</sub>
+<li>R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), <font color='black'>W<sub>1</sub>(B)</font>, W<sub>2</sub>(B), C<sub>4</sub>, W<sub>3</sub>(B), W<sub>3</sub>(C), R<sub>3</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, C<sub>3</sub>, <font color='black'>C<sub>1</sub></font>, W<sub>2</sub>(C), R<sub>2</sub>(B), <font color='black'>C<sub>2</sub></font>
+<li>R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), <font color='black'>W<sub>2</sub>(B)</font>, C<sub>4</sub>, <font color='black'>W<sub>3</sub>(B)</font>, W<sub>3</sub>(C), R<sub>3</sub>(A), W<sub>2</sub>(B), <font color='black'>C<sub>3</sub></font>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), <font color='black'>C<sub>2</sub></font>
+<li>R<sub>3</sub>(B), R<sub>4</sub>(A), W<sub>4</sub>(C), R<sub>1</sub>(A), R<sub>4</sub>(A), W<sub>1</sub>(B), W<sub>2</sub>(B), C<sub>4</sub>, <font color='black'>W<sub>3</sub>(B)</font>, W<sub>3</sub>(C), R<sub>3</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, <font color='black'>C<sub>3</sub></font>, C<sub>1</sub>, W<sub>2</sub>(C), R<sub>2</sub>(B), <font color='black'>C<sub>2</sub></font>
+</ol>
+<br/>Violations of strictness are shown in <font color='black'>black</font>.
+</ol></font><p>
+<li>W<sub>3</sub>(C), R<sub>2</sub>(A), W<sub>2</sub>(B), C<sub>2</sub>, R<sub>1</sub>(C), W<sub>3</sub>(B), C<sub>3</sub>, W<sub>1</sub>(B), C<sub>1</sub>
+<p><font color='green'><ol type='a'>
+<li>The transaction conflicts are:
+<ol type='i'>
+<li>WR 3&rarr;1 <font color='black'>W<sub>3</sub>(C)</font>, R<sub>2</sub>(A), W<sub>2</sub>(B), C<sub>2</sub>, <font color='black'>R<sub>1</sub>(C)</font>, W<sub>3</sub>(B), C<sub>3</sub>, W<sub>1</sub>(B), C<sub>1</sub>
+<li>WW 2&rarr;3 W<sub>3</sub>(C), R<sub>2</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, C<sub>2</sub>, R<sub>1</sub>(C), <font color='black'>W<sub>3</sub>(B)</font>, C<sub>3</sub>, W<sub>1</sub>(B), C<sub>1</sub>
+<li>WW 2&rarr;1 W<sub>3</sub>(C), R<sub>2</sub>(A), <font color='black'>W<sub>2</sub>(B)</font>, C<sub>2</sub>, R<sub>1</sub>(C), W<sub>3</sub>(B), C<sub>3</sub>, <font color='black'>W<sub>1</sub>(B)</font>, C<sub>1</sub>
+<li>WW 3&rarr;1 W<sub>3</sub>(C), R<sub>2</sub>(A), W<sub>2</sub>(B), C<sub>2</sub>, R<sub>1</sub>(C), <font color='black'>W<sub>3</sub>(B)</font>, C<sub>3</sub>, <font color='black'>W<sub>1</sub>(B)</font>, C<sub>1</sub>
+</ol>
+<li>Conflict serializable with serial order(s):
+<ol type='i'>
+<li>2, 3, 1
+</ol>
+<li>View serializable with serial order(s):
+<ol type='i'>
+<li>2, 3, 1
+<li>3, 2, 1
+</ol>
+<li>Recoverable but allows cacading rollback due to:
+<ol type='i'>
+<li><font color='blue'>W<sub>3</sub>(C)</font>, R<sub>2</sub>(A), W<sub>2</sub>(B), C<sub>2</sub>, <font color='blue'>R<sub>1</sub>(C)</font>, W<sub>3</sub>(B), <font color='blue'>C<sub>3</sub></font>, W<sub>1</sub>(B), <font color='blue'>C<sub>1</sub></font>
+</ol>
+<br/>Violations of cascadelessness are shown in <font color='blue'>blue</font>.
+</ol></font><p>
+</ol>
+<p>&#169; 2015 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>

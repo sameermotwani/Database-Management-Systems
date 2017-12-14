@@ -1,0 +1,86 @@
+Given an employee specified by name, find the machines that the employee can repair.
+
+
+1. 
+select
+m.id
+from employee c
+inner join qualification q on c.customer_id=q.canBeRepairedBy and c.name="george"
+inner join product_type pt on pt.id=q.canRepair
+inner join product p on p.type=pt.id
+inner join Machine m on m.id=p.processedBy
+
+name hashindex
+p. type
+
+2. Find a product type given the first part of its title.
+
+select p.id
+where p.title like '***%';
+
+title --- btree
+
+3. List all products, showing all of its attributes as well as the code of its machine, that have yet to be completed.
+select p.*,m.code
+from product p 
+inner join Machine m on m.id=p.processedBy
+where p.completed is null or p.completed='';
+
+completed
+processedBy
+
+4. Modify the qualification level of an employee, given by name, for a product type given by title.
+
+update 
+ qualification q
+inner join Employee c on c.id=q.canBeRepairedBy and c.name="george"
+inner join product_type pt on pt.id=q.canRepair and pt.type="given"
+set q.level="";
+
+
+5. 
+select f.id
+from factory factory
+where f.address='given';
+
+address
+
+create table ProductType (
+  id int primary key,
+  title varchar(200),
+  description varchar(2000) not null,
+  size int not null
+);
+create table Product (
+  id int primary key,
+  started date not null,
+  completed date,
+  label varchar(200),
+  type int not null,
+  foreign key(type) references ProductType(id) on update cascade on delete no action,
+  processedBy int unique,
+  foreign key(processedBy) references Machine(id) on update cascade on delete set null
+);
+create table Factory (
+  id int primary key,
+  address varchar(200) not null unique
+);
+create table Machine (
+  id int primary key,
+  code varchar(200) not null,
+  partOf int,
+  foreign key(partOf) references Factory(id) on update cascade on delete no action,
+  unique(code, partOf)
+);
+create table Employee (
+  id int primary key,
+  name varchar(200) not null unique
+);
+create table Qualification (
+  canRepair int,
+  foreign key(canRepair) references ProductType(id) on update cascade on delete cascade,
+  canBeRepairedBy int,
+  foreign key(canBeRepairedBy) references Employee(id) on update cascade on delete cascade,
+  primary key(canRepair, canBeRepairedBy),
+  level enum('Novice', 'Intermediate', 'Expert') -- Enumeration strategy: fixed enumeration
+);

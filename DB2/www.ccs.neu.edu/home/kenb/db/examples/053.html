@@ -1,0 +1,125 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/053.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+<p>
+Show the optimized query evaluation plans for the following schema and queries.
+For each query show the optimal evaluation plans and explain why it is the optimal plan.
+Show the evaluation plan as a tree with each internal node annotated with the implementation technique,
+and with each edge annotated with a rough estimate of the average number of records that flow
+along that edge during evaluation. When there is a "not exists" join, the selectivity
+can be estimated using the technique explained in
+<a href="058.html">Selectivity of Not Exists Joins</a>.
+Since this was not discussed in class, you may use 2% as the selectivity for this
+assignment.
+<p>
+<pre>
+create table Person(
+  id int,
+  primary key(id) using hash, -- [count 2K]
+  dob date not null,
+  name varchar(255) not null
+);
+create table Composition(
+  name varchar(255),
+  primary key(name) using hash, -- [count 200K]
+  composedBy int references Person(id) on update cascade on delete cascade,
+  musicalKey varchar(255),
+  index(musicalKey) using hash -- [count 50]
+);
+create table Instrument(
+  id int,
+  primary key(id) using hash, -- [count 2K]
+  name varchar(255) not null,
+  index(name) using btree, -- [nearly unique]
+  musicalKey varchar(255),
+  index(musicalKey) using hash -- [count 50]
+);
+create table usesInstrument(
+  composition varchar(255) references Composition(name)
+    on update cascade on delete cascade,
+  instrument int references Instrument(id)
+    on update cascade on delete cascade,
+  count int not null,
+  primary key(composition, instrument) using btree -- [count 2M] 
+);
+
+create table StringInstrument(
+  id int,
+  primary key(id) using hash, -- [count 1K]
+  foreign key(id) references Instrument(id)
+    on update cascade on delete cascade,
+  numberOfStrings int not null
+);
+create table BrassInstrument(
+  id int,
+  primary key(id) using hash, -- [count 400]
+  foreign key(id) references Instrument(id)
+    on update cascade on delete cascade,
+  numberOfValves int not null
+);
+create table PercussionInstrument(
+  id int,
+  primary key(id) using hash, -- [count 100]
+  foreign key(id) references Instrument(id)
+    on update cascade on delete cascade
+);
+</pre>
+<p>
+<ol>
+<li>Find all distinct names of compositions composed by the person with id 555 in ascending alphabetical order.
+<p>
+<pre>
+select c.name
+  from Composition c
+ where c.composedBy = 555
+ order by c.name
+</pre>
+<li>Find all compositions and the instruments they use, that were composed by 'Verdi'.
+<p>
+<pre>
+select c.name, i.name
+  from Composition c, Person p, usesInstrument u, Instrument i
+ where c.composedBy = p.id
+   and u.instrument = i.id
+   and u.composition = c.name
+   and p.name = 'Verdi'
+</pre>
+<p>
+<li>Find all compositions that use no instruments at all. 
+<p>
+<pre>
+select c.name
+  from Composition c
+ where not exists (
+         select *
+         from usesInstrument u
+         where u.composition = c.name
+       )
+</pre>
+<p>
+<li>Find the names of composers who never composed a composition that uses an instrument in the key of 'C minor'.
+<pre>
+select p.name
+  from Person p
+ where not exists (
+         select *
+           from Composition c, usesInstrument u, Instrument i
+          where c.composedBy = p.id
+            and u.composition = c.name
+            and u.instrument = i.id
+            and i.musicalKey = 'C minor'
+       )
+</pre>
+<p>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/053.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

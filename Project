@@ -1,0 +1,45 @@
+Tables :
+
+1.  cnx_driver
+driver_first_name
+driver_last_name
+driver_address_uid
+available
+contact number(1..*)
+
+2.  cnx_student
+
+NUID
+student first name
+student last name
+Missed rides
+
+3.  admin-->NUPD
+
+
+4.  address
+employee_uid
+Street Name 
+city 
+state 
+Apt no.
+
+
+cnx_vehicle
+vehicle number
+
+5.  cnx_ride
+
+driverid
+vehicleid
+
+6.  cnx_ride_details  --> destination -->  locn and txtbox
+
+rideid studentid destination_address
+
+7.  cnx_waitlist
+rideid studentid WLID
+
+8.  Enum of destination locations
+
+destination_address

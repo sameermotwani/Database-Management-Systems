@@ -1,0 +1,47 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/137.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:37 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h1>Role Names in UML</h1></center>
+<p>
+The role names for the ends of an association have been part of UML class diagrams
+for a long time, but common use of this feature is relatively recent. For a long
+time associations were labeled with a single name with the direction indicated
+by a small arrowhead like this:
+<p>
+<center><img alt="Old style UML diagram" src="images/220.gif"/></center>
+<p>
+This notation is still being used. It is also common to omit the arrowhead.
+By contrast, the role name notation has a separate name for each of the two directions:
+<p>
+<center><img alt="New style UML diagram" src="images/221.gif"/></center>
+<p>
+Unfortunately, the direction of each role name is now ambiguous. This is made worse
+by the fact that there are conflicting definitions of the meaning of the role names
+in ISO standards. I checked with my contacts at the OMG, and I have determined that
+the current interpretation of the role names is that both the role name and the
+cardinality constraint are at the "far end" relative to the subject of the sentence
+(and at the "near end" relative to the object of the sentence). The conflicting
+standards have now been superseded.
+Thus the relationship between Course and Faculty should be read as follows:
+<ul>
+<li>"Faculty teaches Course" (using the role name "teaches" that is farthest from Faculty) and
+<li>"Course is taught by Faculty" (using the role name "isTaughtBy" that is farthest from Course)
+</ul>
+Similarly, the cardinality constraints are also at the "far end" relative to the
+subject of the sentence:
+<ul>
+<li>"A Faculty teaches any number of Courses" (using the cardinality constraint [0..*] that is farthest from Faculty) and
+<li>"A Course is taught by exactly one Faculty" (using the cardinality constraint [1..1] that is farthest from Course)
+</ul>
+<p>
+Incidentally, the cardinality constraints [0..*] and [1..1] are allowed to be abbreviated to simply "*" and "1".
+The diagram above would then look like this:
+<p>
+<center><img alt="Abbreviated style UML diagram" src="images/222.gif"/></center>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/137.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:08:39 GMT -->
+</html>
+

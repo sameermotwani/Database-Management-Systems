@@ -1,0 +1,369 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/263.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2012 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+The first 5 problems on this exam use the following database schema
+for a restaurant.  The restaurant has various offerings.  An offering
+is either a food or beverage.
+<p>
+<pre>
+create table Food(
+  id int primary key,
+  name varchar(100) not null,
+  price double not null
+);
+create table Beverage(
+  id int primary key,
+  name varchar(100) not null,
+  price double not null,
+  size enum('small', 'medium', 'large') not null
+);
+create table Recommendation(
+  drinkWith int references Food(id) 
+    on update cascade on delete cascade,
+  complementedBy int references Beverage(id) 
+    on update cascade on delete cascade,
+  primary key(drinkWith, complementedBy)
+);
+</pre>
+<p>
+<ol>
+<li><b>Integrity and Security</b> (points).  
+Develop an assertion that enforces the following requirement on the Restaurant database:
+Every beverage must come in a small size.  In other words, for every beverage there must
+be a beverage with the same name that has small size.
+<p>
+<font color="blue">
+ <pre>
+create assertion SmallBeverage check
+not exists(
+  select *
+    from Beverage b
+   where not exists(
+           select *
+             from Beverage c
+            where c.name = b.name
+              and c.size = 'small'));
+</pre>
+</font>
+<p>
+<li><b>Index Design</b> (points).
+Choose the candidate indexes for the Restaurant database where 
+the following is the main query:
+<pre>
+select f.name, b.name
+  from Food f, Beverage b, Recommendation r
+ where b.id = r.complementedBy
+   and f.id = r.drinkWith
+   and b.size = ?
+   and f.price < ?
+</pre>
+<p>
+Explain your answer.
+<p>
+<font color="blue">
+There are two possible answers, depending on whether
+one begins the query plan by looking up the price range
+or the size.
+<ol type="a">
+<li>Start with price
+<ol type="i">
+<li>Food(id) uses hash
+<li>Food(price) uses btree
+<li>Beverage(id) uses hash
+<li>Recommendation(drinkWith, complementedBy) uses btree
+</ol>
+<li>Start with size
+<ol type="i">
+<li>Beverage(size) uses hash
+<li>Beverage(id) uses hash
+<li>Food(id) uses hash
+<li>Recommendation(complementedBy, drinkWith) uses btree
+</ol>
+</ol>
+</font>
+<p>
+<font color="red">
+Note that combining the two answers is an error.
+</font>
+<p>
+<li><b>JDBC</b> (points).  The following is a method that lists the foods
+that one can drink with a specified beverage.  Note that recommendations
+can depend on size.
+<p>
+ <pre>
+Foods complemented by Coca Cola at size small
+Ice cream cone $2.00
+Foods complemented by Coca Cola at size medium
+Strawberry sundae $3.59
+Foods complemented by Coca Cola at size large
+Banana split $5.98
+</pre>
+<p>
+The method first constructs the prepared statements, then it executes them.
+The first prepared statement obtains the beverage identifier.  The second one obtains the
+foods that are complemented by the beverage at a given size.  The method will work
+properly even if there are several beverages with the same name.  Fill in the two missing
+parts of the code.
+<p>
+ <pre>
+/**
+ * List the foods that one can drink with a beverage.
+ * The beverages are listed in order by beverage size.
+ * The foods for one beverage and size are listed by price.
+ * @param connection The connection to use for the method.
+ * @param beverage The name of the beverage.
+ * @throws SQLException if a database error occurs.
+ */
+public void foodsWithBeverage(Connection connection, String beverage) throws SQLException {
+    PreparedStatement beverageQuery = connection.prepareStatement
+        ("select b.id from Beverage b where b.name = ? and b.size = ?");
+<font color="green">
+    PreparedStatement foodQuery = connection.prepareStatement
+        ("select f.name, f.price " +
+         "from Food f, Recommendation r " +
+         "where f.id = r.drinkWith " +
+         "and r.complementedBy = ? " +
+         "order by f.price");
+</font>
+    for (String size : new String[]{"small","medium","large"}) {
+        beverageQuery.setString(1, beverage);
+        beverageQuery.setString(2, size);
+        ResultSet beverages = beverageQuery.executeQuery();
+        while (beverages.next()) {
+            System.out.println("Foods complemented by " + beverage + " at size " + size);
+<font color="green">
+            foodQuery.setInt(1, beverages.getInt(1));
+            ResultSet foods = foodQuery.executeQuery();
+            while (foods.next()) {
+                System.out.println(foods.getString(1) + " $" + foods.getString(2));
+            }
+</font>
+            foods.close();
+        }
+        beverages.close();
+    }
+    foodQuery.close();
+    beverageQuery.close();
+}
+</pre>
+<p>
+<li><b>JPA</b> (points).
+The following is the declaration of the Offering and Food classes using JPA.  
+A restaurant offering is either a food or a beverage.  The Offering class
+has the common attributes of food and beverage.
+Fill in the missing code for the Offering class:
+ <pre>
+<font color="green">
+@Entity
+@Access(AccessType.FIELD)
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
+</font>
+public abstract class Offering {
+    @Id
+    public int id;
+<font color="green">
+    @Column(length=100, nullable=false)
+    public String name;
+</font>
+    @Column(nullable=false)
+    public double price;
+}
+</pre>
+<p>
+&nbsp;
+<p>
+Fill in the missing code for the Food class:
+ <pre>
+@Entity
+@Access(AccessType.FIELD)
+public class Food extends Offering {
+    @ManyToMany
+<font color="green">
+    @JoinTable(name="Recommendation",
+        joinColumns=
+            @JoinColumn(name="drinkWith", nullable=false),
+        inverseJoinColumns=
+            @JoinColumn(name="complementedBy", nullable=false)
+        )
+</font>
+    public Set&lt;Beverage> drinks = new HashSet&lt;Beverage>();
+}
+</pre>
+<p>
+<li><b>XSLT</b> (points).
+The data in the Restaurant database is extracted into XML as in
+following example:
+ <pre>
+&lt;Restaurant>
+  &lt;Food name="Steak">
+    &lt;price>25&lt;/price>
+    &lt;drink ref="1"/>
+    &lt;drink ref="3"/>
+  &lt;/Food>
+  &lt;Food name="Pizza">
+    &lt;price>8&lt;/price>
+    &lt;drink ref="1"/>
+    &lt;drink ref="2"/>
+  &lt;/Food>
+  &lt;Drink id="1" size="medium" price="2">Coca Cola&lt;/Drink>
+  &lt;Drink id="2" size="medium" price="2">Pepsi Cola&lt;/Drink>
+  &lt;Drink id="3" size="small" price="1">Coffee&lt;/Drink>
+&lt;/Restaurant>
+</pre>
+<p>
+We wish to convert the XML to HTML using XSLT.  Here is what the HTML table should look like:
+<p>
+<table cellpadding="5" border="1">
+  <tr>
+    <th>Food</th>
+    <th>Drink</th>
+    <th>Size</th>
+    <th>Drink price</th>
+    <th>Food price</th>
+  </tr>
+  <tr>
+    <td rowspan="2">Steak</td>
+    <td>Coca Cola</td>
+    <td>medium</td>
+    <td>$2</td>
+    <td rowspan="2">$25</td>
+  </tr>
+  <tr>
+    <td>Coffee</td>
+    <td>small</td>
+    <td>$1</td>
+  </tr>
+  <tr>
+    <td rowspan="2">Pizza</td>
+    <td>Coca Cola</td>
+    <td>medium</td>
+    <td>$2</td>
+    <td rowspan="2">$8</td>
+  </tr>
+  <tr>
+    <td>Pepsi Cola</td>
+    <td>medium</td>
+    <td>$2</td>
+  </tr>
+</table>
+<p>
+Fill in the 8 XPath expression indicated in the XSLT program below.
+In your answer, only show the XPath expressions.  Do not copy the XSLT program to your answer sheet.
+Number the XPath expressions in your answer to indicate which is which.
+<p>
+ <pre>
+&lt;?xml version="1.0" encoding="utf-8"?>
+&lt;xsl:transform version="1.0"
+ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+ 
+ &lt;xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes" />
+ &lt;xsl:template match="/Restaurant">
+  &lt;xsl:element name="html">
+   &lt;xsl:element name="body">
+    &lt;xsl:element name="table">
+     &lt;xsl:attribute name="cellpadding">5&lt;/xsl:attribute>
+     &lt;xsl:attribute name="border">1&lt;/xsl:attribute>
+     &lt;xsl:element name="tr">
+      &lt;xsl:element name="th">Food&lt;/xsl:element>
+      &lt;xsl:element name="th">Drink&lt;/xsl:element>
+      &lt;xsl:element name="th">Size&lt;/xsl:element>
+      &lt;xsl:element name="th">Drink price&lt;/xsl:element>
+      &lt;xsl:element name="th">Food price&lt;/xsl:element>
+     &lt;/xsl:element>
+     &lt;xsl:apply-templates select="Food"/>
+    &lt;/xsl:element>
+   &lt;/xsl:element>
+  &lt;/xsl:element>
+ &lt;/xsl:template>
+
+ &lt;xsl:template match="Food">
+  &lt;xsl:element name="tr">
+   &lt;xsl:element name="td">
+    &lt;xsl:attribute name="rowspan">
+     &lt;xsl:value-of select="<font color='green'>count(drink)</font>"/>
+    &lt;/xsl:attribute>
+    &lt;xsl:value-of select="<font color='green'>@name</font>"/>
+   &lt;/xsl:element>
+   &lt;xsl:apply-templates select="drink[1]"/>
+   &lt;xsl:element name="td">
+    &lt;xsl:attribute name="rowspan">
+     &lt;xsl:value-of select="<font color='green'>count(drink)</font>"/>
+    &lt;/xsl:attribute>
+    &lt;xsl:text>$&lt;/xsl:text>
+    &lt;xsl:value-of select="<font color='green'>price</font>"/>
+   &lt;/xsl:element>
+  &lt;/xsl:element>
+
+  &lt;xsl:for-each select="<font color='green'>drink[position()>1]</font>">
+   &lt;xsl:element name="tr">
+    &lt;xsl:apply-templates select="."/>
+   &lt;/xsl:element>
+  &lt;/xsl:for-each>
+
+ &lt;/xsl:template>
+
+ &lt;xsl:template match="drink">
+  &lt;xsl:variable name="ref">
+   &lt;xsl:value-of select="@ref"/>
+  &lt;/xsl:variable>
+  &lt;xsl:element name="td">
+   &lt;xsl:value-of select="<font color='green'>//Drink[@id=$ref]</font>"/>
+  &lt;/xsl:element>
+  &lt;xsl:element name="td">
+   &lt;xsl:value-of select="<font color='green'>//Drink[@id=$ref]/@size</font>"/>
+  &lt;/xsl:element>
+  &lt;xsl:element name="td">
+   &lt;xsl:text>$&lt;/xsl:text>
+   &lt;xsl:value-of select="<font color='green'>//Drink[@id=$ref]/@price</font>"/>
+  &lt;/xsl:element>
+ &lt;/xsl:template>
+
+&lt;/xsl:transform>
+</pre>
+<p>
+<li><b>Transactions and Concurrency</b> (points).
+Determine whether the following schedule is conflict-serializable,
+view-serializable and/or strict. 
+If the schedule is conflict serializable, give an
+example of a serial order for the transactions.  If the schedule is not conflict serializable, explain why it is not. 
+If the schedule is view serializable, give an
+example of a serial order for the transactions.  If the schedule is not view serializable, explain why it is not. 
+If the schedule is not strict, give an example of an operation that violates the
+strictness requirement.  Explain which notion of strictness is being tested.
+<p>
+W<sub>2</sub>(C), R<sub>3</sub>(B), R<sub>3</sub>(C), R<sub>1</sub>(A), C<sub>3</sub>, R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>2</sub>, W<sub>1</sub>(C), C<sub>1</sub>
+
+<p><font color='green'><ol type='a'>
+<li>Transaction conflicts are:
+<ol type='i'>
+<li>WR 2&rarr;3 <font color='black'>W<sub>2</sub>(C)</font>, R<sub>3</sub>(B), <font color='black'>R<sub>3</sub>(C)</font>, R<sub>1</sub>(A), C<sub>3</sub>, R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>2</sub>, W<sub>1</sub>(C), C<sub>1</sub>
+<li>WW 2&rarr;1 <font color='black'>W<sub>2</sub>(C)</font>, R<sub>3</sub>(B), R<sub>3</sub>(C), R<sub>1</sub>(A), C<sub>3</sub>, R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>2</sub>, <font color='black'>W<sub>1</sub>(C)</font>, C<sub>1</sub>
+<li>RW 3&rarr;1 W<sub>2</sub>(C), <font color='black'>R<sub>3</sub>(B)</font>, R<sub>3</sub>(C), R<sub>1</sub>(A), C<sub>3</sub>, R<sub>2</sub>(C), <font color='black'>W<sub>1</sub>(B)</font>, C<sub>2</sub>, W<sub>1</sub>(C), C<sub>1</sub>
+<li>RW 3&rarr;1 W<sub>2</sub>(C), R<sub>3</sub>(B), <font color='black'>R<sub>3</sub>(C)</font>, R<sub>1</sub>(A), C<sub>3</sub>, R<sub>2</sub>(C), W<sub>1</sub>(B), C<sub>2</sub>, <font color='black'>W<sub>1</sub>(C)</font>, C<sub>1</sub>
+<li>RW 2&rarr;1 W<sub>2</sub>(C), R<sub>3</sub>(B), R<sub>3</sub>(C), R<sub>1</sub>(A), C<sub>3</sub>, <font color='black'>R<sub>2</sub>(C)</font>, W<sub>1</sub>(B), C<sub>2</sub>, <font color='black'>W<sub>1</sub>(C)</font>, C<sub>1</sub>
+</ol>
+<li>Conflict serializable with serial order(s):
+<ol type='i'>
+<li>2, 3, 1
+</ol>
+<li>View serializable with serial order(s):
+<ol type='i'>
+<li>2, 3, 1
+</ol>
+<li>Not strict in either sense due to:
+<ol type='i'>
+<li><font color='red'>W<sub>2</sub>(C)</font>, R<sub>3</sub>(B), <font color='red'>R<sub>3</sub>(C)</font>, R<sub>1</sub>(A), <font color='red'>C<sub>3</sub></font>, R<sub>2</sub>(C), W<sub>1</sub>(B), <font color='red'>C<sub>2</sub></font>, W<sub>1</sub>(C), C<sub>1</sub>
+</ol>
+
+</ol>
+<p>&#169; 2012 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/263.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>

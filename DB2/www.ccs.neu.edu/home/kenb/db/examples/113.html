@@ -1,0 +1,79 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/113.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+Using the <a href="166.html">Band Database</a>,
+express the following queries in relational algebra,
+<p>
+<ol>
+<li>Find the bands by name that have a percussionist (i.e., a person who plays a percussion instrument).
+<pre>
+select b.name
+  from Band b
+ where exists (
+         select *
+           from memberOf m, plays p, PercussionInstrument pi
+          where m.band = b.id
+            and m.musician = p.musician
+            and p.instrument = pi.id
+       );
+</pre>
+or
+<pre>
+select distinct b.name
+  from Band b, memberOf m, plays p, PercussionInstrument pi
+ where m.band = b.id
+   and m.musician = p.musician
+   and p.instrument = pi.id;
+</pre>
+<p>
+Here is the relational algebra expression, using the same aliases as in
+the SQL query:
+<p>
+<font size="+3">&pi;</font><sub>b.name</sub>(Band b <font size="+3">&ltimes;</font><sub>b.id=m.band</sub> memberOf m <font size="+3">&bowtie;</font><sub>m.musician=p.musician</sub> plays p <font size="+3">&bowtie;</font><sub>p.instrument=pi.id</sub> PercussionInstrument pi)
+<p>
+<li>Find the names of the persons who are not a member of an indie pop band.
+<pre>
+select p.name
+  from Person p
+ where not exists (
+         select *
+           from memberOf m, Band b
+          where m.musician = p.id
+            and m.band = b.id
+            and b.style = 'indie pop'
+       );
+</pre>
+<p>
+<font size="+3">&pi;</font><sub>p.name</sub>(Person p <font size="+3">&triangleright;</font><sub>p.id=m.musician</sub>(<font size="+3">&sigma;</font><sub>b.style='indie pop'</sub>(memberOf m <font size="+3">&bowtie;</font><sub>band=name</sub> Band b)))
+<p>
+<li>Find the names of the persons who are members of every indie pop band.
+<pre>
+select p.name
+  from Person p
+ where not exists (
+         select *
+           from Band b
+          where b.style = 'indie pop'
+            and not exists (
+                  select *
+                    from memberOf m
+                   where m.musician = p.id
+                     and m.band = b.id
+                )
+       );
+</pre>
+<p>
+<font size="+3">&pi;</font><sub>p.name</sub>(Person p <font size="+3">&triangleright;</font><sub>p.id=m.musician</sub>(<font size="+3">&sigma;</font><sub>b.style='indie pop'</sub>(Band b <font size="+3">&triangleright;</font><sub>b.id=m.band</sub> memberOf m)
+<p>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/113.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+</html>

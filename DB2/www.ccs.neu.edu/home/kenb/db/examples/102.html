@@ -1,0 +1,132 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/102.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Candidate Keys</h2></center>
+<p>
+A <b>candidate key</b> is a subset of the attributes which uniquely
+determines the whole relation and no subset of the candidate key
+has this property.  The term "candidate key" is often abbreviated
+to simply "key".  (Don't confuse this use of the word "key" with
+"search key".  A search key is a set of attributes that is indexed
+for rapid search. A search key need not be unique.  Unfortunately,
+"search key" is also often abbreviated to simply "key".)
+A subset of the attributes which uniquely determines
+the whole relation (but which need not be minimal) is called a
+<b>superkey</b> because it contains (or is equal to) a key.
+The first step in normalization is to find all of the keys of a relation.
+Here are some facts that can help find the keys:
+<ol>
+<li>If an attribute is in none of the functional dependencies,
+then it is in every key.
+<li>If an attribute occurs on the right-hand side of a functional
+dependency, but never occurs on the left-hand side, then it is
+never in a key.
+<li>If an attribute occurs on the left-hand side of a functional
+dependency, but never occurs on the right-hand side, then it is
+in every key.
+</ol>
+To find the keys, identify which attributes are in each of the
+cases above.  The ones in the first and third cases must be in
+every key.  Call this set of attributes the <b>core</b>.
+Compute the attributes that are determined by the core.
+This is called the <b>closure</b> of the core.  If all of the
+attributes are in the closure of the core, then the core is not only a
+key, it is also the only key.  If the closure of the core is not
+the entire set of attributes, then some will be missing.  Write
+down this set of attributes, and remove any attribute that is in
+the second set above (i.e., it occurs on the right-hand side of a functional
+dependency, but never occurs on the left-hand side).  These are the
+<b>exterior</b> attributes. To get a key
+one must add one or more exterior attributes to the core.
+Accordingly, add them to the core, first one at a time, then two at
+a time, and so on, until every key has been found.
+<p>
+Here are some examples for the relation with attributes ABCD:
+<ol>
+<li>C&rarr;A, B&rarr;C<br>
+ <ol>
+ <li>D
+ <li>A
+ <li>B
+ </ol>
+The core is BD.  B determines C which determines A, so BD is a key.
+Therefore it is the only key.
+<li>C&rarr;D, C&rarr;A, B&rarr;C<br>
+ <ol>
+ <li>empty
+ <li>AD
+ <li>B
+ </ol>
+The core is B.  B determines C which determines A and D, so B is a key.
+Therefore it is the only key.
+<li>B&rarr;C, D&rarr;A<br>
+ <ol>
+ <li>empty
+ <li>AC
+ <li>BD
+ </ol>
+The core is BD.  B determines C and D determines A, so BD is a key.
+Therefore it is the only key.
+<li>ABC&rarr;D, D&rarr;A<br>
+ <ol>
+ <li>empty
+ <li>empty
+ <li>BC
+ </ol>
+The core is BC.  BC does not determine any other attribute.
+The exterior attributes are AD.  ABC determines D so it is a key.
+BCD determines A so it is also a key.  The only other case
+is ABCD but this contains ABC (and also BCD) so it is a superkey and not a key.
+So the keys are ABC and BCD.
+<li>A&rarr;B, BC&rarr;D, A&rarr;C<br>
+ <ol>
+ <li>empty
+ <li>D
+ <li>A
+ </ol>
+The core is A.  A determines B and C which determine D, so A is a key.
+Therefore it is the only key.
+<li>AB&rarr;C, AB&rarr;D, C&rarr;A, D&rarr;B<br>
+ <ol>
+ <li>empty
+ <li>empty
+ <li>empty
+ </ol>
+The core is empty.  Every attribute is exterior.
+First consider single attributes.  A and B do not determine
+any other attribute by themselves.  C determines A, and D determines B.
+So no single attribute is a key.  Next consider pairs of attributes.
+<table cellpadding="5" border="1">
+<tr><th>Pair of attributes<th>Determined attributes
+<tr><td>AB<td>ABCD
+<tr><td>AC<td>AC
+<tr><td>AD<td>ABCD
+<tr><td>BC<td>ABCD
+<tr><td>BD<td>BD
+<tr><td>CD<td>ABCD
+</table>
+So AB, AD, BC and CD are keys.
+There are no 3-attribute keys because every set of 3 attributes
+contains one of the 2-attribute keys.
+So there are 4 keys.
+</ol>
+For the final example, the set of attributes is ABCDEGH and FDs are
+AB&rarr;C, AC&rarr;B, AD&rarr;E, BC&rarr;A, E&rarr;G.
+<ol>
+<li>H
+<li>G
+<li>D
+</ol>
+The core is HD.  The core does not determine any other attributes.
+The exterior attributes are ABCE.  Adding one of these to HD will
+not determine the relation, so one must consider all pairs as we
+did above.  The result is that ABDH, ACDH and BCDH are the keys.
+All 3-attribute subsets of ABCE contain one of the pairs that form keys,
+so there are 3 keys.
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/102.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+</html>
+

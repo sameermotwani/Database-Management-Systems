@@ -1,0 +1,92 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/257.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+Consider the following schema:
+<p>
+<pre>
+create table Company(
+  id int primary key,
+  name varchar(500) not null,
+  product varchar(500)
+);
+create table Person(
+  id int primary key,
+  name varchar(200) not null,
+  worksFor int,
+  foreign key (worksFor) references Company(id) on update cascade on delete no action
+);
+create table Department(
+  id int primary key,
+  honors int,
+  foreign key (honors) references Company(id) on update cascade on delete no action
+);
+create table DepartmentName(
+  department int,
+  name varchar(255),
+  primary key(department, name),
+  foreign key (department) references Department(id) on update cascade on delete cascade
+);
+create table Student(
+  id int primary key,
+  class varchar(50),
+  major int,
+  foreign key (id) references Person(id) on update cascade on delete cascade,
+  foreign key (major) references Department(id) on update cascade on delete set null
+);
+create table Sponsor(
+  isSponsoredBy int,
+  sponsors int,
+  primary key(isSponsoredBy, sponsors),
+  foreign key (isSponsoredBy) references Company(id) on update cascade on delete cascade,
+  foreign key (sponsors) references Department(id) on update cascade on delete cascade
+);
+</pre>
+<p>
+<ol>
+<li>It is required that there is a company named IBM in the database.
+ <pre>
+create assertion IBMisCompany check
+  exists (
+    select *
+      from Company c
+     where c.name = 'IBM'
+  );
+</pre>
+<li>Require that every company has at least one person who works for the company.
+ <pre>
+create assertion CompanyHasAWorker check
+  not exists (
+    select *
+      from Company c
+     where not exists (
+             select *
+               from Person p
+              where p.worksFor = c.id
+           )
+  );
+</pre>
+<p>
+The assertion above could also be expressed as a check constraint.
+<p>
+<pre>
+alter table Company
+  add constraint CompanyHasAWorker check(
+    exists(
+      select *
+        from Person p
+       where p.worksFor = id
+    )
+  )
+</pre>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/257.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+</html>

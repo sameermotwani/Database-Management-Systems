@@ -1,0 +1,139 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/032.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head><body>
+<center><h2>Solution to Sample Exercise</h2></center>
+<p>
+This is a solution to a <a href="007.html">sample exercise</a>.
+<p>
+We have a database of customer purchases:
+<pre>
+create table Customer (
+  id int primary key,
+  name varchar(255) not null,
+  street varchar(255) not null,
+  city varchar(255) not null,
+  state char(2),
+  dob Date
+);
+create table Purchase (
+  id int primary key,
+  customer int not null,
+  foreign key(customer) references Customer(id) on update cascade on delete cascade,
+  item varchar(255) not null,
+  price double not null,
+  count int not null default 1,
+  cost double not null,
+  time DateTime
+);
+</pre>
+<p>
+The following are the most frequent queries and updates (with relative frequencies in parentheses):
+<ol>
+<li>Insert a new purchase by a customer given the customer id and purchase data. (1000)
+<p>
+<font color="blue">
+This only affects the Purchase table. Some mechanism is needed for generating a new purchase id, and the new
+purchase data must be inserted into the table. The only index involved is the primary key index of Purchase.
+</font>
+<p>
+<li>Find customer information (id, name, dob, number of purchases) given the customer address (street, city, state). (500)
+<p>
+<font color="blue">
+There are two candidate indexes. The first is on the three columns (street, city, state). Since it is an exact match, a hash index
+is sufficient. The second candidate index is on the customer column of Purchase to get the number of purchases. This is an index-only query
+since only the number is required. Only an exact match is required so a hash index is sufficient.
+</font>
+<p>
+<li>List all customers (name and dob) ordered by dob and name. (10)
+<p>
+<font color="blue">
+This does not perform any selection, so no index is needed for selecting. However, the query does require
+sorting the results. Since a tree index orders its
+records, such an index would improve the performance of the query if it was a clustered index on a table that is not
+frequently updated, which seems to be the case here.
+Unfortunately, most database systems only implement a clustered index on the primary key.
+</font>
+<p>
+<li>Compute the average amount spent by all customers in one state. (10)
+<p>
+<font color="blue">
+This suggests adding a secondary index on the state column. However, the query is not selective enough for the index to be used.
+In addition, the query is not used very frequently.
+</font>
+<p>
+<li>List purchase information (id, item, price, count, cost, time) for a specified customer (given the id). (200)
+<p>
+<font color="blue">
+This requires indexing the customer field. Since it is an exact match query, the index can be a hash index.
+</font>
+<p>
+</ol>
+<p>
+The problem is physical database design. In other words, you must determine the
+collection of indexes that your database system will be maintaining.
+Give suggestions about which indexes to include in your design. For each suggested index
+explain why this would be a good choice using the rules of thumb discussed
+in class. Be sure to address any trade-offs that might arise.
+<p>
+Just to make this assignment clear, this is not a query-by-query problem. 
+Your objective is to propose a single design that
+supports all of the queries. In doing so, you must discuss alternatives,  
+but the ultimate objective is to select a single design.
+<p>
+<font color="blue">
+From the discussion above, we have these candidate indexes and frequencies:
+<ol>
+<li>Purchase id (1000). This is a primary key so it already has an index.
+A hash index is sufficient.
+<li>Hash index on (street, city, state) of Customer (500).
+<li>Hash index on customer of Purchase (500).
+<li>Customer id (200). This is a primary key so it already has an index. 
+A hash index is sufficient.
+</ol>
+<p>
+These must be balanced against the update frequency of Purchase. No
+updates of Customer were mentioned, so they are not frequent. Therefore,
+the cost of adding an index on (street, city, state) is negligible, and
+there are significant benefits. The only
+candidate index that requires a detailed cost-benefit analysis is the one on 
+the customer column of Purchase.
+<ul>
+<li>If the index is included, then the second query requires 2 random accesses
+(1 random access for the Customer record and then 1 random access for the Purchase index record)
+However, the secondary index on Purchase will require 2 additional random accesses
+for each update of the Purchase table (1 access to read the bucket and 1 to write the bucket). 
+There are twice as many updates to this
+table as there are occurrences of the second query, so the total is 4 additional random accesses for
+updating the Purchase table. Combining this with the first computation, the
+cost of the second query requires an average of 6 random accesses.
+<li>If the index is not included, then the second query requires a sort-merge of the Customer and Purchase tables
+(or more precisely, of one record of the Customer table with the whole Purchase table, so it is just a scan-merge).
+This will require a scan of the Purchase table.
+Since a sequential access is around 100 times faster than a random access, the
+Purchase table would have to be at most 600 blocks (roughly 60,000 records) for
+the sort-merge to be faster (assuming 8K blocks).  So the store would have to be quite small for the
+sort-merge to be faster. Note that a precise computation of the number of records
+is not important. What matters is that it would have to be small.
+<li>The fifth query could also make use of the index on the customer field of the Purchase table.
+However, this is a less convincing argument.  Each purchase record of a customer would require a random access.
+For example, if there were 1000 customers, each of whom made an average of 60 purchases, then the Purchase table
+uses 600 blocks.  A sequential scan of these blocks would take much less time than 60 random accesses, so it
+would be faster not to use the index even if there is one.  More generally, there would need to be substantially
+more than 10,000 customers for the index to be useful for this query even when we do not include the cost of
+maintaining the index.
+</ul>
+<p>
+Assuming that the database is not very small,
+here is the recommended index design:
+<ol>
+<li>Customer table: hash index on the primary key, hash index on (street, city, state).
+<li>Purchase table: hash index on the primary key, hash index on customer column.
+</ol>
+</font>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/032.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:10 GMT -->
+</html>
+

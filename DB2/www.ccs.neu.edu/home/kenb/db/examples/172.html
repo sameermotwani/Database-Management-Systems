@@ -1,0 +1,67 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/172.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+A database for a library has the following two tables:
+<pre>
+Book(isbn char(11), date Date, author int, publisher string, primary key(isbn))
+Person(id int, name string, date Date, primary key(int))
+</pre>
+<p>
+The publication date of a book is the year of publication.
+The date of a person is the date of birth.
+<p>
+The following are the sizes, counts and times:
+<ol>
+<li>A record requires an average of 6 bytes administrative overhead.
+<li>A rid uses 4 bytes.
+<li>An int uses 4 bytes.
+<li>A Date uses 8 bytes.
+<li>Names (publisher or author) use an average of 32 bytes.
+<li>Person names are nearly unique.
+<li>There are 6M books.
+<li>There are 4M persons.
+<li>There are 6K publishers.
+<li>The disk block size is 4K = 4096 bytes.
+<li>A random disk access requires 10ms.
+<li>A page can be transferred (read or write) in 0.1 ms = 100 microseconds.
+</ol>
+<p>
+Consider the following queries (or operations):
+<ol>
+<li>Find a person id, given the person's name.
+<li>Find all books published by a publisher.
+<li>Insert a book in the database.  Assume that the author is already
+in the database, but it is necessary to look up the author's id (as in the
+first query).
+</ol>
+<p>
+Perform the following computations:
+<p>
+<ol>
+<li>Compute the average amount of space required for the records of each table.
+<li>Compute the average number of records of each table that can fit in one disk block.
+<li>Compute the number of blocks required for each table in two cases:
+ <ol>
+ <li>The blocks are full.
+ <li>The blocks are only 2/3 full on average.
+ </ol>
+<li>Compute the approximate time required for the two queries and one operation 
+for each of the following 3 table structures:
+<ol>
+<li>Heap.  An unordered collection of records packed into sequential blocks.
+<li>Clustered Sort.  An ordered collection of records packed into sequential blocks.
+In each case, order it by the field being queried (e.g., for the first query
+assume ordered by person name).
+<li>Clustered B-tree.  The ordering and clustering is by the field being queried.
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/172.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

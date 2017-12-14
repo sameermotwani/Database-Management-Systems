@@ -1,0 +1,82 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/130.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+<pre>
+  create table Counselor(
+    id int primary key,
+    title varchar(200) not null);
+  create table Client(
+    id int primary key,
+    name varchar(200) not null);
+  create table Meeting(
+    sees int references Client(id)
+      on delete cascade on update cascade,
+    meetsWith int references Counselor(id)
+      on delete cascade on update cascade,
+    primary key(sees, meetsWith));
+  create table MeetingDay(
+    sees int,
+    meetsWith int,
+    day enum('Monday','Tuesday','Wednesday','Thursday','Friday'),
+    foreign key(sees, meetsWith) references Meeting(sees, meetsWith)
+      on delete cascade on update cascade,
+    primary key(sees, meetsWith, day));
+  create table Notes(
+    id int primary key,
+    sees int not null,
+    meetsWith int not null,
+    foreign key(sees, meetsWith) references Meeting(sees, meetsWith)
+      on delete cascade on update cascade,
+    text varchar(65000) not null,
+    date Date not null
+  );
+</pre>
+<p>
+Assume the following are the sizes, counts and times:
+<ul>
+<li>A record requires an average of 10 bytes administrative overhead,
+including the space required for specifying the rid.
+<li>An int uses 4 bytes.
+<li>A double uses 8 bytes.
+<li>A Date or day uses 8 bytes on average.
+<li>A title uses 100 bytes on average. The title is nearly unique.
+<li>A name uses 50 bytes on average. The name is nearly unique.
+<li>The average text size is 2500 bytes.
+<li>There are 100 counselors.
+<li>There are 5K clients.
+<li>There are 10K meetings.
+<li>There are 15K meeting days.
+<li>There are 2M notes.
+<li>The disk block size is 8K = 8192 bytes.
+<li>A random disk access requires 5ms.
+<li>A page can be transferred (read or write) in 0.1 ms = 100 microseconds.
+</ul>
+<p>
+Compute the number of blocks required for storing each of the tables in the database
+using each of the following 3 table structures:
+<ol type="A">
+<li>Clustered Heap.  An unordered collection of records packed into sequential blocks.
+<li>Clustered Sort.  An ordered collection of records packed into sequential blocks.
+In each case, order it by the primary key.
+<li>Clustered B-tree.  The ordering and clustering is by the primary key.
+</ol>
+<p>
+Compute the time required for each of the following tasks using each of the 3 table
+structures. In each case, all of the tables are implemented with the same table structure.
+<ol>
+<li>List all clients (by name) that meet with a counselor specified by id.
+<li>List the days that a client (specified by id) meets with a counselor (specified by id).
+<li>Add a new note.
+<li>Delete a meeting day for a client (specified by id).
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/130.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

@@ -1,0 +1,64 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/111.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Solution to Sample Exercise</h1></center>
+<p>
+This is a solution to a <a href="112.html">sample exercise</a>.
+<p>
+<ol>
+<li>What are the two basic approaches to organize index data structures?
+<p>
+Tree structures and hash tables. (3 points each)
+<li>What is a rid?  Explain both what it is and what it is used for.
+<p>
+A rid is a record identifier (3 points). 
+It uniquely identifies a record in a table (3 points).
+Another way to say this is that it allows one to find a record on disk.
+<li>What are the three alternatives for what to store as a data entry in an index?
+<p>
+One can store (1) an entire record (3 points), (2) a search key value (3 points) 
+and a rid, or (3) a search key value and a rid list (3 points).
+<li>Explain what a hash function does.
+<p>
+It converts data to a number (3 points) in a specified range of numbers (3 points).
+Instead of "specified range" one could speak about a disk location or position in
+an array.
+<li>What is the fan-out of a tree?
+<p>
+The average number of child nodes (3 points) 
+of the root node or an internal node 
+(i.e., a non-leaf node) of the tree (3 points).
+<li>What is data striping?
+<p>
+It is a technique for storing data in equal-sized units (3 points)
+distributed over multiple disks (3 points).  One could say "bit or block"
+instead of "equal-sized unit".
+<li>Normally a parity bit will detect an error but it cannot correct it.
+Why is it possible for a parity bit to correct an error in a RAID array?
+<p>
+When a disk error occurs, the hardware reports which disk drive had the fault (3 points).
+Since one knows which bits are erroneous, parity is sufficient for correcting the 
+error (3 points).
+<li>Give two ways to organize a record with variable-length fields.
+<p>
+One can use either a delimiter character (3 points), 
+or one can use an array of offsets at the start
+of the record (3 points).  
+Yet another way is to specify the length of each variable-length field
+at the start of the field.
+<li>Why does clustering have performance advantages for data stored on a disk?
+<p>
+It has an advantage because data is read or written using whole blocks (3 points).  
+If related information is on the same block (3 points), 
+then related data will be retrieved or updated at the same time at
+no extra cost (3 points).
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/111.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

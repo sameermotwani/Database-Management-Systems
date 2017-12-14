@@ -1,0 +1,41 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/134.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:11:13 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+<h2>A. Stored Procedures</h2>
+<p>
+Develop a stored procedure that computes the diameter of a graph starting from a specified vertex.
+Your procedure should be named <code>diameter</code>. It takes two parameters. The first is an in
+parameter that specifies the starting vertex id. The second is an out parameter that returns the
+diameter (i.e., the maximum distance from the starting vertex to any other vertex). You will need
+a test program. Submit your test program as well as the code that creates the stored procedure.
+<p>
+<h2>B. Transaction Management and Concurrency</h2>
+<p>
+For each of the following schedules, determine whether each one is conflict-serializable,
+view-serializable and strict. If it is conflict-serializable show the equivalent serial
+schedule, and explain why it is equivalent. If it is not conflict-serializable, show why.
+If it is view-serializable show the equivalent serial
+schedule, and explain why it is equivalent. If it is not view-serializable, show why.
+If it is strict, explain why. If it is not strict, explain why not.
+<p>
+<ol>
+<li>
+<pre>
+R<sub>1</sub>(A), R<sub>2</sub>(B), W<sub>2</sub>(C), W<sub>3</sub>(A), W<sub>3</sub>(C), C<sub>3</sub>, W<sub>1</sub>(A), C<sub>1</sub>, C<sub>2</sub>
+</pre>
+<li>
+<pre>
+R<sub>1</sub>(A), R<sub>1</sub>(C), R<sub>2</sub>(B), W<sub>1</sub>(C), R<sub>4</sub>(A), R<sub>3</sub>(C), W<sub>2</sub>(B), W<sub>4</sub>(A), W<sub>3</sub>(C), W<sub>2</sub>(C), C<sub>3</sub>, W<sub>1</sub>(A), R<sub>4</sub>(B), C<sub>1</sub>, W<sub>2</sub>(C), C<sub>4</sub>, C<sub>2</sub>
+</pre>
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/134.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:11:13 GMT -->
+</html>

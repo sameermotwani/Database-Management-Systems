@@ -1,0 +1,67 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/174.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+Some of the problems in this assignment will use the
+<a href="149.html">Sample Schema</a>. The queries are listed below.  Assume that:
+the following are the sizes, counts and times:
+<ol>
+<li>A record requires an average of 4 bytes administrative overhead,
+including the space required for specifying the rid.
+<li>An int uses 4 bytes.
+<li>A double uses 8 bytes.
+<li>A Date uses 8 bytes.
+<li>A composition name uses an average of 40 bytes.
+<li>A person name uses an average of 30 bytes.
+<li>There are 10K compositions.
+<li>There are 1K persons.
+<li>The disk block size is 8K = 8192 bytes.
+<li>A random disk access requires 8ms.
+<li>A page can be transferred (read or write) in 0.1 ms = 100 microseconds.
+</ol>
+<p>
+Compute the approximate time required for every query listed below 
+for each of the following 4 table structures:
+<ol>
+<li>Clustered Heap.  An unordered collection of records packed into sequential blocks.
+<li>Clustered Sort.  An ordered collection of records packed into sequential blocks.
+In each case, order it by the field being queried (e.g., for the first query
+assume ordered by composer id).
+<li>Clustered B-tree.  The ordering and clustering is by the field being queried.
+<li>Unclustered heap with index.  Assume the index is
+a B-tree index in which only one level
+of the tree is on disk, and the other levels are in main memory.  
+Unclustered means the following:
+<ol>
+<li>The records are randomly located with respect to the query field.
+<li>The blocks are randomly located on the disk.
+<li>The blocks are only 2/3 full.
+</ol>
+</ol>
+<p>
+<ol>
+<li>
+Using the <a href="149.html">Sample Schema</a>,
+program a stored procedure for each of the table constraints (CHECK clauses) that does the following:
+ <ol>
+ <li>Computes the number of violations of the tables constraint; and
+ <li>Returns the primary key of one of the violations.
+ </ol>
+<p>
+<li>Find all compositions with a duration greater than 1 hour.
+<li>Find the composition names of compositions composed by a composer given the composer's id.
+<li>Find the composition names of compositions composed by a composer given the composer's name
+<li>Find all persons born on a specified date.
+<li>Insert a new composition.
+<li>Delete a person (and all of the person's compositions).
+</ol>
+<p>&#169; 2011 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/174.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:30 GMT -->
+</html>

@@ -1,0 +1,71 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/030.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+<head>
+<title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+
+</head>
+<body>
+<center><h1>Sample Exercise</h1></center>
+<p>
+Normalize the following relations when each one satisfies the specified
+functional dependencies. Decompose into BCNF if possible. If not, then
+decompose into 3NF. Show your work. In particular, show the list of all
+candidate keys of the original relation. To compute the candidate keys, use the
+discussion in <a href="039.html">Candidate Keys and Normalization</a>. 
+In your decomposition show the attributes in each relation as well as the keys and
+embedded FDs.
+<p>
+<ol>
+<li>The relation is ABCDE
+<ul>
+<li>E&rarr;D
+<li>D&rarr;E
+<li>ACD&rarr;B
+</ul>
+<li>The relation is ABCDE
+<ul>
+<li>A&rarr;C
+<li>BC&rarr;D
+<li>C&rarr;D
+<li>BD&rarr;A
+<li>A&rarr;D
+</ul>
+<li>The relation is ABCDEF
+<ul>
+<li>DF&rarr;C
+<li>BC&rarr;F
+<li>E&rarr;A
+<li>ABC&rarr;E
+</ul>
+<li>The relation is ABCDEF
+<ul>
+<li>BC&rarr;D
+<li>B&rarr;DF
+<li>CDF&rarr;B
+</ul>
+<li>The relation is ABCDEF
+<ul>
+<li>BE&rarr;A
+<li>BC&rarr;E
+<li>AEF&rarr;B
+<li>B&rarr;F
+</ul>
+<li>The relation is ABCDEFGH
+<ul>
+<li>DE&rarr;B
+<li>ACG&rarr;E
+<li>B&rarr;C
+<li>BCFG&rarr;E
+</ul>
+<li>The relation is ABCDEFGH
+<ul>
+<li>EH&rarr;F
+<li>H&rarr;A
+<li>BG&rarr;C
+</ul>
+</ol>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/030.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:32 GMT -->
+</html>

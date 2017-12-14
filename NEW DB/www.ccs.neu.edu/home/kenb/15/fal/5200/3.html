@@ -1,0 +1,115 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/3.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:22 GMT -->
+<head>
+<title>CS 5200 Introduction to Database Management Fall 2015</title>
+</head>
+<body>
+<center><h1>CS 5200 Introduction to Database Management Assignment #3</h1></center>
+<p>
+
+<ol>
+
+<li>The first part of this assignment uses the <a href="http://docs.oasis-open.org/cmis/CMIS/v1.1/CMIS-v1.1.html">CMIS</a> data model:
+
+<center><img src="Object.jpg"></center>
+<center><img src="Details.jpg"></center>
+<center><img src="Meta.jpg"></center>
+
+<p>
+
+Assume that the UML class diagram is represented in the relational model using the JOINED strategy for inheritance
+and fixed enumerations.
+
+<p>
+
+<ol type="a">
+
+<li>Develop an assertion, written in SQL, that enforces the requirement that
+every CMIS relationship object has a source object that has a type that is
+allowed by the relationship object type of the relationship object.
+
+<li>Give the user 'kong.f@husky.neu.edu' read-only access to all queryable documents
+whose query name begins with "kong".
+
+</ol>
+
+<p>
+
+<li>The second part of this assignment uses the following data model:
+
+<p>
+<center><img src="products3.jpg"></center>
+<p>
+This is the relational database schema that must be used:
+<p>
+<pre>
+create table ProductType (
+  id int primary key,
+  title varchar(200),
+  description varchar(2000) not null,
+  size int not null
+);
+create table Product (
+  id int primary key,
+  started date not null,
+  completed date,
+  label varchar(200),
+  type int not null,
+  foreign key(type) references ProductType(id) on update cascade on delete no action,
+  processedBy int unique,
+  foreign key(processedBy) references Machine(id) on update cascade on delete set null
+);
+create table Factory (
+  id int primary key,
+  address varchar(200) not null unique
+);
+create table Machine (
+  id int primary key,
+  code varchar(200) not null,
+  partOf int,
+  foreign key(partOf) references Factory(id) on update cascade on delete no action,
+  unique(code, partOf)
+);
+create table Employee (
+  id int primary key,
+  name varchar(200) not null unique
+);
+create table Qualification (
+  canRepair int,
+  foreign key(canRepair) references ProductType(id) on update cascade on delete cascade,
+  canBeRepairedBy int,
+  foreign key(canBeRepairedBy) references Employee(id) on update cascade on delete cascade,
+  primary key(canRepair, canBeRepairedBy),
+  level enum('Novice', 'Intermediate', 'Expert') -- Enumeration strategy: fixed enumeration
+);
+</pre>
+<p>
+
+The following are the main commands being performed on this database:
+
+<p>
+
+<ol type="a">
+
+<li>Given an employee specified by name, find the machines that the employee can repair.
+
+<li>Find a product type given the first part of its title.
+
+<li>List all products, showing all of its attributes as well as the code of its machine,
+that have yet to be completed.
+
+<li>Modify the qualification level of an employee, given by name, for a product type given by title.
+
+<li>Find a factory given its address.
+
+</ol>
+
+<p>
+
+Design the indexes for the database.
+
+</ol>
+
+</body>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/15/fal/5200/3.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 13 Dec 2015 01:01:23 GMT -->
+</html>

@@ -1,0 +1,143 @@
+<html>
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/088.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+<head><title>Database Management</title>
+<meta name="copyright" content="&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice."/>
+</head>
+<body>
+<center><h2>Sample Exercise</h2></center>
+<p>
+This is a solution to a <a href="089.html">sample exercise</a>.
+<p>
+
+<p>
+1.
+<pre>
+select p.name, o.name
+  from Person p, runsFor r, Office o
+ where p.memberOf = 'Democrat'
+   and p.id = r.person
+   and r.office = o.id
+</pre>
+<p>
+2.
+<pre>
+select w.id, p.id, d.id
+  from Ward w, Precinct p, District d, Office o
+ where w.precinct = p.id
+   and p.district = d.id
+   and o.represents = d.id
+   and o.id = 15
+</pre>
+
+This could be simplified to:
+
+<pre>
+select w.id, p.id, p.district
+  from Ward w, Precinct p, Office o
+ where w.precinct = p.id
+   and p.district = o.represents
+   and o.id = 15
+</pre>
+<p>
+3.
+<pre>
+select sum(v.valid), o.name
+  from Person p, votes v, Office o
+ where v.person = p.id
+   and v.office = o.id
+   and p.name = 'George'
+group by p.id, v.office
+</pre>
+<p>
+4.
+<pre>
+select p.name
+  from Person p
+ where not exists (select *
+                     from Ward w, votes v
+                    where v.ward = w.id
+                      and v.person = p.id
+                      and v.invalid < 5)
+</pre>
+<p>
+One might intuitively think that because two negations "cancel each other out", replacing
+"not exists" by "exists" and "v.invalid < 5" by "v.invalid >= 5" will give the same result as above.
+In other words, one might think that the following query is equivalent to the one above:
+<p>
+<pre>
+select p.name
+  from Person p
+ where exists (select *
+                 from Ward w, votes v
+                where v.ward = w.id
+                  and v.person = p.id
+                  and v.invalid >= 5)
+</pre>
+<p>
+However, ones intuition is wrong in this case, and the two queries are not equivalent.
+The first query solves the problem
+"Find all persons by name who have at least 5 invalid votes in <i>every</i> ward in which they are running,"
+while the second query solves the problem
+"Find all persons by name who have at least 5 invalid votes in <i>some</i> ward in which they are running."
+So the first query correctly solves the assignment problem while the second query does not.
+<p>
+In general, the universal quantifier (i.e., "for every") is equivalent to "not exists not".
+<p>
+5. One way to approach this problem is to rephrase to problem successively until one has a statement that is relatively easy to express in SQL.
+The original problem is:
+<p>
+Find all offices by name that have no invalid votes in any ward. 
+<p>
+Rephrase this so that "any ward" becomes "for every ward":
+<p>
+Find all offices by name such that for every ward there are no invalid votes. 
+<p>
+Now votes are not represented as records in the database. What is represented is a table (called the votes table) that has reports of the
+number of valid and invalid votes for a person running for an office in a ward. So rephrase the problem as follows:
+<p>
+Find all offices by name such that for every ward there are no votes records (for this office) that have invalid votes (i.e., have invalid > 0).
+<p>
+The next step is to change "for every" to "not exists not".  This changes "for every ward there are no votes records..." to "there does not exist a ward that does not have the property that there are no votes records..." or "there does not exist a ward that has votes records..."
+<p>
+In logic, the equivalence between "for every" and "not exists not" is often stated as: "for every not" is equivalent to "not exists". That is what happens in this problem.  So the equivalent problem is:
+<p>
+Find all offices by name such that there does not exist a ward such that there exists a votes record (for this office) that has invalid votes (i.e., have invalid > 0).
+<p>
+We are now ready to specify this in SQL:
+<pre>
+select o.name
+  from Office o
+ where not exists (
+    select *
+      from Ward w
+     where exists (
+        select *
+          from votes v
+         where v.ward = w.id
+           and v.office = o.id
+           and v.invalid > 0
+     )
+ )
+</pre>
+<p>
+6.
+<pre>
+select y.title, p.name, sum(v.valid) + sum(v.invalid) c
+  from Party y, Person p, votes v
+ where p.party = y.title
+   and v.person = p.id
+group by y.title, p.id
+order by y.title, c, p.name
+</pre>
+<p>&#169; 2010 Ken Baclawski. All rights reserved. Redistribution and use in source and binary forms, with or without modification, are permitted provided that redistributions and uses retain this copyright notice.</body>
+
+<!-- Mirrored from www.ccs.neu.edu/home/kenb/db/examples/088.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 14 Dec 2015 21:09:05 GMT -->
+</html>
+
+
+
+
+
+
+
+
